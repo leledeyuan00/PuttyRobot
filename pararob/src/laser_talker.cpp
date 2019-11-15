@@ -2,7 +2,7 @@
 
 static unsigned char laser_cmd[4] = {0x81, 0x04, 0x41, 0x44};
 
-#define LASER_PORT 1
+#define LASER_PORT 0
 
 Laser_talker::Laser_talker(ros::NodeHandle* nodehandle):nh_(*nodehandle) // 构造函数
 { 

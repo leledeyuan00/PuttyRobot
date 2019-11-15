@@ -17,10 +17,13 @@ void Solution::solution_init()
 
 void Solution::sensorcall(const pararob::sensor& msg)
 {
-    sensor_.data[0] = (msg.sensor1- 24.37 )/ 1000.0;
-    sensor_.data[1] = (msg.sensor2- 24.37 )/ 1000.0;
-    sensor_.data[2] = (msg.sensor3- 24.37 )/ 1000.0;
-    sensor_.state   = msg.state;
+    if(msg.sensor1>0 && msg.sensor2>0 && msg.sensor3>0)
+    {
+        sensor_.data[0] = (msg.sensor1- 24.37 )/ 1000.0;
+        sensor_.data[1] = (msg.sensor2- 24.37 )/ 1000.0;
+        sensor_.data[2] = (msg.sensor3- 24.37 )/ 1000.0;
+    }
+     sensor_.state   = msg.state;
 }
 
 void Solution::pub_msg(const MOTOR* motor)
@@ -62,7 +65,13 @@ void Solution::run()
     motor_kine_.para_plat_init(&para_solu_);
     while (ros::ok)
     {
-        para_solu_.laser_dist << sensor_.data[0], sensor_.data[1], sensor_.data[2];
+        for (size_t i = 0; i < MOTOR_NUM; i++)
+        {
+            /* code for loop body */
+            low_pass_update(&sensor_.fil[i],sensor_.data[i]);
+        }
+        
+        para_solu_.laser_dist << sensor_.fil[0].out, sensor_.fil[1].out, sensor_.fil[2].out;
         if(sensor_.state!=0)
         {
 
