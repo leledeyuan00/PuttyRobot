@@ -72,18 +72,18 @@ void Solution::run()
         }
         
         para_solu_.laser_dist << sensor_.fil[0].out, sensor_.fil[1].out, sensor_.fil[2].out;
-        if(sensor_.state!=0)
-        {
+        // if(sensor_.state!=0)
+        // {
 
-        }
-        else{
+        // }
+        // else{
             // run_state--;
             motor_kine_.motor_traj_gen(&para_solu_);   
             motor_.cmd[0] = para_solu_.motor_dist(0) - MOTOR_LEN_INIT;
             motor_.cmd[1] = para_solu_.motor_dist(1) - MOTOR_LEN_INIT;
             motor_.cmd[2] = para_solu_.motor_dist(2) - MOTOR_LEN_INIT;
             ROS_INFO("Motor data 1: %f 2: %f 3: %f",motor_.cmd[0],motor_.cmd[1],motor_.cmd[2]);
-        }
+        // }
 
         pub_msg(&motor_);
 

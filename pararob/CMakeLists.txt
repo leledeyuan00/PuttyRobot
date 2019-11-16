@@ -49,6 +49,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## Generate messages in the 'msg' folder
 add_message_files(FILES
+  encoder.msg
   motor.msg
   sensor.msg
 )
@@ -235,5 +236,14 @@ add_executable(solution
 )
 add_dependencies(solution ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(solution
+  ${catkin_LIBRARIES}
+)
+
+add_executable(stm32
+  include/pararob/stm32.h
+  src/stm32.cpp
+)
+add_dependencies(stm32 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(stm32
   ${catkin_LIBRARIES}
 )

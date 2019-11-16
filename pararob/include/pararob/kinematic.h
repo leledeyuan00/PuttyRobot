@@ -8,6 +8,8 @@
 #include "pararob/parameter.h"
 #include "ros/ros.h"
 
+// #define DEBUG
+
 class MOTOR_KINE
 {
 public:
@@ -25,6 +27,9 @@ private:
     /* 获取墙面法向量 */
     Eigen::Vector3f get_wall_plat_vec(Eigen::Vector3f laser_dist);
 
+    /* 伪逆 */
+    Eigen::MatrixXf pinv(Eigen::MatrixXf A);
+
     /* 获取旋转矩阵 */
     Eigen::Matrix3f normal_vec_rotm(Eigen::Vector3f normal_vec);
     
@@ -37,5 +42,9 @@ private:
     void inverse_solu(PARA_SOLU* para); 
 
     void para_plat_update(PARA_SOLU* para);
+
+    #ifdef DEBUG
+    void test_func(void);
+    #endif
 };
 

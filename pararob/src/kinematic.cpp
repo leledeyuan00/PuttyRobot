@@ -10,7 +10,8 @@ void MOTOR_KINE::motor_traj_gen(PARA_SOLU* para)
     /* algorithm */
     static int i=0;
     Eigen::Vector3f desired_eula;
- 
+
+    /* algorithm */
     para_plat_update(para);
     ROS_INFO("First Motor Rot Matrix is :\r\n [%f, %f, %f] \r\n [%f, %f, %f]\r\n [%f, %f, %f]", para->rot_matrix[CURRENT](0,0),para->rot_matrix[CURRENT](0,1),para->rot_matrix[CURRENT](0,2),para->rot_matrix[CURRENT](1,0),para->rot_matrix[CURRENT](1,1),para->rot_matrix[CURRENT](1,2),para->rot_matrix[CURRENT](2,0),para->rot_matrix[CURRENT](2,1),para->rot_matrix[CURRENT](2,2));
     
@@ -26,6 +27,11 @@ void MOTOR_KINE::motor_traj_gen(PARA_SOLU* para)
     
     inverse_solu(para);
     ROS_INFO("Second Motor Rot Matrix is :\r\n [%f, %f, %f] \r\n [%f, %f, %f]\r\n [%f, %f, %f]", para->rot_matrix[CURRENT](0,0),para->rot_matrix[CURRENT](0,1),para->rot_matrix[CURRENT](0,2),para->rot_matrix[CURRENT](1,0),para->rot_matrix[CURRENT](1,1),para->rot_matrix[CURRENT](1,2),para->rot_matrix[CURRENT](2,0),para->rot_matrix[CURRENT](2,1),para->rot_matrix[CURRENT](2,2));
+
+    #ifdef DEBUG    
+    /* for test function */
+    test_func();
+    #endif
 }
 
 
@@ -144,6 +150,32 @@ Eigen::Matrix3f MOTOR_KINE::rodrigues(float theta, Eigen::Vector3f vector)
     return rotm;
 }
 
+/* pinv */
+Eigen::MatrixXf MOTOR_KINE::pinv(Eigen::MatrixXf A)
+{
+    Eigen::JacobiSVD<Eigen::MatrixXf> svd(A, Eigen::ComputeFullU | Eigen::ComputeFullV);//M=USV*
+    double  pinvtoler = 1.e-8; //tolerance
+    int row = A.rows();
+    int col = A.cols();
+    int k = 6;    //int k = min(row,col);
+    Eigen::MatrixXf X = Eigen::MatrixXf::Zero(col,row);
+    Eigen::MatrixXf singularValues_inv = svd.singularValues();//奇异值
+    Eigen::MatrixXf singularValues_inv_mat = Eigen::MatrixXf::Zero(col, row);
+    for (long i = 0; i<k; ++i) {
+        if (singularValues_inv(i) > pinvtoler)
+            singularValues_inv(i) = 1.0 / singularValues_inv(i);
+        else singularValues_inv(i) = 0;
+    }
+    for (long i = 0; i < k; ++i) 
+    {
+        singularValues_inv_mat(i, i) = singularValues_inv(i);
+    }
+    X=(svd.matrixV())*(singularValues_inv_mat)*(svd.matrixU().transpose());//X=VS+U*
+ 
+    return X;
+ 
+}
+
 /**并联机构正运动学解算子函数**/
 
 void MOTOR_KINE::inverse_solu(PARA_SOLU* para)
@@ -201,3 +233,36 @@ void MOTOR_KINE::para_plat_update(PARA_SOLU* para)
     para->laser_cor_z[LAST] = para->laser_cor_z[CURRENT];
     para->motor_cor_z[LAST] = para->motor_cor_z[CURRENT];
 }
+
+
+#ifdef DEBUG
+void MOTOR_KINE::test_func(void)
+{
+    Eigen::Matrix<float,6,9> A;
+    Eigen::MatrixXf B;
+
+    // A << 1,2,3,4,5,6,7,8,9,
+    //      1,2,3,4,5,6,7,8,9,
+    //      1,2,3,4,5,6,7,8,9,
+    //      1,2,3,4,5,6,7,8,9,
+    //      1,2,3,4,5,6,7,8,9,
+    //      1,2,3,4,5,6,7,8,9;
+
+    // A  << 0.68,0.597,-0.211,0.68,0.597,-0.211,0.68,0.597,-0.211,
+    //     0.823,0.566,-0.605,0.823,0.566,-0.605,0.823,0.566,-0.605,
+    //     0.68,0.597,-0.211,0.68,0.597,-0.211,0.68,0.597,-0.211,
+    //     0.823,0.566,-0.605,0.823,0.566,-0.605,0.823,0.566,-0.605,
+    //     0.68,0.597,-0.211,0.68,0.597,-0.211,0.68,0.597,-0.211,
+    //     0.823,0.566,-0.605,0.823,0.566,-0.605,0.823,0.566,-0.605;
+       A << 1,1,1,1,1,1,1,1,1,
+            1,1,1,1,1,1,1,1,1,
+            1,1,1,1,1,1,1,1,1,
+            1,1,1,1,1,1,1,1,1,
+            1,1,1,1,1,1,1,1,1,
+            1,1,1,1,1,1,1,1,1;       
+
+    B = pinv(A);
+    std::cout<< B <<std::endl;
+}
+
+#endif
