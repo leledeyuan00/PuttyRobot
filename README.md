@@ -17,4 +17,4 @@ change Serial Port by #define XXX_PORT in {file}.cpp:
 2. laser_talker.cpp
 3. motor_driver.cpp
 
-ps. laser_talker PORT only set first port and second third port must be prioritize
+ps. laser_talker PORT only set first port and second third port must be prioritized
