@@ -2,8 +2,6 @@
 
 static unsigned char laser_cmd[4] = {0x81, 0x04, 0x41, 0x44};
 
-#define LASER_PORT 1
-
 Laser_talker::Laser_talker(ros::NodeHandle* nodehandle):nh_(*nodehandle) // 构造函数
 { 
     laser_init();
@@ -75,11 +73,11 @@ double Laser_talker::fetch_data(serial::Serial* ser)
             }
         }
         // ROS_INFO("Reading1: ");
-        for(int i = 0; i<len; i++)
-        {
-            ROS_INFO("%x ",final_result[i]); 
-        }
-        ROS_INFO("len = %d",len);
+        // for(int i = 0; i<len; i++)
+        // {
+        //     ROS_INFO("%x ",final_result[i]); 
+        // }
+        // ROS_INFO("len = %d",len);
 
         /* 提取反馈电报中的两个参数字节（第４、５）的低６位（字符位0~11 = 距离值0~4095 ；
         　　0对应测量范围最大值，4095对应测量范围最小值)，组成一个新的两字节十六进制数　*/
@@ -102,7 +100,7 @@ double Laser_talker::fetch_data(serial::Serial* ser)
         {
             dist_dec = -1;
         }        
-        ROS_INFO("Laser Distance : %f\n", dist_dec);
+        // ROS_INFO("Laser Distance : %f\n", dist_dec);
         return dist_dec;
     }
 }

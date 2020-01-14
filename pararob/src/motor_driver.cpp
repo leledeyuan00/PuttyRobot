@@ -1,7 +1,5 @@
 #include "pararob/motor_driver.h"
 
-#define MOTOR_PORT 0
-
 unsigned char motor_data1_[10]={0xff,0xff,0xff,0x01,0x05,0xf3,0x86};
 unsigned char motor_data2_[10]={0xff,0xff,0xff,0x02,0x05,0xf3,0x86};
 unsigned char motor_data3_[10]={0xff,0xff,0xff,0x03,0x05,0xf3,0x86};
@@ -19,9 +17,9 @@ void Motor_driver::motor_driver_init()
 
 void Motor_driver::drivercallback(const pararob::motor &msg)
 {
-    motor_msg_[0] = msg.motor1 *100 * MOTOR_RES / MOTOR_STROKE;
-    motor_msg_[1] = msg.motor2 *100 * MOTOR_RES / MOTOR_STROKE;
-    motor_msg_[2] = msg.motor3 *100 * MOTOR_RES / MOTOR_STROKE;
+    motor_msg_[0] = msg.motor1 *1000 * MOTOR_RES / MOTOR_STROKE;
+    motor_msg_[1] = msg.motor2 *1000 * MOTOR_RES / MOTOR_STROKE;
+    motor_msg_[2] = msg.motor3 *1000 * MOTOR_RES / MOTOR_STROKE;
     ROS_INFO("Motor cmd is 1:[%d],2:[%d],3:[%d]",motor_msg_[0],motor_msg_[1],motor_msg_[2]);
     motor_write(motor_msg_);
 }

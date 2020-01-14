@@ -5,6 +5,7 @@
 #include <std_msgs/String.h>
 #include <std_msgs/Empty.h>
 #include "pararob/motor.h"
+#include "pararob/parameter.h"
 
 #define MOTOR_STROKE 27 //mm
 #define MOTOR_RES 4095 //16bits

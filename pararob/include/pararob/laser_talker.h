@@ -8,7 +8,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <iostream>
-
+#include "pararob/parameter.h"
 
 class Laser_talker
 {

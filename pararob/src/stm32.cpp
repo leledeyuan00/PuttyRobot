@@ -1,6 +1,6 @@
 #include "pararob/stm32.h"
 
-#define STM_PORT 4
+#define STM_PORT 0
 
 STM32::STM32(ros::NodeHandle* nodehandle):nh_(*nodehandle)
 {
@@ -69,10 +69,31 @@ float STM32::fetch_data(serial::Serial* ser)
             }
         }
 
-        unsigned int recieve_data;
+        int recieve_data,recieve_data2;
         float res = 131071;
         
 
+        // for (size_t i = 0; i < len; i++)
+        // {
+        //     /* code for loop body */
+        //     if(final_result[i] == 0xA5 && final_result[i+1]== 0x5A )
+        //     {
+        //         unsigned char temp;
+        //         temp = 0;
+        //         for (size_t j = 0; j < 5; j++)
+        //         {
+        //             /* code for loop body */
+        //             temp = temp ^ final_result[i+j];
+        //         }
+        //         if(temp == final_result[i+5]);
+        //         {
+        //             recieve_data =  (((unsigned int)final_result[i+2]&0x01) << 16) | 
+        //                             (((unsigned int)final_result[i+3]&0xff) << 8) |
+        //                             (((unsigned int)final_result[i+4]&0xff) << 0);
+        //             break;
+        //         }
+        //     }
+        // }
         for (size_t i = 0; i < len; i++)
         {
             /* code for loop body */
@@ -80,30 +101,41 @@ float STM32::fetch_data(serial::Serial* ser)
             {
                 unsigned char temp;
                 temp = 0;
-                for (size_t j = 0; j < 5; j++)
+                for (size_t j = 0; j < 9; j++)
                 {
                     /* code for loop body */
-                    temp = temp ^ final_result[i+j];
+                    temp = temp ^ final_result[i+j+2];
                 }
-                if(temp == final_result[i+5]);
+                if(temp == final_result[i+10]);
                 {
-                    recieve_data =  (((unsigned int)final_result[i+2]&0x01) << 16) | 
-                                    (((unsigned int)final_result[i+3]&0xff) << 8) |
-                                    (((unsigned int)final_result[i+4]&0xff) << 0);
+                    recieve_data =  (((unsigned int)final_result[i+2]&0xff) << 24) | 
+                                    (((unsigned int)final_result[i+3]&0xff) << 16) | 
+                                    (((unsigned int)final_result[i+4]&0xff) << 8) |
+                                    (((unsigned int)final_result[i+5]&0xff) << 0);
+
+                    recieve_data2 = (((unsigned int)final_result[i+6]&0xff) << 24) | 
+                                    (((unsigned int)final_result[i+7]&0xff) << 16) | 
+                                    (((unsigned int)final_result[i+8]&0xff) << 8) |
+                                    (((unsigned int)final_result[i+9]&0xff) << 0);
                     break;
                 }
             }
         }
-        if(recieve_data< ((res+1)/2))
-        {
-            encoder_data_.angle = recieve_data *360 /(res);
-            ROS_INFO("angle = %f",encoder_data_.angle);
+        // if(recieve_data< ((res+1)/2))
+        // {
+        //     encoder_data_.angle = recieve_data *360 /(res);
+        //     ROS_INFO("angle = %f",encoder_data_.angle);
+        // }
+        // else if(recieve_data >= ((res+1)/2) && recieve_data<=res)
+        // {
+        //     encoder_data_.angle = (recieve_data - res) *360 /(res);
+        //     ROS_INFO("angle = %f",encoder_data_.angle);
+        // }   
+        if(recieve_data<=2000 && recieve_data>=-2000){
+            encoder_data_.force_d = ((float)recieve_data)/1000;
+            encoder_data_.force_a = ((float)recieve_data2)/1000;
         }
-        else if(recieve_data >= ((res+1)/2) && recieve_data<=res)
-        {
-            encoder_data_.angle = (recieve_data - res) *360 /(res);
-            ROS_INFO("angle = %f",encoder_data_.angle);
-        }   
+        // ROS_INFO("force = %f",encoder_data_.force);
     }
 }
 

@@ -39,6 +39,12 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   serial
+  ur_kinematics
+  interactive_markers
+  moveit_core
+  # moveit_visual_tools
+  moveit_ros_planning
+  moveit_ros_planning_interface
 )
 ##   * add "message_runtime" and every package in MSG_DEP_SET to
 ##     catkin_package(CATKIN_DEPENDS ...)
@@ -49,6 +55,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## Generate messages in the 'msg' folder
 add_message_files(FILES
+  tool_pos.msg
   encoder.msg
   motor.msg
   sensor.msg
@@ -208,6 +215,7 @@ include_directories(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
 add_executable(laser_talker
   include/pararob/laser_talker.h
