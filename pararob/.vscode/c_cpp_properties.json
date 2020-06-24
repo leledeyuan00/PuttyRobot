@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/jiang/para_ws/devel/include/**",
+                "/home/jiang/laser_packa_ws/devel/include/**",
+                "/home/jiang/bullet_ws/devel/include/**",
+                "/opt/ros/kinetic/include/**",
+                "/home/jiang/bullet_ws/src/binary_symlinks/include/**",
+                "/home/jiang/para_ws/src/laser_sensor3/include/**",
+                "/home/jiang/para_ws/src/pararob/include/**",
+                "/home/jiang/para_ws/src/universal_robot/ur_kinematics/include/**",
+                "/home/jiang/para_ws/src/ur_modern_driver/include/**",
+                "/usr/include/**"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}

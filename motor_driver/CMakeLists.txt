@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(pararob)
+project(motor_driver)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -37,16 +37,7 @@ find_package(catkin REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
   message_generation
   roscpp
-  std_msgs
   serial
-  ur_kinematics
-  interactive_markers
-  laser_sensor3
-  motor_driver
-  moveit_core
-  # moveit_visual_tools
-  moveit_ros_planning
-  moveit_ros_planning_interface
 )
 ##   * add "message_runtime" and every package in MSG_DEP_SET to
 ##     catkin_package(CATKIN_DEPENDS ...)
@@ -57,9 +48,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## Generate messages in the 'msg' folder
 add_message_files(FILES
-  tool_pos.msg
-  encoder.msg
-  )
+  motor.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -113,7 +103,7 @@ catkin_package(
   CATKIN_DEPENDS
   message_runtime
 #  INCLUDE_DIRS include
-#  LIBRARIES pararob
+#  LIBRARIES motor_driver
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
@@ -132,7 +122,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/pararob.cpp
+#   src/${PROJECT_NAME}/motor_driver.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -143,7 +133,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/pararob_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/motor_driver_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -169,7 +159,7 @@ include_directories(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
+# catkin_install_python(PROGRAMS
 #   scripts/my_python_script
 #   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 # )
@@ -207,7 +197,7 @@ include_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_pararob.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_motor_driver.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
@@ -215,40 +205,12 @@ include_directories(
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
-add_executable(solution
-  include/pararob/parameter.h
-  include/pararob/kinematic.h
-  src/kinematic.cpp
-  include/pararob/solution.h
-  src/solution.cpp
+add_executable(motor_driver
+  include/motor_driver/motor_driver.h
+  src/motor_driver.cpp
 )
-add_dependencies(solution 
-  laser_sensor3_gencpp
-  motor_driver_gencpp
-  ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(solution
-  ${catkin_LIBRARIES}
-)
-
-add_executable(stm32
-  include/pararob/stm32.h
-  src/stm32.cpp
-)
-add_dependencies(stm32 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(stm32
-  ${catkin_LIBRARIES}
-)
-
-add_executable(algorithm_test
-  include/pararob/algorithm_test.h
-  src/algorithm_test.cpp
-  include/pararob/kinematic.h
-  src/kinematic.cpp
-  include/pararob/parameter.h
-)
-add_dependencies(algorithm_test ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(algorithm_test
+add_dependencies(motor_driver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(motor_driver
   ${catkin_LIBRARIES}
 )

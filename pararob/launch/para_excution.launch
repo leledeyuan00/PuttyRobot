@@ -1,0 +1,9 @@
+<launch>
+    <include file = "$(find laser_sensor3)/launch/laser.launch">
+    </include>
+
+    <include file = "$(find motor_driver)/launch/motor.launch">
+    </include>
+
+    <node pkg="pararob" type="algorithm_test" name="test1" />
+</launch>

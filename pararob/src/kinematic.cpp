@@ -1,6 +1,6 @@
 #include "pararob/kinematic.h"
 
-
+#ifndef SIMULATE
 MOTOR_KINE::MOTOR_KINE():spinner(1),PLANNING_GROUP("manipulator"), move_group_(PLANNING_GROUP)
 {
     spinner.start();
@@ -8,6 +8,9 @@ MOTOR_KINE::MOTOR_KINE():spinner(1),PLANNING_GROUP("manipulator"), move_group_(P
     current_state_ = move_group_.getCurrentState();
     // joint_names = joint_model_group_->getVariableNames();
 }
+#else
+MOTOR_KINE::MOTOR_KINE(){}
+#endif
 
 /* 解算下一时刻电机杆长和UR关节角度 */
 void MOTOR_KINE::motor_traj_gen(PARA_SOLU* para, UR5_SOLU* ur)
@@ -436,49 +439,49 @@ void MOTOR_KINE::motor_traj_gen(PARA_SOLU* para, UR5_SOLU* ur)
     static int count_delta[MOTOR_NUM] = {0,0,0};
     temp_dist = inverse_solu(para->rot_matrix[NEXT],PARA_LEN_MEAN,xyz_temp,xyzv_temp);
     /* para length send */
-    // for (size_t i = 0; i < MOTOR_NUM; i++)
-    // {
-    //     motor_delta(i) = temp_dist(i) - para->motor_dist[CURRENT](i);
-    //     /* velocity threshold */
-    //     if(fabs(temp_dist(i)-para->motor_dist[CURRENT](i))>=delta_mm &&fabs(temp_dist(i)-para->motor_dist[CURRENT](i))<=limit_mm)
-    //     // if(fabs(motor_delta(i))>=delta_mm && fabs(motor_delta(i)<=20*delta_mm))
-    //     {
-    //         if((((temp_dist(i)-para->motor_dist[CURRENT](i))>=delta_mm)&&!dir_delta[i])||((temp_dist(i)-para->motor_dist[CURRENT](i))<=delta_mm&&dir_delta[i])){
-    //             if(count_delta[i]<5){
-    //                 count_delta[i]++;
-    //             }
-    //             else{
-    //                 para->delta_mm[i] = para->delta_mm[i]<delta_mm? para->delta_mm[i]+0.000002:delta_mm;
-    //             }
-    //         }
-    //         else{
-    //             count_delta[i] = 0;
-    //             para->delta_mm[i] = 0;
-    //         }
-    //         if((temp_dist(i)-para->motor_dist[CURRENT](i))>=delta_mm){
-    //             dir_delta[i] = 0;
-    //         }
-    //         else{
-    //             dir_delta[i] = 1;
-    //         }
-    //         para->motor_dist[NEXT](i) = (temp_dist(i)-para->motor_dist[CURRENT](i))>=delta_mm?(para->motor_dist[CURRENT](i)+para->delta_mm[i]):(para->motor_dist[CURRENT](i)-para->delta_mm[i])*1 + 0*para->motor_dist[CURRENT](i); 
-    //     }
-    //     else if(fabs(temp_dist(i))> limit_mm){
-    //         para->motor_dist[NEXT](i) = (temp_dist(i)-para->motor_dist[CURRENT](i))>=delta_mm?((para->motor_dist[CURRENT](i)+limit_delta_mm)*0.8+ 0.2*para->motor_dist[CURRENT](i)):((para->motor_dist[CURRENT](i)-limit_delta_mm)*1 + 0*para->motor_dist[CURRENT](i)); 
-    //     }
-    //     else
-    //         para->motor_dist[NEXT](i) = temp_dist(i);
-    //     /* position threshold */
-    //     if(para->motor_dist[NEXT](i) <= MOTOR_LEN_INIT + 0.001)
-    //         para->motor_dist[NEXT](i) = MOTOR_LEN_INIT + 0.001;
-    //     else if(para->motor_dist[NEXT](i) >= (MOTOR_LEN_INIT + 0.026))
-    //         para->motor_dist[NEXT](i) = MOTOR_LEN_INIT + 0.026;
-    // }
-    // for (size_t i = 0; i < MOTOR_NUM; i++)
-    // {
-    //     /* code for loop body */
-    //     para->motor_dist[NEXT](i) = para->motor_dist[CURRENT](i) + motor_delta(i);
-    // }
+    for (size_t i = 0; i < MOTOR_NUM; i++)
+    {
+        motor_delta(i) = temp_dist(i) - para->motor_dist[CURRENT](i);
+        /* velocity threshold */
+        if(fabs(temp_dist(i)-para->motor_dist[CURRENT](i))>=delta_mm &&fabs(temp_dist(i)-para->motor_dist[CURRENT](i))<=limit_mm)
+        // if(fabs(motor_delta(i))>=delta_mm && fabs(motor_delta(i)<=20*delta_mm))
+        {
+            if((((temp_dist(i)-para->motor_dist[CURRENT](i))>=delta_mm)&&!dir_delta[i])||((temp_dist(i)-para->motor_dist[CURRENT](i))<=delta_mm&&dir_delta[i])){
+                if(count_delta[i]<5){
+                    count_delta[i]++;
+                }
+                else{
+                    para->delta_mm[i] = para->delta_mm[i]<delta_mm? para->delta_mm[i]+0.000002:delta_mm;
+                }
+            }
+            else{
+                count_delta[i] = 0;
+                para->delta_mm[i] = 0;
+            }
+            if((temp_dist(i)-para->motor_dist[CURRENT](i))>=delta_mm){
+                dir_delta[i] = 0;
+            }
+            else{
+                dir_delta[i] = 1;
+            }
+            para->motor_dist[NEXT](i) = (temp_dist(i)-para->motor_dist[CURRENT](i))>=delta_mm?(para->motor_dist[CURRENT](i)+para->delta_mm[i]):(para->motor_dist[CURRENT](i)-para->delta_mm[i])*1 + 0*para->motor_dist[CURRENT](i); 
+        }
+        else if(fabs(temp_dist(i))> limit_mm){
+            para->motor_dist[NEXT](i) = (temp_dist(i)-para->motor_dist[CURRENT](i))>=delta_mm?((para->motor_dist[CURRENT](i)+limit_delta_mm)*0.8+ 0.2*para->motor_dist[CURRENT](i)):((para->motor_dist[CURRENT](i)-limit_delta_mm)*1 + 0*para->motor_dist[CURRENT](i)); 
+        }
+        else
+            para->motor_dist[NEXT](i) = temp_dist(i);
+        /* position threshold */
+        if(para->motor_dist[NEXT](i) <= MOTOR_LEN_INIT + 0.001)
+            para->motor_dist[NEXT](i) = MOTOR_LEN_INIT + 0.001;
+        else if(para->motor_dist[NEXT](i) >= (MOTOR_LEN_INIT + 0.026))
+            para->motor_dist[NEXT](i) = MOTOR_LEN_INIT + 0.026;
+    }
+    for (size_t i = 0; i < MOTOR_NUM; i++)
+    {
+        /* code for loop body */
+        para->motor_dist[NEXT](i) = para->motor_dist[CURRENT](i) + motor_delta(i);
+    }
     
     
     /* UR theta send */
@@ -800,6 +803,7 @@ Eigen::Matrix3f MOTOR_KINE::para_forward(PARA_SOLU* para)
 
 Eigen::MatrixXd MOTOR_KINE::getJacobian(void)
 {
+#ifndef SIMULATE
     Eigen::MatrixXd m;
     current_state_ = move_group_.getCurrentState();
     Eigen::Vector3d reference_point_position(0.0, 0.0, 0.0);
@@ -807,6 +811,12 @@ Eigen::MatrixXd MOTOR_KINE::getJacobian(void)
                                 current_state_->getLinkModel(joint_model_group_->getLinkModelNames().back()),
                                 reference_point_position, m);
     return m;
+#else
+    Eigen::MatrixXd m;
+    m.resize(6,6);
+    m = Eigen::MatrixXd::Identity(6,6);
+    return m;
+#endif
 }
 
 Eigen::VectorXd MOTOR_KINE::perform_func(Eigen::VectorXd joint, float k1, float k2)

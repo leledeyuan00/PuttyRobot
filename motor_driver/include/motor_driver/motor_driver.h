@@ -4,8 +4,7 @@
 #include <serial/serial.h>
 #include <std_msgs/String.h>
 #include <std_msgs/Empty.h>
-#include "pararob/motor.h"
-#include "pararob/parameter.h"
+#include "motor_driver/motor.h"
 
 #define MOTOR_STROKE 27 //mm
 #define MOTOR_RES 4095 //16bits
@@ -37,5 +36,5 @@ private:
     /* 发数据 */
     void motor_write(unsigned short* msg);
     
-    void drivercallback(const pararob::motor& msg);
+    void drivercallback(const motor_driver::motor& msg);
 };

@@ -1,14 +1,13 @@
 #pragma once
 
+#define SIMULATE
+
 #include "eigen3/Eigen/Dense"
 
 #define PI 3.1415926
 #define MOTOR_NUM 3
 #define UR_JOINT_NUM 6
 #define ALL_JOINT_NUM (MOTOR_NUM + UR_JOINT_NUM)
-
-#define LASER_PORT 0
-#define MOTOR_PORT 3
 
 #define MOTORPLAT_RADIUS 0.06
 #define LASERPLAT_RADIUS 0.120

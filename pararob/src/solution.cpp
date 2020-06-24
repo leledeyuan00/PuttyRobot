@@ -28,14 +28,14 @@ void Solution::solution_init(void)
 {
     sensor_sub_ = nh_.subscribe("laser_topic", 10, &Solution::sensorcall,this);
     joint_state_sub_ = nh_.subscribe("joint_states", 10, &Solution::JointStateCallback, this);
-    motor_pub_  = nh_.advertise<pararob::motor>("motor_topic", 10);
-    data_monitor_  = nh_.advertise<pararob::motor>("data_monitor", 10);
+    motor_pub_  = nh_.advertise<motor_driver::motor>("motor_topic", 10);
+    data_monitor_  = nh_.advertise<motor_driver::motor>("data_monitor", 10);
     joint_pub_ = nh_.advertise<std_msgs::String>("ur_driver/URScript", 1);
     tool_pub_ = nh_.advertise<pararob::tool_pos>("dayuan_tool", 1);
     sensor_.state   = 255;
 }
 
-void Solution::sensorcall(const pararob::sensor& msg)
+void Solution::sensorcall(const laser_sensor3::laser& msg)
 {
     if(msg.sensor1>0 && msg.sensor2>0 && msg.sensor3>0)
     {
@@ -125,7 +125,7 @@ void Solution::run()
     // pub_msg(&motor_, &ur_,1);
     //delay()
     /* forever loop */
-    while (ros::ok)
+    while (ros::ok())
     {
         /* filter update */
         for (size_t i = 0; i < MOTOR_NUM; i++){
@@ -133,16 +133,23 @@ void Solution::run()
         }
         /* parse data */
         para_solu_.laser_dist << sensor_.fil[0].out, sensor_.fil[1].out, sensor_.fil[2].out;
+
+        #ifndef SIMULATE
         for (size_t i = 0; i < UR_JOINT_NUM; i++){
             ur_.joint_cur[i] = joint_state_[i];
         }
+        #else
+        for (size_t i = 0; i < UR_JOINT_NUM; i++){
+            ur_.joint_cur[i] = 0;
+        }
+        #endif
         /* algorithm start */
     
-        // if(sensor_.state!=0)
-        // {
-
-        // }
-        // else{
+        if(sensor_.state!=0)
+        {
+            pub_msg(&motor_, &ur_,1);
+        }
+        else{
             motor_kine_.motor_traj_gen(&para_solu_, &ur_);   
             motor_.cmd[0] = (para_solu_.motor_dist[NEXT](0) - (MOTOR_LEN_INIT));
             motor_.cmd[1] = (para_solu_.motor_dist[NEXT](1) - (MOTOR_LEN_INIT));
@@ -158,7 +165,7 @@ void Solution::run()
             else{
                 pub_msg(&motor_, &ur_,3);
             }
-        // }
+        }
         ROS_INFO("Motor data 1: %f 2: %f 3: %f",motor_.cmd[0],motor_.cmd[1],motor_.cmd[2]);
         /* loop */
         ros::spinOnce(); 

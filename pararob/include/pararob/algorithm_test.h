@@ -1,5 +1,3 @@
-#pragma once
-
 /* public include */
 #include "ros/ros.h"
 #include <iostream>
@@ -19,12 +17,11 @@
 #include "pararob/parameter.h"
 #include "pararob/tool_pos.h"
 
-
-class Solution
+class Test1
 {
 public:
-    Solution(ros::NodeHandle* nodehandle);
-    // virtual ~Solution();
+    Test1(ros::NodeHandle* nodehandle);
+    // virtual ~Test1();
 
     void run();
 
@@ -49,7 +46,7 @@ private:
 
     struct PARA_SOLU para_solu_;
 
-    MOTOR_KINE motor_kine_;
+    // MOTOR_KINE motor_kine_;
 
     pararob::tool_pos tool_msg_;
 
@@ -58,11 +55,11 @@ private:
     
     /* function */
     /* 初始化 */
-    void solution_init(void);
+    void test_init(void);
     void state_init(void);
     /* 接口函数 */
     void sensorcall(const laser_sensor3::laser& msg);
-    void pub_msg(const MOTOR* motor, const UR5_SOLU* ur, int mod);
+    void pub_msg(const MOTOR* motor);
     void JointStateCallback(const sensor_msgs::JointStateConstPtr& msg);
     /* 算法 */
     // void motor_traj_generator(SENSOR* sensor, MOTOR* motor);
@@ -70,4 +67,3 @@ private:
     void low_pass_init(FILTER* fil, float ratio, float init);
     void low_pass_update(FILTER* fil, float in);
 };
-

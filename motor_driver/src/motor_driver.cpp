@@ -1,21 +1,29 @@
-#include "pararob/motor_driver.h"
+#include "motor_driver/motor_driver.h"
 
 unsigned char motor_data1_[10]={0xff,0xff,0xff,0x01,0x05,0xf3,0x86};
 unsigned char motor_data2_[10]={0xff,0xff,0xff,0x02,0x05,0xf3,0x86};
 unsigned char motor_data3_[10]={0xff,0xff,0xff,0x03,0x05,0xf3,0x86};
+unsigned char motor_data_[10]={0xff,0xff,0xff,0x01,0x05,0xf3,0x86};
+
+unsigned char motor_force_[9] = {0xff,0xff,0xff,0x01,0x04,0x0f3,0x80,0x00};
 
 Motor_driver::Motor_driver(ros::NodeHandle* nodehandle):nh_(*nodehandle)
 {
+    /* fetch Serial port  */
+    int getparam;
+    nh_.getParam("/motor/motor_port",getparam);
+
+    const int MOTOR_PORT = getparam;
     motor_driver_init();
     motor_ser_init(&motor_ser_, MOTOR_PORT);
 }
 
 void Motor_driver::motor_driver_init()
 {
-   motor_sub_  = nh_.subscribe("motor_topic", 10, &Motor_driver::drivercallback,this); 
+    motor_sub_  = nh_.subscribe("motor_topic", 10, &Motor_driver::drivercallback,this); 
 }
 
-void Motor_driver::drivercallback(const pararob::motor &msg)
+void Motor_driver::drivercallback(const motor_driver::motor &msg)
 {
     motor_msg_[0] = msg.motor1 *1000 * MOTOR_RES / MOTOR_STROKE;
     motor_msg_[1] = msg.motor2 *1000 * MOTOR_RES / MOTOR_STROKE;
@@ -74,24 +82,23 @@ unsigned char Motor_driver::motor_check_sum(unsigned char* data)
 void Motor_driver::motor_write(unsigned short* msg)
 {
 
-    motor_data1_[7] = msg[0] & 0x00ff;
-    motor_data1_[8] = (msg[0]>>8)& 0x00ff;
-    motor_data1_[9] = motor_check_sum(motor_data1_);
+    for (size_t i = 0; i < 3; i++)
+    {
+        /* code for loop body */
+        motor_data_[3] = i + 1;
+        motor_data_[7] = msg[i] & 0x00ff;
+        motor_data_[8] = (msg[i]>>8)& 0x00ff;
+        motor_data_[9] = motor_check_sum(motor_data_);
+        motor_ser_.write(motor_data_,10);
+        ros::Duration(0.1).sleep();
 
-    motor_data2_[7] = msg[1] & 0x00ff;
-    motor_data2_[8] = (msg[1] >>8)& 0x00ff;
-    motor_data2_[9] = motor_check_sum(motor_data2_);
+        motor_force_[3] = i + 1;
 
-    motor_data3_[7] = msg[2] & 0x00ff;
-    motor_data3_[8] = (msg[2] >>8)& 0x00ff;
-    motor_data3_[9] = motor_check_sum(motor_data3_);
-
-    motor_ser_.write(motor_data1_,10);  //ROS串口写数据(※) 
-    ros::Duration(0.001).sleep(); // 最低延迟时间 0.02s
-    motor_ser_.write(motor_data2_,10);
-    ros::Duration(0.001).sleep();
-    motor_ser_.write(motor_data3_,10);
-    ros::Duration(0.001).sleep();
+        // motor_force_[8] = motor_check_sum(motor_force_);
+        // motor_ser_.write(motor_force_,9);
+        // ros::Duration(0.001).sleep();
+    }
+    
 }
 
 int main(int argc, char *argv[])

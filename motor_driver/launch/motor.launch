@@ -1,0 +1,5 @@
+<launch>
+    <node pkg = "motor_driver" name = "motor" type = "motor_driver">
+        <rosparam command="load" file="$(find motor_driver)/launch/port.yaml"/>
+    </node>
+</launch>
