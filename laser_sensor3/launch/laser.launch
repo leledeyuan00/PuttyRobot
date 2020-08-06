@@ -1,0 +1,5 @@
+<launch>
+    <node pkg = "laser_sensor3" name = "laser" type = "laser_talker">
+        <rosparam command="load" file="$(find laser_sensor3)/launch/port.yaml"/>
+    </node>
+</launch>
