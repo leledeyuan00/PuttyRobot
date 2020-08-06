@@ -1,0 +1,173 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="four_length">
+    <!-- <xacro:property name="pi" value="3.14159265358979"/> -->
+    <xacro:property name="radiu" value="0.1"/>
+    <xacro:property name="height" value="1"/>
+    <xacro:property name="mass" value="1"/>
+    
+
+    <xacro:include filename="$(find ppr_description)/urdf/materials.xacro"/>
+    <xacro:include filename="$(find ppr_description)/urdf/four_length.gazebo"/>
+    
+    <link name="world"/>
+    
+    <joint name="fixed" type="fixed">
+        <parent link="world"/>
+        <child link="link1"/>
+        <origin xyz="0.0 0.0 ${radiu/2}" rpy="${pi/2} 0.0 0.0"/>
+    </joint>
+    
+    <link name="link1">
+        <collision>
+            <origin xyz="0.0 0 ${height/2}" rpy="0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="${radiu}" length="${height}"/>
+            </geometry>
+        </collision>
+        <visual>
+            <origin xyz="0.0 0 ${height/2}" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="${radiu}" length="${height}"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+        <inertial>
+            <origin xyz="0.0 0 ${height/2}" rpy="0.0 0.0 0.0"/>
+            <mass value="${mass}"/>
+            <inertia 
+            ixx="${mass / 12.0 * (radiu*radiu + height*height)}" ixy="0.0" ixz="0.0" 
+            iyy="${mass / 12.0 * (radiu*radiu + height*height)}" iyz="0.0" 
+            izz="${mass / 12.0 * (radiu*radiu + radiu*radiu)}"/>
+        </inertial>   
+    </link>
+
+    <joint name="joint1" type="revolute">
+        <parent link="link1"/>
+        <child link="link2"/>
+        <axis xyz="1 0 0"/>
+        <limit lower="-3.14159" upper="3.14159" velocity="50.0" effort="1000.0"/>
+        <origin xyz="0 0 ${height}" rpy="${-pi/4} 0 0"/>
+    </joint>
+    
+    <link name="link2">
+        <collision>
+            <origin xyz="0.0 0 ${height/2}" rpy="0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="${radiu}" length="${height}"/>
+            </geometry>
+        </collision>
+        <visual>
+            <origin xyz="0.0 0 ${height/2}" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="${radiu}" length="${height}"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <inertial>
+            <origin xyz="0.0 0 ${height/2}" rpy="0.0 0.0 0.0"/>
+            <mass value="${mass}"/>
+            <inertia 
+            ixx="${mass / 12.0 * (radiu*radiu + height*height)}" ixy="0.0" ixz="0.0" 
+            iyy="${mass / 12.0 * (radiu*radiu + height*height)}" iyz="0.0" 
+            izz="${mass / 12.0 * (radiu*radiu + radiu*radiu)}"/>
+        </inertial> 
+    </link>
+
+    <joint name="joint2" type="revolute">
+        <parent link="link2"/>
+        <child link="link3"/>
+        <axis xyz="1 0 0"/>
+        <limit lower="-3.14159" upper="3.14159" velocity="50.0" effort="1000.0"/>
+        <origin xyz="0 0 ${height}" rpy="${-pi/2} 0 0"/>
+    </joint>
+
+    <link name="link3">
+        <collision>
+            <origin xyz="0.0 0 ${height/2}" rpy="0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="${radiu}" length="${height}"/>
+            </geometry>
+        </collision>
+        <visual>
+            <origin xyz="0.0 0 ${height/2}" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="${radiu}" length="${height}"/>
+            </geometry>
+            <material name="green"/>
+        </visual>
+        <inertial>
+            <origin xyz="0.0 0 ${height/2}" rpy="0.0 0.0 0.0"/>
+            <mass value="${mass}"/>
+            <inertia 
+            ixx="${mass / 12.0 * (radiu*radiu + height*height)}" ixy="0.0" ixz="0.0" 
+            iyy="${mass / 12.0 * (radiu*radiu + height*height)}" iyz="0.0" 
+            izz="${mass / 12.0 * (radiu*radiu + radiu*radiu)}"/>
+        </inertial> 
+    </link>    
+    
+    <joint name="joint3" type="revolute">
+        <parent link="link3"/>
+        <child link="link4"/>
+        <axis xyz="1 0 0"/>
+        <limit lower="-3.14159" upper="3.14159" velocity="50.0" effort="1000.0"/>
+        <origin xyz="0 0 ${height}" rpy="${-pi/4} 0 0"/>
+    </joint>
+
+    <link name="link4">
+        <collision>
+            <origin xyz="0.0 0 ${height/2}" rpy="0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="${radiu}" length="${height}"/>
+            </geometry>
+        </collision>
+        <visual>
+            <origin xyz="0.0 0 ${height/2}" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="${radiu}" length="${height}"/>
+            </geometry>
+            <material name="red"/>
+        </visual>
+        <inertial>
+            <origin xyz="0.0 0 ${height/2}" rpy="0.0 0.0 0.0"/>
+            <mass value="${mass}"/>
+            <inertia 
+            ixx="${mass / 12.0 * (radiu*radiu + height*height)}" ixy="0.0" ixz="0.0" 
+            iyy="${mass / 12.0 * (radiu*radiu + height*height)}" iyz="0.0" 
+            izz="${mass / 12.0 * (radiu*radiu + radiu*radiu)}"/>
+        </inertial> 
+    </link>
+    
+
+    <transmission name="tran1">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint1">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor1">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+
+    <transmission name="tran2">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint2">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor2">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+
+    <transmission name="tran3">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="upper_joint">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor3">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+</robot>

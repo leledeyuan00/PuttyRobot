@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="motors">
+    
+    <xacro:property name="height1" value="0.1"/>
+    <xacro:property name="width" value="0.02"/>
+    
+
+    <link name="world"/>
+    
+    <joint name="joint0" type="fixed">
+        <parent link="world"/>
+        <child link="link1"/>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+    </joint>
+
+    <link name="link1">
+        <collision>
+            <origin xyz="0.0 0.0 ${height1/2}" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="${width*2}" length="${height1}"/>
+            </geometry>
+        </collision>
+        <visual>
+            <origin xyz="0.0 0.0 ${height1/2}" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="${width*2}" length="${height1}"/>
+            </geometry>
+        </visual>
+        <inertial>
+            <origin xyz="0.0 0.0 ${height1/2}" rpy="0.0 0.0 0.0"/>
+            <mass value="1"/>
+            <inertia ixx="3" ixy="0.0" ixz="0.0" iyy="3" iyz="0.0" izz="3"/>
+        </inertial>
+    </link>
+
+    <joint name="motor1" type="prismatic">
+        <parent link="link1"/>
+        <child link="link2"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="0" upper="0.027" velocity="0.01" effort="1000.0"/>
+        <origin xyz="${width*2} 0 ${height1 - 0.027}" rpy="0 0 0"/>
+    </joint>
+
+    <link name="link2">
+        <collision>
+            <origin xyz="0.0 0.0 ${height1/2}" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="${width*2}" length="${height1}"/>
+            </geometry>
+        </collision>
+        <visual>
+            <origin xyz="0.0 0.0 ${height1/2}" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="${width*2}" length="${height1}"/>
+            </geometry>
+        </visual>
+        <inertial>
+            <origin xyz="0.0 0.0 ${height1/2}" rpy="0.0 0.0 0.0"/>
+            <mass value="1"/>
+            <inertia ixx="3" ixy="0.0" ixz="0.0" iyy="3" iyz="0.0" izz="3"/>
+        </inertial>
+    </link>
+
+    <joint name="motor2" type="prismatic">
+        <parent link="link2"/>
+        <child link="link3"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="0" upper="0.027" velocity="0.01" effort="1000.0"/>
+        <origin xyz="${width*2} 0 ${height1 - 0.027}" rpy="0 0 0"/>
+    </joint>
+
+    <link name="link3">
+        <collision>
+            <origin xyz="0.0 0.0 ${height1/2}" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="${width*2}" length="${height1}"/>
+            </geometry>
+        </collision>
+        <visual>
+            <origin xyz="0.0 0.0 ${height1/2}" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="${width*2}" length="${height1}"/>
+            </geometry>
+        </visual>
+        <inertial>
+            <origin xyz="0.0 0.0 ${height1/2}" rpy="0.0 0.0 0.0"/>
+            <mass value="1"/>
+            <inertia ixx="3" ixy="0.0" ixz="0.0" iyy="3" iyz="0.0" izz="3"/>
+        </inertial>
+    </link>
+
+    <joint name="motor3" type="prismatic">
+        <parent link="link3"/>
+        <child link="link4"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="0" upper="0.027" velocity="0.01" effort="1000.0"/>
+        <origin xyz="${width*2} 0 ${height1 - 0.027}" rpy="0 0 0"/>
+    </joint>
+
+    <link name="link4">
+        <collision>
+            <origin xyz="0.0 0.0 ${height1/2}" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="${width*2}" length="${height1}"/>
+            </geometry>
+        </collision>
+        <visual>
+            <origin xyz="0.0 0.0 ${height1/2}" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="${width*2}" length="${height1}"/>
+            </geometry>
+        </visual>
+        <inertial>
+            <origin xyz="0.0 0.0 ${height1/2}" rpy="0.0 0.0 0.0"/>
+            <mass value="1"/>
+            <inertia ixx="3" ixy="0.0" ixz="0.0" iyy="3" iyz="0.0" izz="3"/>
+        </inertial>
+    </link>
+
+    <gazebo>
+        <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+        <robotNamespace>/motors</robotNamespace>
+        <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+        </plugin>
+    </gazebo>
+
+    <transmission name="tran1">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="motor1">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor1">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+
+    <transmission name="tran2">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="motor2">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor2">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+
+    <transmission name="tran3">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="motor3">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor3">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    
+</robot>
