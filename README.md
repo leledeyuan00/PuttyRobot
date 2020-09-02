@@ -4,9 +4,9 @@ This is ppr stack.
 
 ### Todo list
 
- * [] SDF mesh
+- [ ]  SDF mesh
 
- * [] limit for controller
+- [ ]  limit for controller
 
 ### How to use simulation
 
