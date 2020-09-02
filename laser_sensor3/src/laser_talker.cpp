@@ -24,7 +24,7 @@ Laser_talker::Laser_talker(ros::NodeHandle* nodehandle):nh_(*nodehandle)
 
 void Laser_talker::laser_init(){
     
-    laser_pub_ = nh_.advertise<laser_sensor3::laser>("laser_topic",1000);
+    laser_pub_ = nh_.advertise<ppr_msgs::laser>("laser_topic",1000);
 }
 
 int Laser_talker::laser_ser_init(serial::Serial* ser,int port)

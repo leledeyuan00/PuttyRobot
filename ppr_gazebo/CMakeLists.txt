@@ -8,8 +8,14 @@ project(ppr_gazebo)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-
+  roscpp
+  rospy
+  std_msgs
+  hardware_interface
+  controller_manager
+  control_toolbox
 )
+find_package(gazebo REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -101,9 +107,12 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES ppr_gazebo
-#  CATKIN_DEPENDS roscpp rospy std_msgs
+  INCLUDE_DIRS include
+  LIBRARIES para_description
+  CATKIN_DEPENDS roscpp rospy std_msgs
+   controller_manager
+   hardware_interface
+   control_toolbox
 #  DEPENDS system_lib
 )
 
@@ -114,10 +123,13 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
+  include/${PROJECT_NAME}
   ${catkin_INCLUDE_DIRS}
+  ${GAZEBO_INCLUDE_DIRS}
 )
-
+link_directories(${GAZEBO_LIBRARY_DIRS})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/ppr_gazebo.cpp
@@ -147,7 +159,23 @@ include_directories(
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+add_library(parabot_hw_sim SHARED
+  src/parabot_hw_sim.cpp
+)
+target_link_libraries(parabot_hw_sim
+  ${GAZEBO_LIBRARIES}
+  ${catkin_LIBRARIES}
+)
 
+add_library(parabot_plugin SHARED
+  src/parabot_ros_plugin.cpp
+)
+
+target_link_libraries(parabot_plugin
+  ${GAZEBO_LIBRARIES}
+  ${catkin_LIBRARIES}
+  parabot_hw_sim
+)
 #############
 ## Install ##
 #############

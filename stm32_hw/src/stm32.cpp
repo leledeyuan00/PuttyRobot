@@ -13,7 +13,7 @@ STM32::STM32(ros::NodeHandle* nodehandle):nh_(*nodehandle)
 }
 
 void STM32::stm_init(){
-    stm_pub_ = nh_.advertise<stm32_hw::encoder>("stm_topic",1000);
+    stm_pub_ = nh_.advertise<ppr_msgs::encoder>("stm_topic",1000);
     set_im_mode_ = nh_.advertiseService("setImMode", &STM32::handle_set_im_mode,this);
     set_position_mode_ = nh_.advertiseService("setPositionMode", &STM32::handle_set_position_mode,this);
     set_stiff_damp_ = nh_.advertiseService("setStiffDamp",  &STM32::handle_set_stiff_damp,this);
@@ -125,8 +125,8 @@ int STM32::fetch_data(serial::Serial* ser)
     return receive_error;
 }
 
-bool STM32::handle_set_im_mode(stm32_hw::setImMode::Request  &req,
-                            stm32_hw::setImMode::Response &res)
+bool STM32::handle_set_im_mode(ppr_msgs::setImMode::Request  &req,
+                            ppr_msgs::setImMode::Response &res)
 {
     unsigned char send_data[6];
 
@@ -143,8 +143,8 @@ bool STM32::handle_set_im_mode(stm32_hw::setImMode::Request  &req,
     res.success = true;
     return true;
 }
-bool STM32::handle_set_position_mode(stm32_hw::setPositionMode::Request  &req,
-                                  stm32_hw::setPositionMode::Response &res)
+bool STM32::handle_set_position_mode(ppr_msgs::setPositionMode::Request  &req,
+                                  ppr_msgs::setPositionMode::Response &res)
 {
     unsigned char send_data[6];
 
@@ -161,8 +161,8 @@ bool STM32::handle_set_position_mode(stm32_hw::setPositionMode::Request  &req,
     res.success = true;
     return true;
 }
-bool STM32::handle_set_stiff_damp(stm32_hw::setStiffDamp::Request  &req,
-                               stm32_hw::setStiffDamp::Response &res)
+bool STM32::handle_set_stiff_damp(ppr_msgs::setStiffDamp::Request  &req,
+                               ppr_msgs::setStiffDamp::Response &res)
 {
     float k_im, d_im;
     unsigned char send_data[6];

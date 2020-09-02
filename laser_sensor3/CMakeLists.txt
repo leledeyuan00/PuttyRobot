@@ -35,9 +35,10 @@ find_package(catkin REQUIRED)
 ## * In this file (CMakeLists.txt):
 ##   * add "message_generation" and every package in MSG_DEP_SET to
 find_package(catkin REQUIRED COMPONENTS
-  message_generation
+  # message_generation
   roscpp
   serial
+  ppr_msgs
 )
 ##   * add "message_runtime" and every package in MSG_DEP_SET to
 ##     catkin_package(CATKIN_DEPENDS ...)
@@ -47,9 +48,9 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(FILES
-  laser.msg
-)
+# add_message_files(FILES
+#   laser.msg
+# )
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -66,9 +67,9 @@ add_message_files(FILES
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(DEPENDENCIES
-  std_msgs
-)
+# generate_messages(DEPENDENCIES
+#   std_msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -101,7 +102,8 @@ generate_messages(DEPENDENCIES
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   CATKIN_DEPENDS
-  message_runtime
+  ppr_msgs
+  # message_runtime
 #  INCLUDE_DIRS include
 #  LIBRARIES laser_sensor3
 #  CATKIN_DEPENDS other_catkin_pkg
@@ -210,7 +212,11 @@ add_executable(laser_talker
   include/laser_sensor3/laser_talker.h
   src/laser_talker.cpp
 )
-add_dependencies(laser_talker ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(laser_talker 
+  ${${PROJECT_NAME}_EXPORTED_TARGETS} 
+  ${catkin_EXPORTED_TARGETS}
+  ppr_msgs_generate_messages_cpp
+)
 target_link_libraries(laser_talker
   ${catkin_LIBRARIES}
 )

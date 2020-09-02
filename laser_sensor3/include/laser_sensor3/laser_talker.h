@@ -4,7 +4,7 @@
 #include <serial/serial.h>
 #include <std_msgs/String.h>
 #include <std_msgs/Empty.h>
-#include "laser_sensor3/laser.h"
+#include "ppr_msgs/laser.h"
 #include <sstream>
 #include <stdlib.h>
 #include <iostream>
@@ -27,7 +27,7 @@ private:
     serial::Serial laser2_ser_;
     serial::Serial laser3_ser_;
 
-    laser_sensor3::laser laser_data_;
+    ppr_msgs::laser laser_data_;
 
     /* function */
 

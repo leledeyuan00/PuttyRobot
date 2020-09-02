@@ -22,7 +22,7 @@
 #include <boost/shared_ptr.hpp>
 #include <limits>
 /* private include */
-#include "motor_driver/motor.h"
+#include "ppr_msgs/motor.h"
 
 #define MOTOR_STROKE 27 //mm
 #define MOTOR_RES 4095 //16bits
@@ -114,7 +114,7 @@ private:
     /* 发数据 */
     void motor_write(std::vector<short unsigned int>& msg);
     
-    void drivercallback(const motor_driver::motor& msg);
+    void drivercallback(const ppr_msgs::motor& msg);
 
     void registerJointLimits(const hardware_interface::JointHandle &joint_handle_position,
                              const hardware_interface::JointHandle &joint_handle_velocity,

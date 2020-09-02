@@ -4,10 +4,10 @@
 #include <std_msgs/Empty.h>
 
 /* privita include */
-#include "stm32_hw/encoder.h"
-#include "stm32_hw/setImMode.h"
-#include "stm32_hw/setPositionMode.h"
-#include "stm32_hw/setStiffDamp.h"
+#include "ppr_msgs/encoder.h"
+#include "ppr_msgs/setImMode.h"
+#include "ppr_msgs/setPositionMode.h"
+#include "ppr_msgs/setStiffDamp.h"
 
 #define RECEIVE_LENGTH  8
 #define SEND_LENGTH     6
@@ -35,18 +35,18 @@ private:
 
     serial::Serial stm_ser_;
 
-    stm32_hw::encoder encoder_data_;
+    ppr_msgs::encoder encoder_data_;
 
     void stm_init();
     int encoder_ser_init(serial::Serial* ser, int port);
     int fetch_data(serial::Serial* ser);
 
-    bool handle_set_im_mode(stm32_hw::setImMode::Request  &req,
-                            stm32_hw::setImMode::Response &res);
-    bool handle_set_position_mode(stm32_hw::setPositionMode::Request  &req,
-                                  stm32_hw::setPositionMode::Response &res);
-    bool handle_set_stiff_damp(stm32_hw::setStiffDamp::Request  &req,
-                               stm32_hw::setStiffDamp::Response &res);
+    bool handle_set_im_mode(ppr_msgs::setImMode::Request  &req,
+                            ppr_msgs::setImMode::Response &res);
+    bool handle_set_position_mode(ppr_msgs::setPositionMode::Request  &req,
+                                  ppr_msgs::setPositionMode::Response &res);
+    bool handle_set_stiff_damp(ppr_msgs::setStiffDamp::Request  &req,
+                               ppr_msgs::setStiffDamp::Response &res);
     uint8_t crc8_update(uint8_t crc, uint8_t data);
     uint8_t crc_cal(uint8_t *buf, uint8_t size);
 

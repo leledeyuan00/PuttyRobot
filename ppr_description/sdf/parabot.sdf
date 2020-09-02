@@ -1,0 +1,622 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+    <model name="parabot">
+        <link name="lower_platform">
+            <pose>0 0 0 0 0 0</pose>
+            <visual name="lower_platform_geom_visual">
+                <geometry>
+                    <cylinder>
+                        <radius>0.2</radius>
+                        <length>0.01</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <script>
+                        <name>Gazebo/Orange</name>
+                    </script>
+                </material>
+            </visual>
+            <collision name="lower_platform_geom">
+                <geometry>
+                    <cylinder>
+                        <radius>0.2</radius>
+                        <length>0.01</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+            <inertial>
+                <inertia>
+                    <ixx>1</ixx>
+                    <iyy>1</iyy>
+                    <izz>1</izz>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyz>0</iyz>
+                </inertia>
+                <mass>1</mass>
+            </inertial>
+        </link>
+        <joint name="fixed_para" type="fixed">
+            <pose>0 0 0 0 0 0</pose>
+            <parent>world</parent>
+            <child>lower_platform</child>
+        </joint>
+
+        <!-- dev1 -->
+
+        <link name="linear_motor1_based">
+            <pose>0.1 0.1732 0.055 0 0 0</pose>
+            <visual name="linear_motor1_based_visual">
+                <geometry>
+                    <cylinder>
+                        <radius>0.02</radius>
+                        <length>0.1</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <script>
+                        <name>Gazebo/Black</name>
+                    </script>
+                </material>
+            </visual>
+            <collision name="linear_motor1_based_geom">
+                <geometry>
+                    <cylinder>
+                        <radius>0.02</radius>
+                        <length>0.001</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+            <inertial>
+                <inertia>
+                    <ixx>1</ixx>
+                    <iyy>1</iyy>
+                    <izz>1</izz>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyz>0</iyz>
+                </inertia>
+                <mass>0.1</mass>
+            </inertial>
+        </link>
+        <joint name="linear_motor1_based_joint" type="revolute">
+            <parent>lower_platform</parent>
+            <child>linear_motor1_based</child>
+            <pose>0 0 -0.05 0 0 0</pose>
+            <axis>
+                <xyz>0.732 -0.5 0</xyz>
+                <limit>
+                    <lower>-1.7</lower>
+                    <upper>1.7</upper>
+                    <effort>100</effort>
+                    <velocity>10</velocity>
+                </limit>
+                <use_parent_model_frame>true</use_parent_model_frame>
+                <dynamics>
+                    <damping>0.7</damping>
+                </dynamics>
+            </axis>
+        </joint>
+
+        <link name="linear_motor1">
+            <pose>0.1 0.1732 0.11 0 0 0</pose>
+            <visual name="visual1">
+                <geometry>
+                    <cylinder>
+                        <radius>0.01</radius>
+                        <length>0.05</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <script>
+                        <name>Gazebo/White</name>
+                    </script>
+                </material>
+            </visual>
+            <collision name="linear_motor1_geom">
+                <geometry>
+                    <cylinder>
+                        <radius>0.01</radius>
+                        <length>0.05</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+            <inertial>
+                <inertia>
+                    <ixx>1.0</ixx>
+                    <iyy>1.0</iyy>
+                    <izz>1.0</izz>
+                    <ixy>0.0</ixy>
+                    <ixz>0.0</ixz>
+                    <iyz>0.0</iyz>
+                </inertia>
+                <mass>0.1</mass>
+            </inertial>
+        </link>
+
+        <joint name="motor1" type="prismatic">
+            <parent>linear_motor1_based</parent>
+            <child>linear_motor1</child>
+            <pose>0 0 -0.05 0 0 0</pose>
+            <axis>
+                <xyz>0 0 1</xyz>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0.025</upper>
+                    <effort>100</effort>
+                    <velocity>10</velocity>
+                </limit>
+                <use_parent_model_frame>true</use_parent_model_frame>
+                <dynamics>
+                    <damping>0.7</damping>
+                </dynamics>
+            </axis>
+        </joint>
+
+        <!-- dev2 -->
+
+        <link name="linear_motor2_based">
+            <pose>0.1 -0.1732 0.055 0 0 0</pose>
+            <visual name="linear_motor2_based_visual">
+                <geometry>
+                    <cylinder>
+                        <radius>0.02</radius>
+                        <length>0.1</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <script>
+                        <name>Gazebo/Black</name>
+                    </script>
+                </material>
+            </visual>
+            <collision name="linear_motor2_based_geom">
+                <geometry>
+                    <cylinder>
+                        <radius>0.02</radius>
+                        <length>0.001</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+            <inertial>
+                <inertia>
+                    <ixx>1</ixx>
+                    <iyy>1</iyy>
+                    <izz>1</izz>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyz>0</iyz>
+                </inertia>
+                <mass>0.1</mass>
+            </inertial>
+        </link>
+        <joint name="linear_motor2_based_joint" type="revolute">
+            <parent>lower_platform</parent>
+            <child>linear_motor2_based</child>
+            <pose>0 0 -0.05 0 0 0</pose>
+            <axis>
+                <xyz>0.732 0.5 0</xyz>
+                <limit>
+                    <lower>-1.7</lower>
+                    <upper>1.7</upper>
+                    <effort>100</effort>
+                    <velocity>10</velocity>
+                </limit>
+                <use_parent_model_frame>true</use_parent_model_frame>
+                <dynamics>
+                    <damping>0.7</damping>
+                </dynamics>
+            </axis>
+        </joint>
+        
+
+        <link name="linear_motor2">
+            <pose>0.1 -0.1732 0.11 0 0 0</pose>
+            <frame name="linear_motor2_frame">
+                <pose frame="linear_motor2_frame"></pose>
+            </frame>
+            <visual name="linear_motor2_geom_visual">
+                <geometry>
+                    <cylinder>
+                        <radius>0.01</radius>
+                        <length>0.05</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <script>
+                        <name>Gazebo/White</name>
+                    </script>
+                </material>
+            </visual>
+            <collision name="linear_motor2_geom">
+                <geometry>
+                    <cylinder>
+                        <radius>0.01</radius>
+                        <length>0.05</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+            <inertial>
+                <inertia>
+                    <ixx>1</ixx>
+                    <iyy>1</iyy>
+                    <izz>1</izz>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyz>0</iyz>
+                </inertia>
+                <mass>0.1</mass>
+            </inertial>
+        </link>
+
+        <joint name="motor2" type="prismatic">
+            <parent>linear_motor2_based</parent>
+            <child>linear_motor2</child>
+            <pose>0 0 -0.05 0 0 0</pose>
+            <axis>
+                <xyz>0 0 1</xyz>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0.025</upper>
+                    <effort>100</effort>
+                    <velocity>10</velocity>
+                </limit>
+                <use_parent_model_frame>true</use_parent_model_frame>
+                <dynamics>
+                    <damping>0.7</damping>
+                </dynamics>
+            </axis>
+        </joint>
+
+        <!-- dev3 -->
+
+        <link name="linear_motor3_based">
+            <pose>-0.2 0 0.055 0 0 0</pose>
+            <visual name="linear_motor3_based_visual">
+                <geometry>
+                    <cylinder>
+                        <radius>0.02</radius>
+                        <length>0.1</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <script>
+                        <name>Gazebo/Black</name>
+                    </script>
+                </material>
+            </visual>
+            <collision name="linear_motor3_based_geom">
+                <geometry>
+                    <cylinder>
+                        <radius>0.02</radius>
+                        <length>0.001</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+            <inertial>
+                <inertia>
+                    <ixx>1</ixx>
+                    <iyy>1</iyy>
+                    <izz>1</izz>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyz>0</iyz>
+                </inertia>
+                <mass>0.1</mass>
+            </inertial>
+        </link>
+        <joint name="linear_motor3_based_joint" type="revolute">
+            <parent>lower_platform</parent>
+            <child>linear_motor3_based</child>
+            <pose>0 0 -0.05 0 0 0</pose>
+            <axis>
+                <xyz>0 1 0</xyz>
+                <limit>
+                    <lower>-1.7</lower>
+                    <upper>1.7</upper>
+                    <effort>100</effort>
+                    <velocity>10</velocity>
+                </limit>
+                <use_parent_model_frame>true</use_parent_model_frame>
+                <dynamics>
+                    <damping>0.7</damping>
+                </dynamics>
+            </axis>
+        </joint>
+
+        <link name="linear_motor3">
+            <pose>-0.2 0 0.11 0 0 0</pose>
+            <visual name="linear_motor3_geom_visual">
+                <geometry>
+                    <cylinder>
+                        <radius>0.01</radius>
+                        <length>0.05</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <script>
+                        <name>Gazebo/White</name>
+                    </script>
+                </material>
+            </visual>
+            <collision name="linear_motor3_geom">
+                <geometry>
+                    <cylinder>
+                        <radius>0.01</radius>
+                        <length>0.05</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+            <inertial>
+                <inertia>
+                    <ixx>1</ixx>
+                    <iyy>1</iyy>
+                    <izz>1</izz>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyz>0</iyz>
+                </inertia>
+                <mass>0.1</mass>
+            </inertial>
+        </link>
+
+        <joint name="motor3" type="prismatic">
+            <parent>linear_motor3_based</parent>
+            <child>linear_motor3</child>
+            <pose>0 0 -0.05 0 0 0</pose>
+            <axis>
+                <xyz>0 0 1</xyz>
+                <limit>
+                    <lower>0</lower>
+                    <upper>0.025</upper>
+                    <effort>100</effort>
+                    <velocity>10</velocity>
+                </limit>
+                <use_parent_model_frame>true</use_parent_model_frame>
+                <dynamics>
+                    <damping>0.7</damping>
+                </dynamics>
+            </axis>
+        </joint>
+
+
+        <!-- upper platform -->
+        <link name="upper_platform">
+            <pose>0 0 0.14ray 0 0 0</pose>
+            <visual name="upper_platform_geom_visual">
+                <geometry>
+                    <cylinder>
+                        <radius>0.2</radius>
+                        <length>0.01</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <script>
+                        <name>Gazebo/Orange</name>
+                    </script>
+                </material>
+            </visual>
+            <collision name="upper_platform_geom">
+                <geometry>
+                    <cylinder>
+                        <radius>0.2</radius>
+                        <length>0.01</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+            <inertial>
+                <inertia>
+                    <ixx>1</ixx>
+                    <iyy>1</iyy>
+                    <izz>1</izz>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyz>0</iyz>
+                </inertia>
+                <mass>1</mass>
+            </inertial>
+        </link>
+        <joint name="fixed_upper1" type="ball">
+            <pose>0.1 0.1732 -0.005 0 0 0</pose>
+            <parent>linear_motor1</parent>
+            <child>upper_platform</child>
+        </joint>
+        <joint name="fixed_upper2" type="ball">
+            <pose>0.1 -0.1732 -0.005 0 0 0</pose>
+            <parent>linear_motor2</parent>
+            <child>upper_platform</child>
+        </joint>
+        <joint name="fixed_upper3" type="ball">
+            <pose>-0.2 0 -0.005 0 0 0</pose>
+            <parent>linear_motor3</parent>
+            <child>upper_platform</child>
+        </joint>
+
+
+        <!-- laser -->
+        <link name="laser_link1">
+            <pose>0.15 0.2598 0.11 0 0 0</pose>
+            <inertial>
+                <mass>0.1</mass>
+                <inertia>
+                    <ixx>1</ixx>
+                    <iyy>1</iyy>
+                    <izz>1</izz>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyz>0</iyz>
+                </inertia>
+            </inertial>
+            <collision name="laser_link1_geom">
+                <geometry>
+                    <box><size>0.1 0.1 0.1</size></box>
+                </geometry>
+            </collision>
+            <visual name="laser_link1_visual">
+                <material><script><name>Gazebo/Red</name></script></material>
+                <geometry>
+                    <box><size>0.01 0.01 0.01</size></box>
+                </geometry>
+            </visual>
+            <sensor name="laser1" type="ray">
+                <pose>0 0 0 0 -1.570796327 0</pose>
+                <visualize>true</visualize>
+                <update_rate>125</update_rate>
+                <ray>
+                    <scan>
+                        <horizontal>
+                            <samples>1</samples>
+                            <resolution>1</resolution>
+                            <min_angle>-0.000</min_angle>
+                            <max_angle>0.000</max_angle>
+                        </horizontal>
+                    </scan>
+                    <range>
+                        <min>0.10</min>
+                        <max>1.0</max>
+                        <resolution>0.01</resolution>
+                    </range>
+                    <noise>
+                        <type>gaussian</type>
+                        <mean>0.0</mean>
+                        <stddev>0.0001</stddev>
+                    </noise>
+                </ray>
+                <plugin name="gazebo_ros_laser_controller1" filename="libgazebo_ros_laser.so">
+                    <topicName>parabot/laser1</topicName>
+                    <frameName>laser_link1</frameName>
+                </plugin>
+            </sensor>
+        </link>
+        <joint name="laser_joint1" type="fixed">
+            <parent>upper_platform</parent>
+            <child>laser_link1</child>
+        </joint>
+
+        <link name="laser_link2">
+            <pose>0.15 -0.2598 0.11 0 0 0</pose>
+            <inertial>
+                <mass>0.1</mass>
+                <inertia>
+                    <ixx>1</ixx>
+                    <iyy>1</iyy>
+                    <izz>1</izz>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyz>0</iyz>
+                </inertia>
+            </inertial>
+            <collision name="laser_link2_geom">
+                <geometry>
+                    <box><size>0.1 0.1 0.1</size></box>
+                </geometry>
+            </collision>
+            <visual name="laser_link2_visual">
+                <material><script><name>Gazebo/Red</name></script></material>
+                <geometry>
+                    <box><size>0.01 0.01 0.01</size></box>
+                </geometry>
+            </visual>
+            <sensor name="laser2" type="ray">
+                <pose>0 0 0 0 -1.570796327 0</pose>
+                <visualize>true</visualize>
+                <update_rate>125</update_rate>
+                <ray>
+                    <scan>
+                        <horizontal>
+                            <samples>1</samples>
+                            <resolution>1</resolution>
+                            <min_angle>-0.000</min_angle>
+                            <max_angle>0.000</max_angle>
+                        </horizontal>
+                    </scan>
+                    <range>
+                        <min>0.10</min>
+                        <max>1.0</max>
+                        <resolution>0.01</resolution>
+                    </range>
+                    <noise>
+                        <type>gaussian</type>
+                        <mean>0.0</mean>
+                        <stddev>0.0001</stddev>
+                    </noise>
+                </ray>
+                <plugin name="gazebo_ros_laser_controller2" filename="libgazebo_ros_laser.so">
+                    <topicName>parabot/laser2</topicName>
+                    <frameName>laser_link2</frameName>
+                </plugin>
+            </sensor>
+        </link>
+        <joint name="laser_joint2" type="fixed">
+            <parent>upper_platform</parent>
+            <child>laser_link2</child>
+        </joint>
+
+        <link name="laser_link3">
+            <pose>-0.3 0 0.11 0 0 0</pose>
+            <inertial>
+                <mass>0.1</mass>
+                <inertia>
+                    <ixx>1</ixx>
+                    <iyy>1</iyy>
+                    <izz>1</izz>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyz>0</iyz>
+                </inertia>
+            </inertial>
+            <collision name="laser_link3_geom">
+                <geometry>
+                    <box><size>0.1 0.1 0.1</size></box>
+                </geometry>
+            </collision>
+            <visual name="laser_link3_visual">
+                <material><script><name>Gazebo/Red</name></script></material>
+                <geometry>
+                    <box><size>0.01 0.01 0.01</size></box>
+                </geometry>
+            </visual>
+            <sensor name="laser3" type="ray">
+                <pose>0 0 0 0 -1.570796327 0</pose>
+                <visualize>true</visualize>
+                <update_rate>125</update_rate>
+                <ray>
+                    <scan>
+                        <horizontal>
+                            <samples>1</samples>
+                            <resolution>1</resolution>
+                            <min_angle>-0.000</min_angle>
+                            <max_angle>0.000</max_angle>
+                        </horizontal>
+                    </scan>
+                    <range>
+                        <min>0.10</min>
+                        <max>1.0</max>
+                        <resolution>0.01</resolution>
+                    </range>
+                    <noise>
+                        <type>gaussian</type>
+                        <!-- <mean>0.0001</mean> -->
+                        <stddev>0.0001</stddev>
+                    </noise>
+                </ray>
+                <plugin name="gazebo_ros_laser_controller3" filename="libgazebo_ros_laser.so">
+                    <topicName>parabot/laser3</topicName>
+                    <frameName>laser_link3</frameName>
+                </plugin>
+            </sensor>
+        </link>
+        <joint name="laser_joint3" type="fixed">
+            <parent>upper_platform</parent>
+            <child>laser_link3</child>
+        </joint>
+
+        <!-- TODO: roscontroller   -->
+        <plugin name="parabot_hw_sim_plugin" filename="libparabot_plugin.so">
+            <robotNamespace>parabot</robotNamespace>
+            <jointName>motor1 motor2 motor3</jointName>
+        </plugin>
+            
+    </model>
+
+</sdf>

@@ -1,4 +1,4 @@
-#include "motor_driver/motor_driver.h"
+#include "ppr_control/motor_driver.h"
 #include <rosparam_shortcuts/rosparam_shortcuts.h>
 
 unsigned char motor_cmd_all_[18] = {0xff,0xff,0xff,0x0fe,0x0D,0x73,0x86,0x02};
@@ -238,7 +238,7 @@ void Motor_driver::write(ros::Duration elapsed_time)
     motor_write(motor_msg2_);
 }
 
-void Motor_driver::drivercallback(const motor_driver::motor &msg)
+void Motor_driver::drivercallback(const ppr_msgs::motor &msg)
 {
     motor_msg_[0] = msg.motor1 *1000 * MOTOR_RES / MOTOR_STROKE;
     motor_msg_[1] = msg.motor2 *1000 * MOTOR_RES / MOTOR_STROKE;
