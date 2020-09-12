@@ -6,7 +6,7 @@
 
  <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="paused" value="false"/>
+    <arg name="paused" value="true"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="gui" value="true"/>
     <arg name="recording" value="false"/>
@@ -16,7 +16,7 @@
   </include>
 
   <node name="parabot_simulator" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" 
-    args="-sdf -model parabot -file $(find ppr_description)/sdf/parabot.sdf -x 0.0 -y -0.0 -z 1 -R 0 -P 1.570796327 -Y 0.0">
+    args="-sdf -model parabot -file $(find ppr_description)/sdf/parabot.sdf -x 0.0 -y 0.0 -z 1.0 -R 0.0 -P 1.570796327 -Y  0.0">
   </node>
 
 </launch>
