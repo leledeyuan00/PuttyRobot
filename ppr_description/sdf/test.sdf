@@ -1,0 +1,759 @@
+<?xml version='1.0'?>
+<sdf version='1.6'>
+  <model name='my_robot'>
+    <!--<static>1</static>-->
+    <!--lower_platform-->
+    <link name='lower_platform'>
+      <pose frame=''>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose frame=''>-8e-06 -0 0.000606 0 -0 0</pose>
+        <mass>0.0603778</mass>
+        <inertia>
+          <ixx>5.44707e-05</ixx>
+          <ixy>-3.39473e-13</ixy>
+          <ixz>-3.70667e-09</ixz>
+          <iyy>5.44893e-05</iyy>
+          <iyz>8.47232e-14</iyz>
+          <izz>0.00010778</izz>
+        </inertia>
+      </inertial>
+      <collision name='lower_platform_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://ppr_description/mesh/lower_platform.STL</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <bounce/>
+          <friction>
+            <torsional>
+              <ode/>
+            </torsional>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name='lower_platform_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://ppr_description/mesh/lower_platform.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Orange</name>
+          </script>
+        </material>
+      </visual>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <gravity>1</gravity>
+    </link>
+    <joint name="fixed_para" type="fixed">
+            <pose>0 0 0 0 0 0</pose>
+            <parent>world</parent>
+            <child>lower_platform</child>
+        </joint>
+
+    <!-- dev1 -->
+    <link name='motor1'>
+      <pose frame=''>-0.06 -0.0001 0 0 -0 0</pose>
+      <inertial>
+        <pose frame=''>-0.003127 -4.3e-05 0.037103 0 -0 0</pose>
+        <mass>0.0185186</mass>
+        <inertia>
+          <ixx>2.18492e-06</ixx>
+          <ixy>3.13901e-09</ixy>
+          <ixz>8.63034e-08</ixz>
+          <iyy>2.49671e-06</iyy>
+          <iyz>9.17598e-09</iyz>
+          <izz>1.2683e-06</izz>
+        </inertia>
+      </inertial>
+      <collision name='motor1_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://ppr_description/mesh/motor1.STL</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <bounce/>
+          <friction>
+            <torsional>
+              <ode/>
+            </torsional>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name='motor1_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://ppr_description/mesh/motor1.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <gravity>1</gravity>
+    </link>
+    <joint name='motor1_joint' type='revolute'>
+      <child>motor1</child>
+      <parent>lower_platform</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-0.785</lower>
+          <upper>0.785</upper>
+          <effort>0</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+    <link name='connection1'>
+      <pose frame=''>-0.06 -0.0001 0.0734 0 0 -0.017453</pose>
+      <inertial>
+        <pose frame=''>-0 -0 0.039505 0 -0 0</pose>
+        <mass>0.00229486</mass>
+        <inertia>
+          <ixx>1.62783e-07</ixx>
+          <ixy>-6.96732e-14</ixy>
+          <ixz>6.9068e-13</ixz>
+          <iyy>1.62783e-07</iyy>
+          <iyz>3.49873e-13</iyz>
+          <izz>3.15955e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name='connection1_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://ppr_description/mesh/connection1.STL</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <bounce/>
+          <friction>
+            <torsional>
+              <ode/>
+            </torsional>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name='connection1_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://ppr_description/mesh/connection1.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <gravity>1</gravity>
+    </link>
+    <joint name='connection1_joint' type='prismatic'>
+      <child>connection1</child>
+      <parent>motor1</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-0.01</lower>
+          <upper>0.017</upper>
+          <effort>0</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+
+    <!-- dev2 -->
+    <link name='motor2'>
+      <pose frame=''>0.030087 -0.051912 0 0 -0 2.0944</pose>
+      <inertial>
+        <pose frame=''>-0.003127 -4.3e-05 0.037103 0 -0 0</pose>
+        <mass>0.0185187</mass>
+        <inertia>
+          <ixx>2.18492e-06</ixx>
+          <ixy>3.13978e-09</ixy>
+          <ixz>8.63033e-08</ixz>
+          <iyy>2.49671e-06</iyy>
+          <iyz>9.17588e-09</iyz>
+          <izz>1.2683e-06</izz>
+        </inertia>
+      </inertial>
+      <collision name='motor2_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://ppr_description/mesh/motor2.STL</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <bounce/>
+          <friction>
+            <torsional>
+              <ode/>
+            </torsional>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name='motor2_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://ppr_description/mesh/motor2.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <gravity>1</gravity>
+    </link>
+    <joint name='motor2_joint' type='revolute'>
+      <child>motor2</child>
+      <parent>lower_platform</parent>
+      <axis>
+        <xyz>-0.866025 -0.5 0</xyz>
+        <limit>
+          <lower>-0.785</lower>
+          <upper>0.785</upper>
+          <effort>0</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+    <link name='connection2'>
+      <pose frame=''>0.030087 -0.051912 0.0734 0 -0 2.07694</pose>
+      <inertial>
+        <pose frame=''>-0 -0 0.039505 0 -0 0</pose>
+        <mass>0.00229485</mass>
+        <inertia>
+          <ixx>1.62783e-07</ixx>
+          <ixy>-4.93551e-14</ixy>
+          <ixz>5.85644e-13</ixz>
+          <iyy>1.62783e-07</iyy>
+          <iyz>3.63077e-13</iyz>
+          <izz>3.15954e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name='connection2_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://ppr_description/mesh/connection2.STL</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <bounce/>
+          <friction>
+            <torsional>
+              <ode/>
+            </torsional>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name='connection2_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://ppr_description/mesh/connection2.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <gravity>1</gravity>
+    </link>
+    <joint name='connection2_joint' type='prismatic'>
+      <child>connection2</child>
+      <parent>motor2</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-0.01</lower>
+          <upper>0.017</upper>
+          <effort>0</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+
+    <!-- dev3 -->
+    <link name='motor3'>
+      <pose frame=''>0.029913 0.052012 0 0 0 -2.0944</pose>
+      <inertial>
+        <pose frame=''>-0.003127 -4.3e-05 0.037103 0 -0 0</pose>
+        <mass>0.0185186</mass>
+        <inertia>
+          <ixx>2.18492e-06</ixx>
+          <ixy>3.13921e-09</ixy>
+          <ixz>8.63033e-08</ixz>
+          <iyy>2.49671e-06</iyy>
+          <iyz>9.17619e-09</iyz>
+          <izz>1.2683e-06</izz>
+        </inertia>
+      </inertial>
+      <collision name='motor3_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://ppr_description/mesh/motor3.STL</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <bounce/>
+          <friction>
+            <torsional>
+              <ode/>
+            </torsional>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name='motor3_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://ppr_description/mesh/motor3.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <gravity>1</gravity>
+    </link>
+    <joint name='motor3_joint' type='revolute'>
+      <child>motor3</child>
+      <parent>lower_platform</parent>
+      <axis>
+        <xyz>0.866025 -0.5 0</xyz>
+        <limit>
+          <lower>-0.785</lower>
+          <upper>0.785</upper>
+          <effort>0</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+    <link name='connection3'>
+      <pose frame=''>0.029913 0.052012 0.0734 0 0 -2.11185</pose>
+      <inertial>
+        <pose frame=''>-0 -0 0.039505 0 -0 0</pose>
+        <mass>0.00229485</mass>
+        <inertia>
+          <ixx>1.62783e-07</ixx>
+          <ixy>-6.63467e-14</ixy>
+          <ixz>6.19597e-13</ixz>
+          <iyy>1.62783e-07</iyy>
+          <iyz>4.02456e-13</iyz>
+          <izz>3.15954e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name='connection3_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://ppr_description/mesh/connection3.STL</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <bounce/>
+          <friction>
+            <torsional>
+              <ode/>
+            </torsional>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name='connection3_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://ppr_description/mesh/connection3.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <gravity>1</gravity>
+    </link>
+    <joint name='connection3_joint' type='prismatic'>
+      <child>connection3</child>
+      <parent>motor3</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-0.01</lower>
+          <upper>0.017</upper>
+          <effort>0</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+
+    <!--upper_platform-->
+    <link name='upper_platform3'>
+      <pose frame=''>-0 -0 0.135513 0 -0 0</pose>
+      <inertial>
+        <pose frame=''>1.5e-05 -8e-06 -0.031799 0 -0 0</pose>
+        <mass>0.30122</mass>
+        <inertia>
+          <ixx>0.0012041</ixx>
+          <ixy>-6.79938e-08</ixy>
+          <ixz>-5.28334e-08</ixz>
+          <iyy>0.00120418</iyy>
+          <iyz>2.79786e-08</iyz>
+          <izz>0.00211062</izz>
+        </inertia>
+      </inertial>
+      <collision name='upper_platform3_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://ppr_description/mesh/upper_platform3.STL</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <bounce/>
+          <friction>
+            <torsional>
+              <ode/>
+            </torsional>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name='upper_platform3_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://ppr_description/mesh/upper_platform3.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Orange</name>
+          </script>
+        </material>
+      </visual>
+      <self_collide>0</self_collide>
+      <kinematic>0</kinematic>
+      <gravity>1</gravity>
+    </link>
+    <joint name='fixed23' type='fixed'>
+        <child>upper_platform3</child>
+        <parent>lower_platform</parent>
+        
+    </joint>
+    <!-- 
+    <joint name='ball1' type='ball'>
+      <child>upper_platform3</child>
+      <parent>lower_pl</parent>
+      <pose>-0.06 -0.0001 0 0 0 0</pose>
+    </joint>
+    <joint name='ball2' type='ball'>
+      <child>upper_platform3</child>
+      <parent>connection2</parent>
+      <pose>0.030087 -0.051912 0 0 0 0</pose>
+    </joint>
+    <joint name='ball3' type='ball'>
+      <child>upper_platform3</child>
+      <parent>connection3</parent>
+      <pose>0.029913 0.052012 0 0 0 0</pose>
+    </joint> -->
+
+    <!--sensor-->
+    <link name="sensor1">
+      <pose frame=''>-0.1175 0 0.113013 0 0 -3.14159</pose>
+      <inertial>
+        <mass>0.1</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="sensor1_collision">
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.1</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="sensor1_visual">
+        <material>
+          <script>
+            <name>Gazebo/Red</name>
+          </script>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://ppr_description/mesh/sensor1.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <sensor name="laser1" type="ray">
+        <pose>0 0 0 0 -1.570796327 0</pose>
+        <visualize>true</visualize>
+        <update_rate>125</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>1</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.000</min_angle>
+              <max_angle>0.000</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.10</min>
+            <max>1.0</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.0001</stddev>
+          </noise>
+        </ray>
+        <!-- <plugin name="gazebo_ros_laser_controller1" filename="libgazebo_ros_laser.so">
+                    <topicName>parabot/laser1</topicName>
+                    <frameName>laser_link1</frameName>
+                </plugin> -->
+      </sensor>
+    </link>
+    <!-- <joint name="sensor1_joint" type="fixed">
+      <parent>upper_platform3</parent>
+      <child>sensor1</child>
+    </joint> -->
+
+    <link name="sensor2">
+      <pose frame=''>0.05875 -0.101758 0.113013 0 0 -1.0472</pose>
+      <inertial>
+        <mass>0.1</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="sensor2_collision">
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.1</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="sensor2_visual">
+        <material>
+          <script>
+            <name>Gazebo/Red</name>
+          </script>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://ppr_description/mesh/sensor2.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <sensor name="laser2" type="ray">
+        <pose>0 0 0 0 -1.570796327 0</pose>
+        <visualize>true</visualize>
+        <update_rate>125</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>1</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.000</min_angle>
+              <max_angle>0.000</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.10</min>
+            <max>1.0</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.0001</stddev>
+          </noise>
+        </ray>
+        <!-- <plugin name="gazebo_ros_laser_controller2" filename="libgazebo_ros_laser.so">
+                    <topicName>parabot/laser2</topicName>
+                    <frameName>laser_link2</frameName>
+                </plugin> -->
+      </sensor>
+    </link>
+    <!-- <joint name="sensor2_joint" type="fixed">
+      <parent>upper_platform3</parent>
+      <child>sensor2</child>
+    </joint> -->
+
+    <link name="sensor3">
+      <pose frame=''>0.05875 0.101758 0.113013 0 -0 1.0472</pose>
+      <inertial>
+        <mass>0.1</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <iyy>1</iyy>
+          <izz>1</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <collision name="sensor3_collision">
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.1</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="sensor3_visual">
+        <material>
+          <script>
+            <name>Gazebo/Red</name>
+          </script>
+        </material>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://ppr_description/mesh/sensor3.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <sensor name="laser3" type="ray">
+        <pose>0 0 0 0 -1.570796327 0</pose>
+        <visualize>true</visualize>
+        <update_rate>125</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>1</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.000</min_angle>
+              <max_angle>0.000</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.10</min>
+            <max>1.0</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.0001</stddev>
+          </noise>
+        </ray>
+        <!-- <plugin name="gazebo_ros_laser_controller3" filename="libgazebo_ros_laser.so">
+                    <topicName>parabot/laser3</topicName>
+                    <frameName>laser_link3</frameName>
+                </plugin> -->
+      </sensor>
+    </link>
+    <!-- <joint name="sensor3_joint" type="fixed">
+      <parent>upper_platform3</parent>
+      <child>sensor3</child>
+    </joint> -->
+
+
+  </model>
+
+</sdf>
