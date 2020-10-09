@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="transmission_hw_interface" default="hardware_interface/PositionJointInterface" />
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find ppr_description)/urdf/gtrobot.urdf.xacro' transmission_hw_interface:=$(arg transmission_hw_interface)" /> 
+  <arg name="use_arm" default="false"/>
+  
+
+ <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+  <!-- <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="recording" value="false"/>
+    <arg name="debug" value="false"/>
+    <arg name="verbose" value="true"/>    
+  </include> -->
+  <node name="parabot_simulator" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" 
+    args="-sdf -model parabot -file $(find ppr_description)/models/gtrobot_base/model.sdf -x 0.0 -y 0.0 -z 0.0 -R 0.0 -P 0.0 -Y  0.0">
+  </node>
+
+  <group if="$(arg use_arm)">
+    <node name="parabot_simulator" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" 
+      args="-sdf -model parabot -file $(find ppr_description)/models/gtrobot_arm/model.sdf -x 0.0 -y 0.0 -z 0.0 -R 0.0 -P 0.0 -Y  0.0">
+    </node>
+  </group>
+
+
+</launch>

@@ -1,0 +1,199 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro"
+       name="gtrobot" >
+
+  
+  <!-- The following xacro:included files set up definitions of parts of the robot body -->
+  <!-- misc common stuff? controller manager-->
+  <!--<xacro:include filename="$(find ppr_description)/urdf/common.xacro" />-->
+  <xacro:include filename="$(find ppr_description)/urdf/common.gazebo.xacro" />
+
+  <!-- gtrobot base -->
+  <xacro:include filename="$(find ppr_description)/urdf/gtrobot_base/base.urdf.xacro" />
+  <xacro:arg name="chassis_prefix" default="" />
+
+  <!-- ur5 -->
+  <xacro:include filename="$(find ppr_description)/urdf/gtrobot_arm/ur5.urdf.xacro" />
+  <xacro:arg name="ur_enabled" default="true" />
+  <xacro:arg name="arm_transmission_hw_interface" default="hardware_interface/PositionJointInterface"/>
+  <xacro:arg name="base_transmission_hw_interface" default="hardware_interface/PositionJointInterface"/>
+  <xacro:arg name="ur_prefix" default="arm_" />
+
+  <!-- lidar -->
+  <xacro:include filename="$(find ppr_description)/urdf/sensors/lidar_gazebo.xacro" />
+  <xacro:arg name="lidar_enabled" default="false" />
+  <xacro:property name="lidar_offset_x" value="0.63" />
+  <xacro:property name="lidar_offset_y" value="0" />
+  <xacro:property name="lidar_offset_z" value="-0.0825" />
+
+  <!-- infrared ray -->
+  <xacro:include filename="$(find ppr_description)/urdf/sensors/infrared_ray_gazebo.xacro" />
+  <xacro:arg name="infrared_ray_enabled" default="false" />
+  <xacro:property name="infrared_ray_offset_x" value="0.1" />
+  <xacro:property name="infrared_ray_offset_y" value="0" />
+  <xacro:property name="infrared_ray_offset_z" value="0" />
+
+  <!-- Zed camera -->
+  <xacro:include filename="$(find ppr_description)/urdf/sensors/stereo_camera.urdf.xacro" />
+  <xacro:arg name="zed_enabled" default="false" />
+  <!--<xacro:arg name="zed_base_parent" default="$(arg ur_prefix)wrist_3_link" />-->
+  <xacro:if value="$(arg ur_enabled)">
+    <xacro:property name="zed_base_parent" value="$(arg ur_prefix)wrist_3_link" />
+    <xacro:property name="zed_offset_x" value="0.0043" />
+    <xacro:property name="zed_offset_y" value="0.0649" />
+    <xacro:property name="zed_offset_z" value="-0.068" />
+    <xacro:property name="zed_offset_roll" value="-3.1146" />
+    <xacro:property name="zed_offset_pitch" value="-0.0142" />
+    <xacro:property name="zed_offset_yaw" value="1.5644" />
+    <!--<origin xyz="0.0043 0.0649 -0.068" rpy="-3.1146 -0.0142 1.5644"/>-->
+  </xacro:if>
+  <xacro:unless value="$(arg ur_enabled)">
+    <xacro:property name="zed_base_parent" value="$(arg chassis_prefix)base_link" />
+    <xacro:property name="zed_offset_x" value="0" />
+    <xacro:property name="zed_offset_y" value="-0.56" />
+    <xacro:property name="zed_offset_z" value="1.29" />
+    <xacro:property name="zed_offset_roll" value="0" />
+    <xacro:property name="zed_offset_pitch" value="0" />
+    <xacro:property name="zed_offset_yaw" value="${-pi/2}" />
+  </xacro:unless>
+
+  <!-- IMU -->
+  <xacro:include filename="$(find ppr_description)/urdf/sensors/imu_gazebo.xacro" />
+  <xacro:arg name="imu_enabled" default="false" />
+  <xacro:property name="imu_base_parent" value="base_stereo" />
+  <xacro:property name="imu_offset_x" value="0" />
+  <xacro:property name="imu_offset_y" value="0" />
+  <xacro:property name="imu_offset_z" value="0" />
+  <xacro:property name="imu_offset_roll" value="0" />
+  <xacro:property name="imu_offset_pitch" value="0" />
+  <xacro:property name="imu_offset_yaw" value="0" />
+
+  <!-- materials for visualization -->
+  <xacro:include filename="$(find ppr_description)/urdf/materials.urdf.xacro" />
+
+
+  <!-- Now we can start using the macros xacro:included above to define the actual gtrobot -->
+
+  <!-- The first use of a macro.  This one was defined in base.urdf.xacro above.
+       A macro like this will expand to a set of link and joint definitions, and to additional
+       Gazebo-related extensions (sensor plugins, etc).  The macro takes an argument, name, 
+       that equals "base", and uses it to generate names for its component links and joints 
+       (e.g., base_link).  The xacro:included origin block is also an argument to the macro.  By convention, 
+       the origin block defines where the component is w.r.t its parent (in this case the parent 
+       is the world frame). For more, see http://www.ros.org/wiki/xacro -->
+      
+  <!-- base_footprint -->
+  <xacro:gtrobot_base name="base" prefix="$(arg chassis_prefix)"
+  transmission_hw_interface="$(arg base_transmission_hw_interface)"/>
+  
+  <!-- arm -->
+  <xacro:if value="$(arg ur_enabled)">
+    <joint name="ur5_joint" type="fixed">
+      <parent link="upper_link" />
+      <child link = "$(arg ur_prefix)base_link" />
+      <origin xyz="0.0 0.0 0.00" rpy="0.0 0.0 ${-pi*3/4}" />
+    </joint>
+
+    <xacro:gtrobot_ur5 prefix="$(arg ur_prefix)" joint_limited="false"
+      transmission_hw_interface="$(arg arm_transmission_hw_interface)"
+    />
+  </xacro:if>
+
+
+  <!-- 2D LiDAR -->
+  <xacro:if value="$(arg lidar_enabled)">
+    <joint name="lidar_joint" type="fixed">
+        <origin xyz="${lidar_offset_x} ${lidar_offset_y} ${lidar_offset_z}" rpy="0 ${pi/2} 0" />
+        <parent link="upper_link"/>
+        <child link="lidar_link"/>
+    </joint>
+
+    <xacro:rplidar prefix="lidar"/>
+  </xacro:if>
+
+  <!-- infrared ray -->
+  <xacro:if value="$(arg infrared_ray_enabled)">
+    <joint name="infrared_ray_joint" type="fixed">
+        <origin xyz="${infrared_ray_offset_x} ${infrared_ray_offset_y} ${infrared_ray_offset_z}" rpy="${pi/2} 0 0" />
+        <parent link="arm_ee_link"/>
+        <child link="infrared_ray_link"/>
+    </joint>
+
+    <xacro:infrared_ray prefix="infrared_ray"/>
+  </xacro:if>
+
+
+  <!--Stereo Camera Joint-->
+  <xacro:if value="$(arg zed_enabled)">
+    <joint name="stereo_joint" type="fixed">
+      <parent link="${zed_base_parent}"/>
+      <child link="base_stereo"/>
+      <origin xyz="${zed_offset_x} ${zed_offset_y} ${zed_offset_z}" 
+              rpy="${zed_offset_roll} ${zed_offset_pitch} ${zed_offset_yaw}"/>
+    </joint>
+    <link name="base_stereo">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://ppr_description/meshes/sensors/ZED.stl" />
+        </geometry>
+        <material name="dark"/>
+      </visual>
+      <xacro:cuboid_inertial length="0.16" weight="0.04" hight="0.04" mass="0.00000001">
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+      </xacro:cuboid_inertial>
+    </link>
+
+    <xacro:stereo_camera_v0 parent="base_stereo" name="stereo" focal_length="700.065972" hfov="84.8725" image_width="1280" image_height="720" >
+        <origin xyz="0 0 0.0" rpy="0.0   0.0   0.0" />
+    </xacro:stereo_camera_v0>
+  </xacro:if>
+
+  <!--Stereo Camera Virtual Joint for Collision Avoidance-->
+  <!-- <joint name="left_stereo_virtual_joint" type="fixed">
+    <parent link="arm_ee_link"/>
+    <child link="collision_virtual_ee_link"/>
+    <origin xyz="0.5 0 0" 
+            rpy="${pi/2} 0 ${pi/2}"/>
+  </joint>
+  <link name="collision_virtual_ee_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.0001" length="0.0001" />
+      </geometry>
+      <material name="dark"/>
+    </visual>
+    <xacro:cylinder_inertial length="0.05" radius="0.1" mass="0.00000001">
+      <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+    </xacro:cylinder_inertial>
+  </link> -->
+
+  <!-- imu -->
+  <xacro:if value="$(arg imu_enabled)">
+    <joint name="imu_joint" type="fixed">
+        <origin xyz="${imu_offset_x} ${imu_offset_y} ${imu_offset_z}" rpy="${imu_offset_roll} ${imu_offset_pitch} ${imu_offset_yaw}" />
+        <parent link="${imu_base_parent}"/>
+        <child link="imu_link"/>
+    </joint>
+
+    <xacro:imu prefix="imu"/>
+  </xacro:if>
+
+  <!-- ground truth for arm_wrist_3_link -->
+  <gazebo>
+      <plugin name="p3d_base_controller" filename="libgazebo_ros_p3d.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>50.0</updateRate>
+      <bodyName>stereo_l_stereo_camera_optical_frame</bodyName>
+      <topicName>gazebo_ground_truth</topicName>
+      <gaussianNoise>0.0</gaussianNoise>
+      <frameName>world</frameName>
+      <xyzOffsets>0 0 0</xyzOffsets>
+      <rpyOffsets>0 0 0</rpyOffsets>
+      </plugin>
+  </gazebo>
+
+ 
+
+</robot>

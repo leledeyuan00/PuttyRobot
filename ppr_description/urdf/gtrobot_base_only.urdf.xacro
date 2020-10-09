@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro"
+       name="gtrobot" >
+
+  
+  <!-- The following xacro:included files set up definitions of parts of the robot body -->
+  <!-- misc common stuff? controller manager-->
+  <!--<xacro:include filename="$(find ppr_description)/urdf/common.xacro" />-->
+  <xacro:include filename="$(find ppr_description)/urdf/common.gazebo.xacro" />
+  
+  <!-- gtrobot base -->
+  <xacro:include filename="$(find ppr_description)/urdf/gtrobot_base/base.urdf.xacro" />
+  <xacro:arg name="chassis_prefix" default="" />
+
+  <!-- ur5 -->
+  <xacro:include filename="$(find ppr_description)/urdf/gtrobot_arm/ur5.urdf.xacro" />
+  <xacro:arg name="ur_enabled" default="true" />
+  <xacro:arg name="arm_transmission_hw_interface" default="hardware_interface/PositionJointInterface"/>
+  <xacro:arg name="base_transmission_hw_interface" default="hardware_interface/VelocityJointInterface"/>
+  <xacro:arg name="ur_prefix" default="arm_" />
+
+  <!-- lidar -->
+  <xacro:include filename="$(find ppr_description)/urdf/sensors/lidar_gazebo.xacro" />
+  <xacro:arg name="lidar_enabled" default="true" />
+  <xacro:property name="lidar_offset_x" value="0.63" />
+  <xacro:property name="lidar_offset_y" value="0" />
+  <xacro:property name="lidar_offset_z" value="-0.0825" />
+
+  <!-- Zed camera -->
+  <xacro:include filename="$(find ppr_description)/urdf/sensors/stereo_camera.urdf.xacro" />
+  <xacro:arg name="zed_enabled" default="true" />
+  <!--<xacro:arg name="zed_base_parent" default="$(arg ur_prefix)wrist_3_link" />-->
+  <xacro:if value="$(arg ur_enabled)">
+    <xacro:property name="zed_base_parent" value="$(arg ur_prefix)wrist_3_link" />
+    <xacro:property name="zed_offset_x" value="0.0043" />
+    <xacro:property name="zed_offset_y" value="0.0649" />
+    <xacro:property name="zed_offset_z" value="-0.068" />
+    <xacro:property name="zed_offset_roll" value="-3.1146" />
+    <xacro:property name="zed_offset_pitch" value="-0.0142" />
+    <xacro:property name="zed_offset_yaw" value="1.5644" />
+    <!--<origin xyz="0.0043 0.0649 -0.068" rpy="-3.1146 -0.0142 1.5644"/>-->
+  </xacro:if>
+  <xacro:unless value="$(arg ur_enabled)">
+    <xacro:property name="zed_base_parent" value="$(arg chassis_prefix)base_link" />
+    <xacro:property name="zed_offset_x" value="0" />
+    <xacro:property name="zed_offset_y" value="-0.56" />
+    <xacro:property name="zed_offset_z" value="1.29" />
+    <xacro:property name="zed_offset_roll" value="0" />
+    <xacro:property name="zed_offset_pitch" value="0" />
+    <xacro:property name="zed_offset_yaw" value="${-pi/2}" />
+  </xacro:unless>
+
+  <!-- materials for visualization -->
+  <xacro:include filename="$(find ppr_description)/urdf/materials.urdf.xacro" />
+
+
+  <!-- Now we can start using the macros xacro:included above to define the actual gtrobot -->
+
+  <!-- The first use of a macro.  This one was defined in base.urdf.xacro above.
+       A macro like this will expand to a set of link and joint definitions, and to additional
+       Gazebo-related extensions (sensor plugins, etc).  The macro takes an argument, name, 
+       that equals "base", and uses it to generate names for its component links and joints 
+       (e.g., base_link).  The xacro:included origin block is also an argument to the macro.  By convention, 
+       the origin block defines where the component is w.r.t its parent (in this case the parent 
+       is the world frame). For more, see http://www.ros.org/wiki/xacro -->
+      
+  <!-- base_footprint -->
+  <xacro:gtrobot_base name="base" prefix="$(arg chassis_prefix)"
+  transmission_hw_interface="$(arg base_transmission_hw_interface)"/>
+  
+
+
+ 
+
+</robot>

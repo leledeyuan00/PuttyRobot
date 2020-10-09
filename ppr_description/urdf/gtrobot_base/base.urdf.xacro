@@ -1,0 +1,354 @@
+<?xml version="1.0"?>
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor" 
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller" 
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface" 
+       xmlns:xacro="http://www.ros.org/wiki/xacro/#interface">
+ 
+  <xacro:include filename="$(find ppr_description)/urdf/gtrobot_base/base.gazebo.xacro"/>
+  <xacro:include filename="$(find ppr_description)/urdf/gtrobot_base/base.transmission.xacro"/>
+  
+  <xacro:property name="M_PI" value="3.1415926535897931" />
+
+
+  <!-- simplified box collision geometry for base -->
+  <xacro:property name="base_length" value="1.35"/>
+  <xacro:property name="base_weight" value="1.0"/>
+  <xacro:property name="base_height" value="1.00"/>
+  <xacro:property name="base_mass" value="20.0"/>
+
+  <!-- Main Left & Right Wheels -->
+  <xacro:property name="main_caster_offset_x" value="0"/>
+  <xacro:property name="main_caster_offset_y" value="0.25"/>
+  <xacro:property name="main_caster_offset_z" value="0.050"/>
+
+  <!-- Casters -->
+  <xacro:property name="caster_offset_x" value="0.260"/>
+  <xacro:property name="caster_offset_y" value="0.513"/>
+  <xacro:property name="caster_offset_z" value="0.050"/>
+  <xacro:property name="caster_weight" value="0.260"/>
+  <xacro:property name="caster_length" value="0.260"/>
+  <xacro:property name="caster_height" value="0.260"/>
+  <xacro:property name="caster_mass" value="0.05"/>
+  <xacro:property name="cal_caster_fl" value="0.0" />
+  <xacro:property name="cal_caster_fr" value="0.0" />
+  <xacro:property name="cal_caster_bl" value="0.0" />
+  <xacro:property name="cal_caster_br" value="0.0" />
+
+  <xacro:property name="wheel_offset_x" value="0.0"/>
+  <xacro:property name="wheel_offset_y" value="0.0"/>
+  <xacro:property name="wheel_offset_z" value="-0.07"/>
+  <xacro:property name="wheel_mass" value="0.05"/>
+  <xacro:property name="wheel_radius" value="0.0475"/>
+  <xacro:property name="wheel_length" value="0.005"/>
+
+  <xacro:property name="caster_joint_damping" value="1.0"/>
+  <xacro:property name="caster_joint_friction" value="1.0"/>
+  <xacro:property name="caster_joint_effort" value="30"/>
+  <xacro:property name="caster_joint_velocity" value="10"/>
+  <xacro:property name="caster_joint_safety_k_velocity" value="10.0"/>
+
+  <xacro:property name="wheel_joint_damping" value="1.0"/>
+  <xacro:property name="wheel_joint_friction" value="1.0"/>
+  <xacro:property name="wheel_joint_effort" value="30"/>
+  <xacro:property name="wheel_joint_velocity" value="10"/>
+  <xacro:property name="wheel_joint_safety_k_velocity" value="10.0"/>
+
+
+  <xacro:macro name="cuboid_inertial" params="length weight hight mass *origin">
+    <inertial>
+      <mass value="${mass}" />
+      <xacro:insert_block name="origin" />
+      <inertia ixx="${0.0833333 * mass * (length * length + hight * hight)}" ixy="0.0" ixz="0.0"
+               iyy="${0.0833333 * mass * ( weight * weight + hight * hight)}" iyz="0.0"
+               izz="${0.0833333 * mass * ( length * length + weight * weight)}" />
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="cylinder_inertial" params="radius length mass *origin">
+    <inertial>
+      <mass value="${mass}" />
+      <xacro:insert_block name="origin" />
+      <inertia ixx="${0.0833333 * mass * (3 * radius * radius + length * length)}" ixy="0.0" ixz="0.0"
+               iyy="${0.0833333 * mass * (3 * radius * radius + length * length)}" iyz="0.0"
+               izz="${0.5 * mass * radius * radius}" />
+    </inertial>
+  </xacro:macro>
+
+  <!--           wheel                                      -->
+  <xacro:macro name="gt_wheel" params="parent">
+
+    <joint name="${parent}_wheel_joint" type="continuous">
+      <axis xyz="0 1 0" />
+      <limit effort="${wheel_joint_effort}" velocity="${wheel_joint_velocity}"/>
+      <safety_controller k_velocity="${wheel_joint_safety_k_velocity}"/>
+      <dynamics damping="${wheel_joint_damping}" friction="${wheel_joint_friction}"/>
+      <origin xyz="${wheel_offset_x} ${wheel_offset_y} ${wheel_offset_z}" rpy="0 0 0" />
+      <parent link="${parent}_rotation_link"/>
+      <child link="${parent}_wheel_link"/>
+    </joint>
+    <link name="${parent}_wheel_link">
+      <xacro:cylinder_inertial length="${wheel_length}" radius="${wheel_radius}" mass="${wheel_mass}">
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+      </xacro:cylinder_inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="${M_PI/2} 0 0" />
+        <geometry>
+          <!--<mesh filename="package://ppr_description/meshes/gtrobot_base/wheel.dae" />-->
+          <cylinder radius="${wheel_radius}" length="${wheel_length}" />
+        </geometry>
+        <material name="gtrobot/White" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="${M_PI/2} 0 0" />
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_length}" />
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- extensions -->
+    <xacro:wheel_gazebo parent="${parent}" />
+    <xacro:wheel_transmission parent="${parent}" />
+  </xacro:macro>
+
+  
+  <!--           Caster                                      -->
+  <xacro:macro name="caster" params="suffix parent *origin" >
+    <joint name="${suffix}_rotation_joint" type="continuous">
+      <axis xyz="0 0 1" />
+      <limit effort="${caster_joint_effort}" velocity="${caster_joint_velocity}"/>
+      <safety_controller k_velocity="${caster_joint_safety_k_velocity}"/>
+      <dynamics damping="${caster_joint_damping}" friction="${caster_joint_friction}"/>
+      <xacro:insert_block name="origin" />
+      <parent link="${parent}"/>
+      <child link="${suffix}_rotation_link" />
+    </joint>
+    <link name="${suffix}_rotation_link">
+
+      <xacro:cuboid_inertial length="${caster_length}" weight="${caster_weight}" hight="${caster_height}" mass="${caster_mass}">
+        <origin xyz="0.0 0.0 0.07" rpy="0 0 0" />
+      </xacro:cuboid_inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <!--<mesh filename="package://ppr_description/meshes/gtrobot_base/caster.stl" />-->
+          <!-- <box size="0.01 0.01 0.03" /> -->
+          <cylinder length="0.03" radius="0.02" />
+          <!-- <sphere radius="0.02"/> -->
+        </geometry>
+        <material name="gtrobot/Blue" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <!--<mesh filename="package://ppr_description/meshes/gtrobot_base/caster_L.stl" />-->
+          <!-- <box size="0.01 0.01 0.03" /> -->
+          <cylinder length="0.03" radius="0.02" />
+          <!-- <sphere radius="0.02"/> -->
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- extensions -->
+    <xacro:caster_transmission suffix="${suffix}" />
+    <xacro:caster_gazebo suffix="${suffix}" />
+
+  </xacro:macro>
+
+
+  <xacro:macro name="gt_caster" params="suffix parent *origin">
+    <xacro:caster parent="${parent}" suffix="${suffix}_caster" >
+      <xacro:insert_block name="origin" />
+    </xacro:caster>
+    <!-- wheel macros -->
+    <xacro:gt_wheel parent="${suffix}_caster" />
+  </xacro:macro>
+
+
+  <xacro:macro name="gtrobot_base" params="prefix name
+   transmission_hw_interface" >
+
+    <link name="${name}_footprint">
+      <visual>
+        <origin xyz="0 0 0.000" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="gtrobot/Grey"/>
+      </visual>
+    </link>
+
+    <!-- fixed_link between base_footprint and base_link  -->
+    <joint name="fixed_link_joint" type="fixed">
+      <origin xyz="0 0 0.001" rpy="0 0 0"/>
+      <parent link="${name}_footprint"/>
+      <child link="fixed_link"/>
+      <axis xyz="1 0 0" />
+      <limit effort="50000" lower="-2.0" upper="2.0" velocity="1" />
+    </joint>
+
+    <link name="fixed_link">
+ 	    <xacro:cuboid_inertial length="1.35" weight="0.68" hight="0.001" mass="10">
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+      </xacro:cuboid_inertial>
+      <visual>
+        <origin rpy="0.0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <box size="0.68 1.35 0.001"/>
+        </geometry>
+        <material name="gtrobot/White"/>
+      </visual>
+	  </link>
+
+    <!-- prismatic x  -->
+    <joint name="x_axis_joint" type="prismatic">
+      <origin xyz="0 0 0.01" rpy="0.0 0.0 0.0"/>
+      <parent link="fixed_link" />
+      <child link="${prefix}x_axis_link" />
+      <axis xyz="1 0 0" />
+      <limit effort="10000" lower="-5.0" upper="5.0" velocity="1" />
+    </joint>
+
+    <link name="${prefix}x_axis_link">
+ 	    <xacro:cuboid_inertial length="1.35" weight="0.68" hight="0.01" mass="0.1">
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+      </xacro:cuboid_inertial>
+      <visual>
+        <origin rpy="0.0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <box size="0.68 1.35 0.01"/>
+        </geometry>
+        <material name="gtrobot/Red"/>
+      </visual>
+	  </link>
+
+    <!-- prismatic y  -->
+    <joint name="y_axis_joint" type="prismatic">
+      <origin xyz="0 0 0.01" rpy="0.0 0.0 0.0"/>
+      <parent link="${prefix}x_axis_link" />
+      <child link="${prefix}y_axis_link" />
+      <axis xyz="0 1 0" />
+      <limit effort="10000" lower="-5.0" upper="5.0" velocity="1" />
+    </joint>
+
+    <link name="${prefix}y_axis_link">
+ 	    <xacro:cuboid_inertial length="1.35" weight="0.68" hight="0.01" mass="0.1">
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+      </xacro:cuboid_inertial>
+      <visual>
+        <origin rpy="0.0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <box size="0.68 1.35 0.01"/>
+        </geometry>
+        <material name="gtrobot/Green"/>
+      </visual>
+	  </link>
+
+    <!-- rotate  -->
+    <joint name="rotate_axis_joint" type="continuous">
+      <parent link="${prefix}y_axis_link"/>
+      <child link="${prefix}rotate_axis_link"/>
+      <origin xyz="0 0 0.01" rpy="0 0 0"/>
+      <axis xyz="0 0 1" />
+      <limit effort="10000" lower="-5.0" upper="5.0" velocity="1" />
+    </joint>
+
+    <link name="${prefix}rotate_axis_link">
+ 	    <xacro:cuboid_inertial length="1.35" weight="0.68" hight="0.01" mass="0.1">
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+      </xacro:cuboid_inertial>
+      <visual>
+        <origin rpy="0.0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <box size="0.68 1.35 0.01"/>
+        </geometry>
+        <material name="gtrobot/Blue"/>
+      </visual>
+	  </link>
+
+    <!-- base link -->
+    <joint name="${prefix}base_link_joint" type="fixed">
+      <origin xyz="0 0 ${caster_offset_z*2}" rpy="0.0 0.0 0.0"/>
+      <parent link="${prefix}rotate_axis_link" />
+      <child link="${prefix}${name}_link" />
+    </joint>
+
+    <link name="${prefix}base_link">
+ 	    <xacro:cuboid_inertial length="${base_length}" weight="${base_weight}" hight="${base_height}" mass="${base_mass}">
+        <origin xyz="0.0 0.0 ${base_height/2}" rpy="0 0 0" />
+      </xacro:cuboid_inertial>
+      <collision>
+        <origin rpy="0.0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <mesh filename="package://ppr_description/meshes/gtrobot_base/base_link.STL" />
+        </geometry>
+      </collision>
+      <visual>
+        <origin rpy="0.0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <mesh filename="package://ppr_description/meshes/gtrobot_base/base_link.STL" />
+        </geometry>
+        <material name="gtrobot/Grey"/>
+      </visual>
+	  </link>
+
+    <!-- all four caster macros -->
+    <xacro:gt_caster suffix="fl" parent="${prefix}base_link"  >
+      <origin xyz="${caster_offset_x} ${caster_offset_y} ${caster_offset_z}" rpy="0 0 0" />
+    </xacro:gt_caster>
+    <xacro:gt_caster suffix="fr" parent="${prefix}base_link"  >
+      <origin xyz="${caster_offset_x} ${-caster_offset_y} ${caster_offset_z}" rpy="0 0 0" />
+    </xacro:gt_caster>
+    <xacro:gt_caster suffix="bl" parent="${prefix}base_link"  >
+      <origin xyz="${-caster_offset_x} ${caster_offset_y} ${caster_offset_z}" rpy="0 0 0" />
+    </xacro:gt_caster>
+    <xacro:gt_caster suffix="br" parent="${prefix}base_link"   >
+      <origin xyz="${-caster_offset_x} ${-caster_offset_y} ${caster_offset_z}" rpy="0 0 0" />
+    </xacro:gt_caster>
+
+    <!--two main caster macros -->
+    <xacro:gt_caster suffix="left" parent="${prefix}base_link"  >
+      <origin xyz="${main_caster_offset_x} ${main_caster_offset_y} ${main_caster_offset_z}" rpy="0 0 0" />
+    </xacro:gt_caster>
+    <xacro:gt_caster suffix="right" parent="${prefix}base_link"  >
+      <origin xyz="${main_caster_offset_x} ${-main_caster_offset_y} ${main_caster_offset_z}" rpy="0 0 0" />
+    </xacro:gt_caster>
+    
+    <!--UPPER prismatic-->
+    <joint name="upper_joint" type="fixed">
+      <origin xyz="0 -0.531 1.159" rpy="${pi/2} ${-pi/2} 0" />
+      <parent link="${prefix}base_link" />
+      <child link="upper_link" />
+    </joint>
+
+    <link name="upper_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://ppr_description/meshes/gtrobot_base/upper.STL" />
+        </geometry>
+        <material name="">
+          <color rgba="1 1 1 1" />
+        </material>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://ppr_description/meshes/gtrobot_base/upper.STL" />
+        </geometry>
+      </collision>
+
+      <xacro:cuboid_inertial length="0.16" weight="0.16" hight="0.84" mass="0.001">
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+      </xacro:cuboid_inertial>
+    </link>
+
+
+    <!-- extensions -->
+    <xacro:gtrobot_base_gazebo prefix="${prefix}"/>
+    <xacro:gtrobot_base_transmission prefix="${prefix}" hw_interface="${transmission_hw_interface}" />
+
+  </xacro:macro>
+</robot>

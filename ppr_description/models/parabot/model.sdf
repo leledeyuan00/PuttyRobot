@@ -20,7 +20,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/lower_platform.STL</uri>
+            <uri>model://parabot/meshes/lower_platform.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -30,7 +30,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/lower_platform.STL</uri>
+            <uri>model://parabot/meshes/lower_platform.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -43,11 +43,11 @@
       <enable_wind>0</enable_wind>
       <kinematic>0</kinematic>
     </link>
-    <joint name="fixed_para" type="fixed">
+    <!-- <joint name="fixed_para" type="fixed">
       <pose>0 0 0.5 0 0 0</pose>
       <parent>world</parent>
       <child>lower_platform</child>
-    </joint>
+    </joint> -->
 
     <link name='motor1_link'>
       <pose frame=''>-0.06 -0.0001 0 0 -0 0</pose>
@@ -68,7 +68,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/motor1.STL</uri>
+            <uri>model://parabot/meshes/motor1.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -78,7 +78,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/motor1.STL</uri>
+            <uri>model://parabot/meshes/motor1.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -128,7 +128,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/connection1.STL</uri>
+            <uri>model://parabot/meshes/connection1.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -138,7 +138,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/connection1.STL</uri>
+            <uri>model://parabot/meshes/connection1.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -182,7 +182,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/motor2.STL</uri>
+            <uri>model://parabot/meshes/motor2.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -192,7 +192,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/motor2.STL</uri>
+            <uri>model://parabot/meshes/motor2.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -242,7 +242,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/connection2.STL</uri>
+            <uri>model://parabot/meshes/connection2.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -252,7 +252,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/connection2.STL</uri>
+            <uri>model://parabot/meshes/connection2.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -296,7 +296,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/motor3.STL</uri>
+            <uri>model://parabot/meshes/motor3.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -306,7 +306,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/motor3.STL</uri>
+            <uri>model://parabot/meshes/motor3.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -356,7 +356,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/connection3.STL</uri>
+            <uri>model://parabot/meshes/connection3.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -366,7 +366,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/connection3.STL</uri>
+            <uri>model://parabot/meshes/connection3.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -412,7 +412,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/upper_platform3.STL</uri>
+            <uri>model://parabot/meshes/upper_platform3.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -422,7 +422,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/upper_platform3.STL</uri>
+            <uri>model://parabot/meshes/upper_platform3.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -438,7 +438,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/sensor1.STL</uri>
+            <uri>model://parabot/meshes/sensor1.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -448,7 +448,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/sensor1.STL</uri>
+            <uri>model://parabot/meshes/sensor1.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -494,7 +494,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/sensor2.STL</uri>
+            <uri>model://parabot/meshes/sensor2.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -504,7 +504,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/sensor2.STL</uri>
+            <uri>model://parabot/meshes/sensor2.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -550,7 +550,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/sensor3.STL</uri>
+            <uri>model://parabot/meshes/sensor3.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -560,7 +560,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://ppr_description/meshes/sensor3.STL</uri>
+            <uri>model://parabot/meshes/sensor3.STL</uri>
           </mesh>
         </geometry>
         <material>

@@ -16,7 +16,7 @@
   </include>
 
   <node name="parabot_simulator" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" 
-    args="-sdf -model parabot -file $(find ppr_description)/sdf/parabot.sdf -x 0.0 -y 0.0 -z 1.0 -R 0.0 -P 1.570796327 -Y  0.0">
+    args="-sdf -model parabot -file $(find ppr_description)/models/parabot/model.sdf -x 0.0 -y 0.0 -z 1.0 -R 0.0 -P 1.570796327 -Y  0.0">
   </node>
 
 </launch>

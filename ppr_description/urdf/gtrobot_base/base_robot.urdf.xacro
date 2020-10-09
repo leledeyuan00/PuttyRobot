@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro"
+       name="chassis" >
+       
+  <!-- materials for visualization -->
+  <xacro:include filename="$(find ppr_description)/urdf/materials.urdf.xacro" />
+
+  <xacro:arg name="transmission_hw_interface" default="hardware_interface/PositionJointInterface"/>
+  <xacro:arg name="chassis_prefix" default=""/>
+
+  <!-- common stuff -->
+  <xacro:include filename="$(find ppr_description)/urdf/common.gazebo.xacro" />
+
+  <!-- read base.urdf.xacro -->
+  <xacro:include filename="$(find ppr_description)/urdf/gtrobot_base/base.urdf.xacro" />
+
+  <!-- load base -->
+  <xacro:gtrobot_base name="base" prefix="$(arg chassis_prefix)" 
+    transmission_hw_interface="$(arg transmission_hw_interface)"
+  />
+
+  <link name="world" />
+
+  <joint name="world_joint" type="fixed">
+    <parent link="world" />
+    <child link="base_footprint" />
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+  </joint>
+
+</robot>

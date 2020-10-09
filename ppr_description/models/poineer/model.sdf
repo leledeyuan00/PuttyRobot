@@ -1,0 +1,37 @@
+<?xml version='1.0'?>
+<sdf version='1.6'>
+    <model name="poineer">
+        <include>
+            <uri>model://gtrobot_base</uri>
+            <name>gtrobot_base</name>
+            <pose>0 0 0 0 0 0</pose>
+            <static>0</static>
+        </include>
+        <!-- 0.089159 -->
+        <include>
+            <uri>model://gtrobot_arm</uri>
+            <name>gtrobot_arm</name>
+            <pose>-0 -0.531 1.29 1.5708 -1.5708 -0</pose>
+            <static>0</static>
+            <plugin name='ros_control' filename='libgazebo_ros_control.so'>
+                <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+                <legacyModeNS>1</legacyModeNS>
+                <robotNamespace>/</robotNamespace>
+            </plugin>
+        </include>
+        <joint name='ur_base_joint' type='fixed'>
+            <parent>gtrobot_base::rotate_axis_link</parent>
+            <child>gtrobot_arm::arm_shoulder_link</child>
+        </joint>
+        <!-- offset r 90 p -45 -->
+        <!-- <include>
+            <uri>model://parabot</uri>
+            <name>parabot</name>
+            <pose>0.723259 -0.525509 0.857493 0 0.713259 0</pose>
+        </include>
+        <joint name='ur_parabot' type='fixed'>
+            <parent>gtrobot_arm::arm_wrist_3_link</parent>
+            <child>parabot::lower_platform</child>
+        </joint> -->
+    </model>
+</sdf>

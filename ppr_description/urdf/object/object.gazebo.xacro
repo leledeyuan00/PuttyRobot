@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://www.ros.org/wiki/xacro/#interface">
+
+
+  <xacro:macro name="object_gazebo" >
+
+    <gazebo reference="object_footprint">
+      <material>Gazebo/Red</material>
+      <gravity>false</gravity>
+    </gazebo>
+
+    <gazebo reference="object_link">
+      <material>Gazebo/Grey</material>
+      <gravity>false</gravity>
+    </gazebo>
+
+
+    <gazebo>
+      <plugin name="p3d_base_controller" filename="libgazebo_ros_p3d.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>50.0</updateRate>
+        <bodyName>object_link</bodyName>
+        <topicName>gazebo_ground_truth</topicName>
+        <gaussianNoise>0.0</gaussianNoise>
+        <frameName>world</frameName>
+        <xyzOffsets>0 0 0</xyzOffsets>
+        <rpyOffsets>0 0 0</rpyOffsets>
+      </plugin>
+    </gazebo>
+
+
+  </xacro:macro>
+
+</robot>

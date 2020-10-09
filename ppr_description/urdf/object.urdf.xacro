@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro"
+       name="object" >
+
+  <!-- read object.urdf.xacro -->
+  <xacro:include filename="$(find ppr_description)/urdf/object/object.urdf.xacro" />
+
+  <xacro:object />
+
+
+</robot>

@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://www.ros.org/wiki/xacro/#interface">
+
+  <xacro:macro name="wheel_gazebo" params="parent">
+    <gazebo reference="${parent}_wheel_link">
+      <kp  value="1000000.0" />
+      <kd  value="1.0" />
+      <gravity>true</gravity>
+    </gazebo>
+  </xacro:macro>
+
+  <xacro:macro name="caster_gazebo" params="suffix">
+    <gazebo reference="${suffix}_rotation_link">
+      <material>Gazebo/Red</material>
+    </gazebo>
+  </xacro:macro>
+
+
+  <xacro:macro name="gtrobot_base_gazebo" params="prefix">
+
+    <gazebo reference="base_footprint">
+      <material>Gazebo/White</material>
+      <gravity>false</gravity>
+    </gazebo>
+
+    <gazebo reference="${prefix}base_link">
+      <material>Gazebo/Grey</material>
+      <gravity>true</gravity>
+    </gazebo>
+
+    <gazebo reference="upper_link">
+      <material>Gazebo/White</material>
+      <gravity>false</gravity>
+    </gazebo>
+
+    <!-- position link -->
+    <gazebo reference="fixed_link">
+      <material>Gazebo/White</material>
+      <gravity>false</gravity>
+    </gazebo>
+
+    <gazebo reference="x_axis_link">
+      <material>Gazebo/Red</material>
+      <gravity>false</gravity>
+    </gazebo>
+
+    <gazebo reference="y_axis_link">
+      <material>Gazebo/Green</material>
+      <gravity>false</gravity>
+    </gazebo>
+
+    <gazebo reference="rotate_axis_link">
+      <material>Gazebo/Blue</material>
+      <gravity>false</gravity>
+    </gazebo>
+
+    <!-- position controller -->
+    <!-- <gazebo>
+      <plugin name="base_controller" filename="libgazebo_ros_planar_move.so">
+        <commandTopic>cmd_vel</commandTopic>
+        <odometryTopic>odom</odometryTopic>
+        <odometryFrame>/odom</odometryFrame>
+        <odometryRate>100.0</odometryRate>
+        <robotBaseFrame>base_footprint</robotBaseFrame>
+        <broadcastTF>true</broadcastTF>
+      </plugin>
+    </gazebo> -->
+
+    <!-- <gazebo>
+      <plugin name="base_controller" filename="libsteered_wheel_base_controller.so">
+        <commandTopic>cmd_vel</commandTopic>
+        <odometryTopic>odom</odometryTopic>
+        <odometryFrame>/odom</odometryFrame>
+        <odometryRate>100.0</odometryRate>
+        <robotBaseFrame>base_footprint</robotBaseFrame>
+        <broadcastTF>true</broadcastTF>
+      </plugin>
+    </gazebo> -->
+    
+
+
+
+
+
+  </xacro:macro>
+
+</robot>

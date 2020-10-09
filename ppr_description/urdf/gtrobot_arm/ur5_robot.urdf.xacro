@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro"
+       name="ur5" >
+       
+  <!-- materials for visualization -->
+  <xacro:include filename="$(find ppr_description)/urdf/materials.urdf.xacro" />
+
+  <xacro:arg name="transmission_hw_interface" default="hardware_interface/PositionJointInterface"/>
+  <xacro:arg name="ur_prefix" default="arm_"/>
+  <xacro:arg name="urbase_parent" default="upper_link"/>
+
+  <!-- common stuff -->
+  <xacro:include filename="$(find ppr_description)/urdf/common.gazebo.xacro" />
+
+  <!-- ur5 -->
+  <xacro:include filename="$(find ppr_description)/urdf/gtrobot_arm/ur5.urdf.xacro" />
+
+  <!-- arm -->
+  <xacro:gtrobot_ur5 prefix="$(arg ur_prefix)" joint_limited="true"
+    shoulder_pan_lower_limit="${-pi}" shoulder_pan_upper_limit="${pi}"
+    shoulder_lift_lower_limit="${-pi}" shoulder_lift_upper_limit="${pi}"
+    elbow_joint_lower_limit="${-pi}" elbow_joint_upper_limit="${pi}"
+    wrist_1_lower_limit="${-pi}" wrist_1_upper_limit="${pi}"
+    wrist_2_lower_limit="${-pi}" wrist_2_upper_limit="${pi}"
+    wrist_3_lower_limit="${-pi}" wrist_3_upper_limit="${pi}"
+    transmission_hw_interface="$(arg transmission_hw_interface)"
+  />
+
+  <link name="$(arg urbase_parent)" />
+
+  <joint name="$(arg urbase_parent)_joint" type="fixed">
+    <parent link="$(arg urbase_parent)" />
+    <child link = "$(arg ur_prefix)base_link" />
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+  </joint>
+
+</robot>

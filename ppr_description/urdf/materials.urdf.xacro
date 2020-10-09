@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<robot>
+  <material name="gtrobot/Orange">
+    <color rgba="1.0 0.4 0.0 1.0"/>
+  </material>
+  <material name="gtrobot/Grey">
+    <color rgba="0.7 0.7 0.7 1.0"/>
+  </material>
+  <material name="gtrobot/DarkGrey">
+    <color rgba="0.3 0.3 0.3 1.0"/>
+  </material>
+  <material name="gtrobot/White">
+    <color rgba="1.0 1.0 1.0 1.0"/>
+  </material>
+  <material name="gtrobot/Black">
+    <color rgba="0.0 0.0 0.0 1.0"/>
+  </material>
+  <material name="gtrobot/Red">
+    <color rgba="1.0 0.0 0.0 1.0"/>
+  </material>
+  <material name="gtrobot/Green">
+    <color rgba="0.0 1.0 0.0 1.0"/>
+  </material>
+  <material name="gtrobot/Blue">
+    <color rgba="0.0 0.0 0.8 1.0"/>
+  </material>
+  <material name="gtrobot/LightGrey">
+    <color rgba="0.82 0.82 0.82 1.0"/>
+  </material>
+  <material name="gtrobot/Caster">
+    <texture filename="package://ppr_description/materials/textures/caster_texture.png" />
+  </material>
+  
+  <material name="gtrobot/Wheel_l">
+    <texture filename="package://ppr_description/materials/textures/wheel_left.png" />
+  </material>
+  
+  <material name="gtrobot/Wheel_r">
+    <texture filename="package://ppr_description/materials/textures/wheel_right.png" />
+  </material>
+</robot>

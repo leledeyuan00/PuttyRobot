@@ -1,0 +1,549 @@
+<?xml version='1.0'?>
+<sdf version='1.6'>
+  <model name='gtrobot_arm'>
+    <link name='arm_base_link'>
+      <pose frame=''>0 0 0 0 0 -2.35619</pose>
+      <inertial>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <mass>4e-05</mass>
+        <inertia>
+          <ixx>4.43333e-08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>4.43333e-08</iyy>
+          <iyz>0</iyz>
+          <izz>7.2e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name='arm_base_link_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://gtrobot_arm/meshes/collision/base.stl</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <bounce/>
+          <friction>
+            <torsional>
+              <ode/>
+            </torsional>
+            <ode/>
+          </friction>
+        </surface>
+      </collision>
+      <visual name='arm_base_link_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://gtrobot_arm/meshes/visual/base.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <self_collide>0</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+    </link>
+    <!-- <joint name='ur5_joint' type='fixed'>
+      <child>arm_base_link</child>
+      <parent>world</parent>
+    </joint> -->
+    <link name='arm_shoulder_link'>
+      <pose frame=''>0 0 0.089159 0 0 -2.35619</pose>
+      <inertial>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <mass>0.00037</mass>
+        <inertia>
+          <ixx>1.02675e-06</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1.02675e-06</iyy>
+          <iyz>0</iyz>
+          <izz>6.66e-07</izz>
+        </inertia>
+      </inertial>
+      <collision name='arm_shoulder_link_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://gtrobot_arm/meshes/collision/shoulder.stl</uri>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+            <torsional>
+              <ode/>
+            </torsional>
+          </friction>
+          <bounce/>
+        </surface>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <visual name='arm_shoulder_link_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://gtrobot_arm/meshes/visual/shoulder.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <uri>__default__</uri>
+            <name>__default__</name>
+          </script>
+        </material>
+      </visual>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>1</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+    </link>
+    <joint name='arm_shoulder_pan_joint' type='revolute'>
+      <child>arm_shoulder_link</child>
+      <parent>arm_base_link</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>-6.28319</lower>
+          <upper>6.28319</upper>
+          <effort>150</effort>
+          <velocity>3.15</velocity>
+        </limit>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+    <link name='arm_upper_arm_link'>
+      <pose frame=''>0.096061 -0.096061 0.089159 -0.785403 1.57079 3.14159</pose>
+      <inertial>
+        <pose frame=''>0 0 0.28 0 -0 0</pose>
+        <mass>0.0008393</mass>
+        <inertia>
+          <ixx>2.26891e-05</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>2.26891e-05</iyy>
+          <iyz>0</iyz>
+          <izz>1.51074e-06</izz>
+        </inertia>
+      </inertial>
+      <collision name='arm_upper_arm_link_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://gtrobot_arm/meshes/collision/upperarm.stl</uri>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+            <torsional>
+              <ode/>
+            </torsional>
+          </friction>
+          <bounce/>
+        </surface>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <visual name='arm_upper_arm_link_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://gtrobot_arm/meshes/visual/upperarm.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <uri>__default__</uri>
+            <name>__default__</name>
+          </script>
+        </material>
+      </visual>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>1</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+    </link>
+    <joint name='arm_shoulder_lift_joint' type='revolute'>
+      <child>arm_upper_arm_link</child>
+      <parent>arm_shoulder_link</parent>
+      <axis>
+        <xyz>0.707107 -0.707107 -0</xyz>
+        <limit>
+          <lower>-6.28319</lower>
+          <upper>6.28319</upper>
+          <effort>150</effort>
+          <velocity>3.15</velocity>
+        </limit>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+    <link name='arm_forearm_link'>
+      <pose frame=''>-0.289101 -0.31194 0.089159 -0.785403 1.57079 3.14159</pose>
+      <inertial>
+        <pose frame=''>0 0 0.196125 0 -0 0</pose>
+        <mass>2.275e-05</mass>
+        <inertia>
+          <ixx>3.12168e-07</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>3.12168e-07</iyy>
+          <iyz>0</iyz>
+          <izz>4.095e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name='arm_forearm_link_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://gtrobot_arm/meshes/collision/forearm.stl</uri>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+            <torsional>
+              <ode/>
+            </torsional>
+          </friction>
+          <bounce/>
+        </surface>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <visual name='arm_forearm_link_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://gtrobot_arm/meshes/visual/forearm.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <uri>__default__</uri>
+            <name>__default__</name>
+          </script>
+        </material>
+      </visual>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>1</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+    </link>
+    <joint name='arm_elbow_joint' type='revolute'>
+      <child>arm_forearm_link</child>
+      <parent>arm_upper_arm_link</parent>
+      <axis>
+        <xyz>0.707107 -0.707107 -0</xyz>
+        <limit>
+          <lower>-3.14159</lower>
+          <upper>3.14159</upper>
+          <effort>150</effort>
+          <velocity>3.15</velocity>
+        </limit>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+    <link name='arm_wrist_1_link'>
+      <pose frame=''>-0.566463 -0.589303 0.089159 -3.14159 -0 0.785398</pose>
+      <inertial>
+        <pose frame=''>0 0.093 0 0 -0 0</pose>
+        <mass>1.219e-05</mass>
+        <inertia>
+          <ixx>2.5599e-08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>2.5599e-08</iyy>
+          <iyz>0</iyz>
+          <izz>2.1942e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name='arm_wrist_1_link_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://gtrobot_arm/meshes/collision/wrist1.stl</uri>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+            <torsional>
+              <ode/>
+            </torsional>
+          </friction>
+          <bounce/>
+        </surface>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <visual name='arm_wrist_1_link_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://gtrobot_arm/meshes/visual/wrist1.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <uri>__default__</uri>
+            <name>__default__</name>
+          </script>
+        </material>
+      </visual>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>1</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+    </link>
+    <joint name='arm_wrist_1_joint' type='revolute'>
+      <child>arm_wrist_1_link</child>
+      <parent>arm_forearm_link</parent>
+      <axis>
+        <xyz>0.707107 -0.707107 -0</xyz>
+        <limit>
+          <lower>-6.28319</lower>
+          <upper>6.28319</upper>
+          <effort>28</effort>
+          <velocity>3.2</velocity>
+        </limit>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+    <link name='arm_wrist_2_link'>
+      <pose frame=''>-0.500702 -0.655064 0.089159 -3.14159 -0 0.785398</pose>
+      <inertial>
+        <pose frame=''>0 0 0.09465 0 -0 0</pose>
+        <mass>1.219e-05</mass>
+        <inertia>
+          <ixx>2.5599e-08</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>2.5599e-08</iyy>
+          <iyz>0</iyz>
+          <izz>2.1942e-08</izz>
+        </inertia>
+      </inertial>
+      <collision name='arm_wrist_2_link_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://gtrobot_arm/meshes/collision/wrist2.stl</uri>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+            <torsional>
+              <ode/>
+            </torsional>
+          </friction>
+          <bounce/>
+        </surface>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <visual name='arm_wrist_2_link_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://gtrobot_arm/meshes/visual/wrist2.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <uri>__default__</uri>
+            <name>__default__</name>
+          </script>
+        </material>
+      </visual>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>1</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+    </link>
+    <joint name='arm_wrist_2_joint' type='revolute'>
+      <child>arm_wrist_2_link</child>
+      <parent>arm_wrist_1_link</parent>
+      <axis>
+        <xyz>-0 -0 -1</xyz>
+        <limit>
+          <lower>-6.28319</lower>
+          <upper>6.28319</upper>
+          <effort>28</effort>
+          <velocity>3.2</velocity>
+        </limit>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+    <link name='arm_wrist_3_link'>
+      <pose frame=''>-0.500702 -0.655064 -0.005491 -3.14159 -0 0.785398</pose>
+      <inertial>
+        <pose frame=''>0 0.06505 0 1.5708 -0 0</pose>
+        <mass>1.879e-06</mass>
+        <inertia>
+          <ixx>8.46959e-10</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>8.46959e-10</iyy>
+          <iyz>0</iyz>
+          <izz>1.32117e-09</izz>
+        </inertia>
+      </inertial>
+      <collision name='arm_wrist_3_link_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://gtrobot_arm/meshes/collision/wrist3.stl</uri>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+            <torsional>
+              <ode/>
+            </torsional>
+          </friction>
+          <bounce/>
+        </surface>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <collision name='arm_wrist_3_link_fixed_joint_lump__arm_ee_link_collision_1'>
+        <pose frame=''>-0 0.0723 0 0 -0 1.5708</pose>
+        <geometry>
+          <box>
+            <size>0.01 0.01 0.01</size>
+          </box>
+        </geometry>
+        <surface>
+          <contact>
+            <ode/>
+          </contact>
+          <friction>
+            <ode/>
+            <torsional>
+              <ode/>
+            </torsional>
+          </friction>
+          <bounce/>
+        </surface>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <visual name='arm_wrist_3_link_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://gtrobot_arm/meshes/visual/wrist3.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <uri>__default__</uri>
+            <name>__default__</name>
+          </script>
+        </material>
+      </visual>
+      <velocity_decay/>
+      <gravity>1</gravity>
+      <velocity_decay/>
+      <self_collide>1</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+    </link>
+    <joint name='arm_wrist_3_joint' type='revolute'>
+      <child>arm_wrist_3_link</child>
+      <parent>arm_wrist_2_link</parent>
+      <axis>
+        <xyz>0.707107 -0.707107 -0</xyz>
+        <limit>
+          <lower>-6.28319</lower>
+          <upper>6.28319</upper>
+          <effort>28</effort>
+          <velocity>3.2</velocity>
+        </limit>
+        <dynamics>
+          <damping>0</damping>
+          <friction>0</friction>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+    <plugin name='ros_control' filename='libgazebo_ros_control.so'>
+      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+      <legacyModeNS>1</legacyModeNS>
+      <robotNamespace>/</robotNamespace>
+    </plugin>
+    <static>0</static>
+    <pose frame=''>0 0 0 0 -0 0</pose>
+  </model>
+</sdf>

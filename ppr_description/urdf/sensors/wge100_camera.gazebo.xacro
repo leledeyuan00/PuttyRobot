@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:macro name="wge100_camera_gazebo_v0" params="name camera_name image_topic_name camera_info_topic_name hfov focal_length frame_id hack_baseline image_width image_height">
+    <gazebo reference="${name}_frame">
+      <sensor type="camera" name="${name}_sensor">
+        <always_on>true</always_on>
+        <update_rate>30.0</update_rate>
+        <camera>
+          <horizontal_fov>${hfov*3.1414/180.0}</horizontal_fov>
+          <image>
+            <format>R8G8B8</format>
+            <width>${image_width}</width>
+            <height>${image_height}</height>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>300</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+        <plugin name="${name}_controller" filename="libgazebo_ros_camera.so">
+          <alwaysOn>true</alwaysOn>
+          <updateRate>30.0</updateRate>
+          <cameraName>${camera_name}</cameraName>
+          <imageTopicName>${image_topic_name}</imageTopicName>
+          <cameraInfoTopicName>${camera_info_topic_name}</cameraInfoTopicName>
+          <frameName>${frame_id}</frameName>
+          <hackBaseline>${hack_baseline}</hackBaseline>
+         
+          <!-- 350 for wide and 700 for narrow stereo camera -->
+          <focalLength>${focal_length}</focalLength>
+          <distortionK1>0.0</distortionK1>
+          <distortionK2>0.0</distortionK2>
+          <distortionK3>0.0</distortionK3>
+          <distortionT1>0.0</distortionT1>
+          <distortionT2>0.0</distortionT2>
+        </plugin>
+      </sensor>
+      <gravity>false</gravity>
+      <material>Gazebo/Blue</material>
+    </gazebo>
+
+    <gazebo reference="${name}_optical_frame">
+      <material value="Gazebo/Black" />
+      <gravity>false</gravity>
+    </gazebo>
+
+    <gazebo reference="${name}_optical_frame_gazebo">
+      <material value="Gazebo/Black" />
+      <gravity>false</gravity>
+    </gazebo>
+
+  </xacro:macro>
+
+</robot>
+
+
+
+<!-- <CxPrime>${(image_width+1)/2}</CxPrime>
+<Cx>${(image_width+1)/2}</Cx>
+<Cy>${(image_height+1)/2}</Cy> -->
+<!-- image_width / (2*tan(hfov_radian /2)) -->
+
+<!-- focal_length = width_ / (2.0 * tan(HFOV/2.0)) -->

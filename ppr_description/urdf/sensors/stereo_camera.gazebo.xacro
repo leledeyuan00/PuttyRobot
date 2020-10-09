@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- this macro is used for creating wide and narrow double stereo camera in simulation -->
+  <xacro:macro name="stereo_camera_gazebo_v0" params="name focal_length hfov image_width image_height">
+    
+    <gazebo reference="${name}_link">
+      <material value="Gazebo/Black" />
+      <gravity>false</gravity>
+    </gazebo>
+
+    <gazebo reference="${name}_optical_frame">
+      <material value="Gazebo/White" />
+      <gravity>false</gravity>
+    </gazebo>
+
+  </xacro:macro>
+
+</robot>

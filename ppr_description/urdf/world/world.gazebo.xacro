@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://www.ros.org/wiki/xacro/#interface">
+
+
+  <xacro:macro name="world_gazebo" >
+
+    <gazebo reference="world_footprint">
+      <material>Gazebo/White</material>
+      <gravity>true</gravity>
+    </gazebo>
+
+    <gazebo reference="fixed_link_world">
+      <material>Gazebo/Grey</material>
+      <gravity>true</gravity>
+    </gazebo>
+
+
+  </xacro:macro>
+
+</robot>
