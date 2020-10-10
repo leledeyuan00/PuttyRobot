@@ -44,10 +44,8 @@
         </material>
       </visual>
       <velocity_decay/>
-      <gravity>0</gravity>
       <gravity>1</gravity>
       <velocity_decay/>
-      <gravity>0</gravity>
       <self_collide>0</self_collide>
       <enable_wind>0</enable_wind>
       <kinematic>0</kinematic>
@@ -82,7 +80,6 @@
       </visual>
       <gravity>1</gravity>
       <velocity_decay/>
-      <gravity>0</gravity>
       <self_collide>0</self_collide>
       <enable_wind>0</enable_wind>
       <kinematic>0</kinematic>
@@ -135,7 +132,6 @@
       </visual>
       <gravity>1</gravity>
       <velocity_decay/>
-      <gravity>0</gravity>
       <self_collide>0</self_collide>
       <enable_wind>0</enable_wind>
       <kinematic>0</kinematic>
@@ -260,13 +256,8 @@
           </script>
         </material>
       </visual>
-      <velocity_decay/>
       <gravity>1</gravity>
       <velocity_decay/>
-      <gravity>1</gravity>
-      <gravity>1</gravity>
-      <velocity_decay/>
-      <gravity>0</gravity>
       <self_collide>0</self_collide>
       <enable_wind>0</enable_wind>
       <kinematic>0</kinematic>
@@ -1211,11 +1202,11 @@
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
     </joint>
-    <!-- <plugin name='ros_control' filename='libgazebo_ros_control.so'>
+    <plugin name='ros_control' filename='libgazebo_ros_control.so'>
       <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
       <legacyModeNS>1</legacyModeNS>
       <robotNamespace>/</robotNamespace>
-    </plugin> -->
+    </plugin>
     <static>0</static>
     <pose frame=''>0 0 0 0 -0 0</pose>
   </model>
