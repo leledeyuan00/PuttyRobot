@@ -1,0 +1,80 @@
+<?xml version='1.0'?>
+<sdf version='1.6'>
+
+    <model name="poineer">
+        <include>
+            <uri>model://gtrobot_base</uri>
+            <name>/</name>
+            <pose>0 0 0 0 0 0</pose>
+            <plugin name='ros_control_poineer' filename='libgazebo_ros_control.so'>
+                <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+                <legacyModeNS>1</legacyModeNS>
+                <robotNamespace>/</robotNamespace>
+            </plugin>
+            <static>0</static>
+        </include>
+        
+        <!-- 0.089159 -->
+        <!-- <include>
+            <uri>model://gtrobot_arm</uri>
+            <name>gtrobot_arm</name>
+            <pose>-0 -0.531 1.25 1.5708 -1.5708 -0</pose>
+            <static>0</static>
+            <plugin name='ros_control_arm' filename='libgazebo_ros_control.so'>
+                <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+                <legacyModeNS>1</legacyModeNS>
+                <robotNamespace>/</robotNamespace>
+            </plugin>
+        </include>
+        <joint name='ur_base_joint' type='fixed'>
+            <parent>gtrobot_base::rotate_axis_link</parent>
+            <child>gtrobot_arm::arm_shoulder_link</child>
+            <axis>
+                <xyz>0 0 1</xyz>
+                <limit>
+                    <lower>-1e+16</lower>
+                    <upper>1e+16</upper>
+                </limit>
+                <dynamics>
+                    <damping>1</damping>
+                    <friction>100000</friction>
+                    <spring_reference>0</spring_reference>
+                    <spring_stiffness>0</spring_stiffness>
+                </dynamics>
+                <use_parent_model_frame>1</use_parent_model_frame>
+            </axis>
+            <physics>
+                <provide_feedback>1</provide_feedback>
+                <ode>
+                    <provide_feedback>1</provide_feedback>
+                    <fudge_factor>1</fudge_factor>
+                    <limit>
+                    <cfm>0</cfm>
+                    <erp>0.2</erp>
+                    </limit>
+                </ode>
+            </physics>
+        </joint> -->
+
+
+        <!-- offset r 90 p -45 -->
+        <!-- <include>
+            <uri>model://parabot</uri>
+            <name>parabot</name>
+            <pose>0.723259 -0.525509 0.857493 0 0.713259 0</pose>
+        </include>
+        <joint name='ur_parabot' type='fixed'>
+            <parent>gtrobot_arm::arm_wrist_3_link</parent>
+            <child>parabot::lower_platform</child>
+        </joint> -->
+
+        <!-- <plugin name='ros_control_poineer' filename='libgazebo_ros_control.so'>
+            <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+            <legacyModeNS>1</legacyModeNS>
+            <robotNamespace>/</robotNamespace>
+        </plugin>
+        <static>0</static> -->
+
+    </model>
+
+</sdf>

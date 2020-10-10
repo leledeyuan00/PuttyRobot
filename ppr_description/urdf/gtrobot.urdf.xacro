@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro"
-       name="gtrobot" >
+       name="poineer" >
 
   
   <!-- The following xacro:included files set up definitions of parts of the robot body -->
@@ -111,74 +111,8 @@
     <xacro:rplidar prefix="lidar"/>
   </xacro:if>
 
-  <!-- infrared ray -->
-  <xacro:if value="$(arg infrared_ray_enabled)">
-    <joint name="infrared_ray_joint" type="fixed">
-        <origin xyz="${infrared_ray_offset_x} ${infrared_ray_offset_y} ${infrared_ray_offset_z}" rpy="${pi/2} 0 0" />
-        <parent link="arm_ee_link"/>
-        <child link="infrared_ray_link"/>
-    </joint>
 
-    <xacro:infrared_ray prefix="infrared_ray"/>
-  </xacro:if>
-
-
-  <!--Stereo Camera Joint-->
-  <xacro:if value="$(arg zed_enabled)">
-    <joint name="stereo_joint" type="fixed">
-      <parent link="${zed_base_parent}"/>
-      <child link="base_stereo"/>
-      <origin xyz="${zed_offset_x} ${zed_offset_y} ${zed_offset_z}" 
-              rpy="${zed_offset_roll} ${zed_offset_pitch} ${zed_offset_yaw}"/>
-    </joint>
-    <link name="base_stereo">
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <mesh filename="package://ppr_description/meshes/sensors/ZED.stl" />
-        </geometry>
-        <material name="dark"/>
-      </visual>
-      <xacro:cuboid_inertial length="0.16" weight="0.04" hight="0.04" mass="0.00000001">
-        <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
-      </xacro:cuboid_inertial>
-    </link>
-
-    <xacro:stereo_camera_v0 parent="base_stereo" name="stereo" focal_length="700.065972" hfov="84.8725" image_width="1280" image_height="720" >
-        <origin xyz="0 0 0.0" rpy="0.0   0.0   0.0" />
-    </xacro:stereo_camera_v0>
-  </xacro:if>
-
-  <!--Stereo Camera Virtual Joint for Collision Avoidance-->
-  <!-- <joint name="left_stereo_virtual_joint" type="fixed">
-    <parent link="arm_ee_link"/>
-    <child link="collision_virtual_ee_link"/>
-    <origin xyz="0.5 0 0" 
-            rpy="${pi/2} 0 ${pi/2}"/>
-  </joint>
-  <link name="collision_virtual_ee_link">
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <cylinder radius="0.0001" length="0.0001" />
-      </geometry>
-      <material name="dark"/>
-    </visual>
-    <xacro:cylinder_inertial length="0.05" radius="0.1" mass="0.00000001">
-      <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
-    </xacro:cylinder_inertial>
-  </link> -->
-
-  <!-- imu -->
-  <xacro:if value="$(arg imu_enabled)">
-    <joint name="imu_joint" type="fixed">
-        <origin xyz="${imu_offset_x} ${imu_offset_y} ${imu_offset_z}" rpy="${imu_offset_roll} ${imu_offset_pitch} ${imu_offset_yaw}" />
-        <parent link="${imu_base_parent}"/>
-        <child link="imu_link"/>
-    </joint>
-
-    <xacro:imu prefix="imu"/>
-  </xacro:if>
+  
 
   <!-- ground truth for arm_wrist_3_link -->
   <gazebo>

@@ -7,33 +7,25 @@
 
  <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
   <!-- startup simulated world -->
-  <!-- <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="paused" value="false"/>
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="paused" value="true"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="gui" value="true"/>
     <arg name="recording" value="false"/>
     <arg name="debug" value="false"/>
     <arg name="verbose" value="true"/>
-  </include> -->
-  <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" default="$(find gazebo_ros)/launch/empty_world.launch"/>
-    <arg name="paused" value="false"/>
-    <arg name="gui" value="true"/>
-    <arg name="use_sim_time" value="true"/>
-    <arg name="headless" value="false"/>
-    <arg name="debug" value="false"/>
   </include>
   
   <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find ppr_description)/urdf/gtrobot.urdf.xacro' transmission_hw_interface:=$(arg transmission_hw_interface)" /> 
 
-  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" ></node>
+  <!-- <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" ></node> -->
 
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="50.0" />
   </node>
 
   <node name="parabot_simulator" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" 
-    args="-sdf -model parabot -file $(find ppr_description)/models/poineer/model.sdf -x 0.0 -y 0.0 -z 0.0 -R 0.0 -P 0.0 -Y 0.0">
+    args="-sdf -model poineer -file $(find ppr_description)/models/poineer/model.sdf -x 0.0 -y 0.0 -z 0.0 -R 0.0 -P 0.0 -Y 0.0">
   </node>
 
   <!-- launch joint state controller -->
@@ -45,8 +37,8 @@
         pkg="controller_manager" type="spawner" output="screen" respawn="false"
         args=" 
               joint_state_controller
-              arm_group_controller
               base_wheels_controller
+              arm_group_controller
               " />
 
 </launch>
