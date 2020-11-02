@@ -1,0 +1,1005 @@
+<sdf version='1.6'>
+  <world name='default'>
+    <light name='sun' type='directional'>
+      <cast_shadows>1</cast_shadows>
+      <pose frame=''>0 0 10 0 -0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+    <model name='ground_plane'>
+      <static>1</static>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <surface>
+            <contact>
+              <collide_bitmask>65535</collide_bitmask>
+              <ode/>
+            </contact>
+            <friction>
+              <ode>
+                <mu>100</mu>
+                <mu2>50</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <cast_shadows>0</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grey</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <gravity>0 0 -9.8</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type='adiabatic'/>
+    <physics name='default_physics' default='0' type='ode'>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+    <scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>1</shadows>
+    </scene>
+    <audio>
+      <device>default</device>
+    </audio>
+    <wind/>
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <latitude_deg>0</latitude_deg>
+      <longitude_deg>0</longitude_deg>
+      <elevation>0</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+    <model name='parabot'>
+      <link name='lower_platform'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <inertial>
+          <pose frame=''>-8e-06 -0 0.000606 0 -0 0</pose>
+          <mass>0.0603778</mass>
+          <inertia>
+            <ixx>5.44707e-05</ixx>
+            <ixy>-3.39473e-13</ixy>
+            <ixz>-3.70667e-09</ixz>
+            <iyy>5.44893e-05</iyy>
+            <iyz>8.47232e-14</iyz>
+            <izz>0.00010778</izz>
+          </inertia>
+        </inertial>
+        <collision name='lower_platform_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/lower_platform.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='lower_platform_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/lower_platform.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Orange</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='fixed_para' type='fixed'>
+        <pose frame=''>0 0 0.5 0 -0 0</pose>
+        <parent>world</parent>
+        <child>lower_platform</child>
+      </joint>
+      <link name='motor1_link'>
+        <pose frame=''>-0.06 -0.0001 0 0 -0 0</pose>
+        <inertial>
+          <pose frame=''>-0.003127 -4.3e-05 0.037103 0 -0 0</pose>
+          <mass>0.0185186</mass>
+          <inertia>
+            <ixx>2.18492e-06</ixx>
+            <ixy>3.13901e-09</ixy>
+            <ixz>8.63034e-08</ixz>
+            <iyy>2.49671e-06</iyy>
+            <iyz>9.17597e-09</iyz>
+            <izz>1.2683e-06</izz>
+          </inertia>
+        </inertial>
+        <collision name='motor1_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/motor1.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='motor1_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/motor1.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Black</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='motor1_joint' type='revolute'>
+        <child>motor1_link</child>
+        <parent>lower_platform</parent>
+        <axis>
+          <xyz>0 1 0</xyz>
+          <limit>
+            <lower>-0.785</lower>
+            <upper>0.785</upper>
+            <effort>100</effort>
+            <velocity>10</velocity>
+          </limit>
+          <dynamics>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+      </joint>
+      <link name='connection1'>
+        <pose frame=''>-0.06 -0.0001 0.0734 0 0 -0.017453</pose>
+        <inertial>
+          <pose frame=''>-0 -0 0.039505 0 -0 0</pose>
+          <mass>0.0022949</mass>
+          <inertia>
+            <ixx>1.6278e-07</ixx>
+            <ixy>-6.967e-14</ixy>
+            <ixz>6.9068e-13</ixz>
+            <iyy>1.6278e-07</iyy>
+            <iyz>3.4987e-13</iyz>
+            <izz>3.1596e-08</izz>
+          </inertia>
+        </inertial>
+        <collision name='connection1_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/connection1.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='connection1_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/connection1.STL</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='motor1' type='prismatic'>
+        <child>connection1</child>
+        <parent>motor1_link</parent>
+        <axis>
+          <xyz>0 0 1</xyz>
+          <limit>
+            <lower>-0.01</lower>
+            <upper>0.017</upper>
+            <effort>100</effort>
+            <velocity>10</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+      </joint>
+      <link name='motor2_link'>
+        <pose frame=''>0.030087 -0.051912 0 0 -0 2.0944</pose>
+        <inertial>
+          <pose frame=''>-0.003127 -4.3e-05 0.037103 0 -0 0</pose>
+          <mass>0.0185187</mass>
+          <inertia>
+            <ixx>2.18492e-06</ixx>
+            <ixy>3.13901e-09</ixy>
+            <ixz>8.63034e-08</ixz>
+            <iyy>2.49671e-06</iyy>
+            <iyz>9.17597e-09</iyz>
+            <izz>1.2683e-06</izz>
+          </inertia>
+        </inertial>
+        <collision name='motor2_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/motor2.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='motor2_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/motor2.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Black</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='motor2_joint' type='revolute'>
+        <child>motor2_link</child>
+        <parent>lower_platform</parent>
+        <axis>
+          <xyz>-0.866025 -0.5 0</xyz>
+          <limit>
+            <lower>-0.785</lower>
+            <upper>0.785</upper>
+            <effort>100</effort>
+            <velocity>10</velocity>
+          </limit>
+          <dynamics>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+      </joint>
+      <link name='connection2'>
+        <pose frame=''>0.030087 -0.051912 0.0734 0 -0 2.07694</pose>
+        <inertial>
+          <pose frame=''>-0 -0 0.039505 0 -0 0</pose>
+          <mass>0.0022949</mass>
+          <inertia>
+            <ixx>1.6278e-07</ixx>
+            <ixy>-6.967e-14</ixy>
+            <ixz>6.9068e-13</ixz>
+            <iyy>1.6278e-07</iyy>
+            <iyz>3.4987e-13</iyz>
+            <izz>3.1596e-08</izz>
+          </inertia>
+        </inertial>
+        <collision name='connection2_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/connection2.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='connection2_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/connection2.STL</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='motor2' type='prismatic'>
+        <child>connection2</child>
+        <parent>motor2_link</parent>
+        <axis>
+          <xyz>0 0 1</xyz>
+          <limit>
+            <lower>-0.01</lower>
+            <upper>0.017</upper>
+            <effort>100</effort>
+            <velocity>10</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+      </joint>
+      <link name='motor3_link'>
+        <pose frame=''>0.029913 0.052012 0 0 0 -2.0944</pose>
+        <inertial>
+          <pose frame=''>-0.003127 -4.3e-05 0.037103 0 -0 0</pose>
+          <mass>0.0185186</mass>
+          <inertia>
+            <ixx>2.18492e-06</ixx>
+            <ixy>3.13901e-09</ixy>
+            <ixz>8.63034e-08</ixz>
+            <iyy>2.49671e-06</iyy>
+            <iyz>9.17597e-09</iyz>
+            <izz>1.2683e-06</izz>
+          </inertia>
+        </inertial>
+        <collision name='motor3_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/motor3.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='motor3_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/motor3.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Black</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='motor3_joint' type='revolute'>
+        <child>motor3_link</child>
+        <parent>lower_platform</parent>
+        <axis>
+          <xyz>0.866025 -0.5 0</xyz>
+          <limit>
+            <lower>-0.785</lower>
+            <upper>0.785</upper>
+            <effort>100</effort>
+            <velocity>10</velocity>
+          </limit>
+          <dynamics>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+      </joint>
+      <link name='connection3'>
+        <pose frame=''>0.029913 0.052012 0.0734 0 0 -2.11185</pose>
+        <inertial>
+          <pose frame=''>-0 -0 0.039505 0 -0 0</pose>
+          <mass>0.0022949</mass>
+          <inertia>
+            <ixx>1.6278e-07</ixx>
+            <ixy>-6.6347e-14</ixy>
+            <ixz>6.196e-13</ixz>
+            <iyy>1.6278e-07</iyy>
+            <iyz>4.0246e-13</iyz>
+            <izz>3.1595e-08</izz>
+          </inertia>
+        </inertial>
+        <collision name='connection3_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/connection3.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='connection3_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/connection3.STL</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='motor3' type='prismatic'>
+        <child>connection3</child>
+        <parent>motor3_link</parent>
+        <axis>
+          <xyz>0 0 1</xyz>
+          <limit>
+            <lower>-0.01</lower>
+            <upper>0.017</upper>
+            <effort>100</effort>
+            <velocity>10</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+      </joint>
+      <link name='upper_platform3'>
+        <pose frame=''>-0 -0 0.135513 0 -0 0</pose>
+        <inertial>
+          <pose frame=''>1.5e-05 -8e-06 -0.031799 0 -0 0</pose>
+          <mass>0.30122</mass>
+          <inertia>
+            <ixx>0.000239611</ixx>
+            <ixy>-3.7081e-14</ixy>
+            <ixz>-1.01145e-14</ixz>
+            <iyy>0.000239454</iyy>
+            <iyz>1.44059e-14</iyz>
+            <izz>0.000359706</izz>
+          </inertia>
+        </inertial>
+        <collision name='upper_platform3_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/upper_platform3.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='upper_platform3_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/upper_platform3.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Orange</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <collision name='upper_platform3_fixed_joint_lump__sensor1_collision_1'>
+          <pose frame=''>0 0 0.113013 0 0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/sensor1.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='upper_platform3_fixed_joint_lump__sensor1_visual_1'>
+          <pose frame=''>-0.1175 0 -0.014373 0 0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/sensor1.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Red</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <sensor name='laser1' type='ray'>
+          <pose frame=''>-0.1175 0 -0.014373 3.14159 -1.57079 3.14159</pose>
+          <visualize>1</visualize>
+          <update_rate>125</update_rate>
+          <ray>
+            <scan>
+              <horizontal>
+                <samples>1</samples>
+                <resolution>1</resolution>
+                <min_angle>-0</min_angle>
+                <max_angle>0</max_angle>
+              </horizontal>
+              <vertical>
+                <samples>1</samples>
+                <min_angle>0</min_angle>
+                <max_angle>0</max_angle>
+              </vertical>
+            </scan>
+            <range>
+              <min>0.1</min>
+              <max>1</max>
+              <resolution>0.01</resolution>
+            </range>
+            <noise>
+              <type>gaussian</type>
+              <mean>0</mean>
+              <stddev>0.0001</stddev>
+            </noise>
+          </ray>
+          <plugin name='gazebo_ros_laser_controller1' filename='libgazebo_ros_laser.so'>
+            <topicName>parabot/laser1</topicName>
+            <frameName>upper_platform3</frameName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <collision name='upper_platform3_fixed_joint_lump__sensor2_collision_2'>
+          <pose frame=''>0 0 0.113013 0 0 -1.0472</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/sensor2.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='upper_platform3_fixed_joint_lump__sensor2_visual_2'>
+          <pose frame=''>0.05875 -0.101758 -0.014373 0 0 -1.0472</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/sensor2.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Red</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <sensor name='laser2' type='ray'>
+          <pose frame=''>0.05875 -0.101758 -0.014373 3.14159 -1.57079 3.14159</pose>
+          <visualize>1</visualize>
+          <update_rate>125</update_rate>
+          <ray>
+            <scan>
+              <horizontal>
+                <samples>1</samples>
+                <resolution>1</resolution>
+                <min_angle>-0</min_angle>
+                <max_angle>0</max_angle>
+              </horizontal>
+              <vertical>
+                <samples>1</samples>
+                <min_angle>0</min_angle>
+                <max_angle>0</max_angle>
+              </vertical>
+            </scan>
+            <range>
+              <min>0.1</min>
+              <max>1</max>
+              <resolution>0.01</resolution>
+            </range>
+            <noise>
+              <type>gaussian</type>
+              <mean>0</mean>
+              <stddev>0.0001</stddev>
+            </noise>
+          </ray>
+          <plugin name='gazebo_ros_laser_controller2' filename='libgazebo_ros_laser.so'>
+            <topicName>parabot/laser2</topicName>
+            <frameName>upper_platform3</frameName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <collision name='upper_platform3_fixed_joint_lump__sensor3_collision_3'>
+          <pose frame=''>0 0 0.113013 0 -0 1.0472</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/sensor3.STL</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='upper_platform3_fixed_joint_lump__sensor3_visual_3'>
+          <pose frame=''>0.05875 0.101758 -0.014373 0 -0 1.0472</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/sensor3.STL</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Red</name>
+              <uri>__default__</uri>
+            </script>
+          </material>
+        </visual>
+        <sensor name='laser3' type='ray'>
+          <pose frame=''>0.05875 0.101758 -0.014373 3.14159 -1.57079 3.14159</pose>
+          <visualize>1</visualize>
+          <update_rate>125</update_rate>
+          <ray>
+            <scan>
+              <horizontal>
+                <samples>1</samples>
+                <resolution>1</resolution>
+                <min_angle>-0</min_angle>
+                <max_angle>0</max_angle>
+              </horizontal>
+              <vertical>
+                <samples>1</samples>
+                <min_angle>0</min_angle>
+                <max_angle>0</max_angle>
+              </vertical>
+            </scan>
+            <range>
+              <min>0.1</min>
+              <max>1</max>
+              <resolution>0.01</resolution>
+            </range>
+            <noise>
+              <type>gaussian</type>
+              <mean>0</mean>
+              <stddev>0.0001</stddev>
+            </noise>
+          </ray>
+          <plugin name='gazebo_ros_laser_controller3' filename='libgazebo_ros_laser.so'>
+            <topicName>parabot/laser3</topicName>
+            <frameName>upper_platform3</frameName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+        </sensor>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='ball3' type='ball'>
+        <pose frame=''>0.029913 0.052012 0 0 -0 0</pose>
+        <child>upper_platform3</child>
+        <parent>connection3</parent>
+      </joint>
+      <joint name='ball1' type='ball'>
+        <pose frame=''>-0.06 -0.0001 0 0 -0 0</pose>
+        <child>upper_platform3</child>
+        <parent>connection1</parent>
+      </joint>
+      <joint name='ball2' type='ball'>
+        <pose frame=''>0.030087 -0.051912 0 0 -0 0</pose>
+        <child>upper_platform3</child>
+        <parent>connection2</parent>
+      </joint>
+      <plugin name='parabot_hw_sim_plugin' filename='libparabot_plugin.so'>
+        <robotNamespace>parabot</robotNamespace>
+        <jointName>motor1 motor2 motor3</jointName>
+      </plugin>
+      <pose frame=''>0 0 0.5 3.14159 1.57079 3.14159</pose>
+    </model>
+    <model name='unit_box'>
+      <pose frame=''>1.48209 -0.028329 0.5 0 -0 0</pose>
+      <link name='link'>
+        <inertial>
+          <mass>1</mass>
+          <inertia>
+            <ixx>0.166667</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.166667</iyy>
+            <iyz>0</iyz>
+            <izz>0.166667</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <box>
+              <size>1 1 1</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>1 1 1</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Grey</name>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <state world_name='default'>
+      <sim_time>91 494000000</sim_time>
+      <real_time>94 777864249</real_time>
+      <wall_time>1600238260 214805790</wall_time>
+      <iterations>91494</iterations>
+      <model name='ground_plane'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='parabot'>
+        <pose frame=''>0 0 0.500001 0.000675 1.57072 0.000675</pose>
+        <scale>1 1 1</scale>
+        <link name='connection1'>
+          <pose frame=''>0.073207 -0.0001 0.559589 -1.8686 1.55254 -1.86855</pose>
+          <velocity>-0 -0 0 -0 -0 -0</velocity>
+          <acceleration>-0 0 0 -1.89121 -0.000137 -2.76853</acceleration>
+          <wrench>-0 0 0 0 -0 0</wrench>
+        </link>
+        <link name='connection2'>
+          <pose frame=''>0.073507 -0.05226 0.470139 1.58555 -0.502997 1.5686</pose>
+          <velocity>-0 -0 -0 0 -0 0</velocity>
+          <acceleration>-0 -0 0 1.00508 0.786527 0.86535</acceleration>
+          <wrench>-0 -0 0 0 -0 0</wrench>
+        </link>
+        <link name='connection3'>
+          <pose frame=''>0.073516 0.052482 0.470424 -1.58618 -0.538014 -1.56721</pose>
+          <velocity>0 0 -0 -0 -0 -0</velocity>
+          <acceleration>0 -0 0 -1.03747 0.668507 -2.72614</acceleration>
+          <wrench>0 -0 0 0 -0 0</wrench>
+        </link>
+        <link name='lower_platform'>
+          <pose frame=''>0 0 0.500001 0.000675 1.57072 0.000675</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 -0 0 -0 -0 -0</acceleration>
+          <wrench>0 -0 0 0 -0 0</wrench>
+        </link>
+        <link name='motor1_link'>
+          <pose frame=''>1.8e-05 -0.0001 0.559996 3.14152 1.56534 3.14152</pose>
+          <velocity>-0 -0 0 -0 -0 -0</velocity>
+          <acceleration>0 -0 0 -1.65912 -0.079268 1.37505</acceleration>
+          <wrench>0 -0 0 0 -0 0</wrench>
+        </link>
+        <link name='motor2_link'>
+          <pose frame=''>-9e-06 -0.051893 0.46987 1.57503 -0.523116 1.5681</pose>
+          <velocity>0 0 -0 0 -0 0</velocity>
+          <acceleration>-0 -0 -0 0.712998 0.232609 -2.6031</acceleration>
+          <wrench>-0 -0 -0 0 -0 0</wrench>
+        </link>
+        <link name='motor3_link'>
+          <pose frame=''>3e-06 0.051919 0.469922 -1.57139 -0.523647 -1.56727</pose>
+          <velocity>-0 -0 0 0 -0 0</velocity>
+          <acceleration>0 -0 0 -1.9496 -1.01734 0.79747</acceleration>
+          <wrench>0 -0 0 0 -0 0</wrench>
+        </link>
+        <link name='upper_platform3'>
+          <pose frame=''>0.135518 5.4e-05 0.499266 0.264257 1.56736 0.26417</pose>
+          <velocity>-0 -0 -0 0 -0 0</velocity>
+          <acceleration>-0 0 0 -0 -0 -0</acceleration>
+          <wrench>-0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='unit_box'>
+        <pose frame=''>1.2 -1e-06 0.5 0 -0 0.349998</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>1.2 -1e-06 0.5 0 -0 0.349998</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>4.89364 -3.94275 2.13081 -1.54032 -0.368031 3.13669</acceleration>
+          <wrench>4.89364 -3.94275 2.13081 0 -0 0</wrench>
+        </link>
+      </model>
+      <light name='sun'>
+        <pose frame=''>0 0 10 0 -0 0</pose>
+      </light>
+    </state>
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose frame=''>-1.89448 -0.434118 2.82374 0 0.879643 -0.059805</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type>
+      </camera>
+    </gui>
+  </world>
+</sdf>

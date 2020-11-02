@@ -20,7 +20,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/lower_platform.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/lower_platform.STL</uri>
             </mesh>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -30,7 +30,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/lower_platform.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/lower_platform.STL</uri>
             </mesh>
           </geometry>
           <material>
@@ -52,15 +52,15 @@
       <link name='motor1_link'>
         <pose frame=''>-0.06 -0.0001 0 0 -0 0</pose>
         <inertial>
-          <pose frame=''>-0.003127 -4.3e-05 0.037103 0 -0 0</pose>
-          <mass>0.0185186</mass>
+          <pose frame=''>-0.003328 -4.5e-05 0.035558 0 -0 0</pose>
+           <mass>0.0174008</mass>
           <inertia>
-            <ixx>2.18492e-06</ixx>
-            <ixy>3.13901e-09</ixy>
-            <ixz>8.63034e-08</ixz>
-            <iyy>2.49671e-06</iyy>
-            <iyz>9.17597e-09</iyz>
-            <izz>1.2683e-06</izz>
+            <ixx>2.10767e-06</ixx>
+            <ixy>3.14927e-09</ixy>
+            <ixz>8.63406e-08</ixz>
+            <iyy>2.42005e-06</iyy>
+            <iyz>9.17533e-09</iyz>
+            <izz>1.25993e-06</izz>
           </inertia>
         </inertial>
         <collision name='motor1_collision'>
@@ -68,7 +68,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/motor1.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/motor1.STL</uri>
             </mesh>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -78,7 +78,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/motor1.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/motor1.STL</uri>
             </mesh>
           </geometry>
           <material>
@@ -112,15 +112,15 @@
       <link name='connection1'>
         <pose frame=''>-0.06 -0.0001 0.0734 0 0 -0.017453</pose>
         <inertial>
-          <pose frame=''>-0 -0 0.039505 0 -0 0</pose>
-          <mass>0.0022949</mass>
+          <pose frame=''>-0 -0 0.004082 0 -0 0</pose>
+          <mass>0.0028116</mass>
           <inertia>
-            <ixx>1.6278e-07</ixx>
-            <ixy>-6.967e-14</ixy>
-            <ixz>6.9068e-13</ixz>
-            <iyy>1.6278e-07</iyy>
-            <iyz>3.4987e-13</iyz>
-            <izz>3.1596e-08</izz>
+            <ixx>5.98751e-07</ixx>
+            <ixy>-6.59627e-13</ixy>
+            <ixz>1.8379e-12</ixz>
+            <iyy>5.98749e-07</iyy>
+            <iyz>6.08145e-13</iyz>
+            <izz>3.55554e-08</izz>
           </inertia>
         </inertial>
         <collision name='connection1_collision'>
@@ -128,7 +128,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/connection1.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/connection1.STL</uri>
             </mesh>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -138,7 +138,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/connection1.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/connection1.STL</uri>
             </mesh>
           </geometry>
         </visual>
@@ -152,7 +152,7 @@
         <axis>
           <xyz>0 0 1</xyz>
           <limit>
-            <lower>0</lower>
+            <lower>0.0</lower>
             <upper>0.027</upper>
             <effort>100</effort>
             <velocity>10</velocity>
@@ -166,15 +166,15 @@
       <link name='motor2_link'>
         <pose frame=''>0.030087 -0.051912 0 0 -0 2.0944</pose>
         <inertial>
-          <pose frame=''>-0.003127 -4.3e-05 0.037103 0 -0 0</pose>
-          <mass>0.0185187</mass>
+          <pose frame=''>-0.003328 -4.5e-05 0.035558 0 -0 0</pose>
+          <mass>0.0174009</mass>
           <inertia>
-            <ixx>2.18492e-06</ixx>
-            <ixy>3.13901e-09</ixy>
-            <ixz>8.63034e-08</ixz>
-            <iyy>2.49671e-06</iyy>
-            <iyz>9.17597e-09</iyz>
-            <izz>1.2683e-06</izz>
+            <ixx>2.10767e-06</ixx>
+            <ixy>3.15004e-09</ixy>
+            <ixz>8.63405e-08</ixz>
+            <iyy>2.42005e-06</iyy>
+            <iyz>9.17523e-09</iyz>
+            <izz>1.25993e-06</izz>
           </inertia>
         </inertial>
         <collision name='motor2_collision'>
@@ -182,7 +182,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/motor2.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/motor2.STL</uri>
             </mesh>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -192,7 +192,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/motor2.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/motor2.STL</uri>
             </mesh>
           </geometry>
           <material>
@@ -226,15 +226,15 @@
       <link name='connection2'>
         <pose frame=''>0.030087 -0.051912 0.0734 0 -0 2.07694</pose>
         <inertial>
-          <pose frame=''>-0 -0 0.039505 0 -0 0</pose>
-          <mass>0.0022949</mass>
+          <pose frame=''>-0 -0 0.004082 0 -0 0</pose>
+          <mass>0.0028116</mass>
           <inertia>
-            <ixx>1.6278e-07</ixx>
-            <ixy>-6.967e-14</ixy>
-            <ixz>6.9068e-13</ixz>
-            <iyy>1.6278e-07</iyy>
-            <iyz>3.4987e-13</iyz>
-            <izz>3.1596e-08</izz>
+            <ixx>5.98751e-07</ixx>
+            <ixy>-6.77924e-13</ixy>
+            <ixz>1.83316e-12</ixz>
+            <iyy>5.98748e-07</iyy>
+            <iyz>6.19296e-13</iyz>
+            <izz>3.55554e-08</izz>
           </inertia>
         </inertial>
         <collision name='connection2_collision'>
@@ -242,7 +242,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/connection2.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/connection2.STL</uri>
             </mesh>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -252,7 +252,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/connection2.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/connection2.STL</uri>
             </mesh>
           </geometry>
         </visual>
@@ -266,7 +266,7 @@
         <axis>
           <xyz>0 0 1</xyz>
           <limit>
-            <lower>0</lower>
+            <lower>0.0</lower>
             <upper>0.027</upper>
             <effort>100</effort>
             <velocity>10</velocity>
@@ -280,15 +280,15 @@
       <link name='motor3_link'>
         <pose frame=''>0.029913 0.052012 0 0 0 -2.0944</pose>
         <inertial>
-          <pose frame=''>-0.003127 -4.3e-05 0.037103 0 -0 0</pose>
-          <mass>0.0185186</mass>
+          <pose frame=''>-0.003328 -4.5e-05 0.035558 0 -0 0</pose>
+          <mass>0.0174008</mass>
           <inertia>
-            <ixx>2.18492e-06</ixx>
-            <ixy>3.13901e-09</ixy>
-            <ixz>8.63034e-08</ixz>
-            <iyy>2.49671e-06</iyy>
-            <iyz>9.17597e-09</iyz>
-            <izz>1.2683e-06</izz>
+            <ixx>2.10767e-06</ixx>
+            <ixy>3.14947e-09</ixy>
+            <ixz>8.63405e-08</ixz>
+            <iyy>2.42005e-06</iyy>
+            <iyz>9.17555e-09</iyz>
+            <izz>1.25993e-06</izz>
           </inertia>
         </inertial>
         <collision name='motor3_collision'>
@@ -296,7 +296,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/motor3.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/motor3.STL</uri>
             </mesh>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -306,7 +306,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/motor3.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/motor3.STL</uri>
             </mesh>
           </geometry>
           <material>
@@ -340,15 +340,15 @@
       <link name='connection3'>
         <pose frame=''>0.029913 0.052012 0.0734 0 0 -2.11185</pose>
         <inertial>
-          <pose frame=''>-0 -0 0.039505 0 -0 0</pose>
-          <mass>0.0022949</mass>
+          <pose frame=''>-0 -0 0.004082 0 -0 0</pose>
+          <mass>0.0028116</mass>
           <inertia>
-            <ixx>1.6278e-07</ixx>
-            <ixy>-6.6347e-14</ixy>
-            <ixz>6.196e-13</ixz>
-            <iyy>1.6278e-07</iyy>
-            <iyz>4.0246e-13</iyz>
-            <izz>3.1595e-08</izz>
+            <ixx>5.98751e-07</ixx>
+            <ixy>-6.73669e-13</ixy>
+            <ixz>1.74604e-12</ixz>
+            <iyy>5.98748e-07</iyy>
+            <iyz>5.9774e-13</iyz>
+            <izz>3.55554e-08</izz>
           </inertia>
         </inertial>
         <collision name='connection3_collision'>
@@ -356,7 +356,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/connection3.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/connection3.STL</uri>
             </mesh>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -366,7 +366,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/connection3.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/connection3.STL</uri>
             </mesh>
           </geometry>
         </visual>
@@ -380,7 +380,7 @@
         <axis>
           <xyz>0 0 1</xyz>
           <limit>
-            <lower>0</lower>
+            <lower>0.0</lower>
             <upper>0.027</upper>
             <effort>100</effort>
             <velocity>10</velocity>
@@ -394,17 +394,17 @@
 
      
       <link name='upper_platform3'>
-        <pose frame=''>-0 -0 0.135513ray 0 -0 0</pose>
+        <pose frame=''>-0 -0 0.1049ray 0 -0 0</pose>
         <inertial>
-          <pose frame=''>1.5e-05 -8e-06 -0.031799 0 -0 0</pose>
+          <pose frame=''>0 -0 -0.031799 0 -0 0</pose>
           <mass>0.30122</mass>
           <inertia>
-            <ixx>0.000239611231064541</ixx>
-            <ixy>-3.70810221178748e-14</ixy>
-            <ixz>-1.01144890837118e-14</ixz>
-            <iyy>0.00023945415085988</iyy>
-            <iyz>1.44059471768371e-14</iyz>
-            <izz>0.000359706115663781</izz>
+            <ixx>0.00120425</ixx>
+            <ixy>2.31001e-09</ixy>
+            <ixz>6.44215e-11</ixz>
+            <iyy>0.00120406</iyy>
+            <iyz>-3.65634e-11</iyz>
+            <izz>0.00211065</izz>
           </inertia>
         </inertial>
         <collision name='upper_platform3_collision'>
@@ -412,7 +412,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/upper_platform3.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/upper_platform3.STL</uri>
             </mesh>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -422,7 +422,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/upper_platform3.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/upper_platform3.STL</uri>
             </mesh>
           </geometry>
           <material>
@@ -435,21 +435,21 @@
 
  
         <collision name='upper_platform3_fixed_joint_lump__sensor1_collision_1'>
-          <pose frame=''>0 0 0.113013 0 0 -3.14159</pose>
+          <pose frame=''>0 0 -0.0225 0 0 -3.14159</pose>
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/sensor1.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/sensor1.STL</uri>
             </mesh>
           </geometry>
           <max_contacts>10</max_contacts>
         </collision>
         <visual name='upper_platform3_fixed_joint_lump__sensor1_visual_1'>
-          <pose frame=''>-0.1175 0 -0.014373 0 0 -3.14159</pose>
+          <pose frame=''>-0.1175 0 -0.0225 0 0 -3.14159</pose>
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/sensor1.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/sensor1.STL</uri>
             </mesh>
           </geometry>
           <material>
@@ -460,7 +460,7 @@
         </visual>
 
              <sensor name="laser1" type="ray">
-                <pose>-0.1175 0 -0.014373 0 -1.570796327 0</pose>
+                <pose>-0.1175 0 -0.0225 0 -1.570796327 0</pose>
                 <visualize>true</visualize>
                 <update_rate>125</update_rate>
                 <ray>
@@ -490,32 +490,32 @@
             </sensor>
 
         <collision name='upper_platform3_fixed_joint_lump__sensor2_collision_2'>
-           <pose frame=''>0 0 0.113013 0 0 -1.0472</pose>
+           <pose frame=''>0 0 -0.0225 0 0 -1.0472</pose>
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/sensor2.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/sensor2.STL</uri>
             </mesh>
           </geometry>
           <max_contacts>10</max_contacts>
         </collision>
              <visual name='upper_platform3_fixed_joint_lump__sensor2_visual_2'>
-          <pose frame=''>0.05875 -0.101758 -0.014373 0 0 -1.0472</pose>
+          <pose frame=''>0.05875 -0.101758 -0.0225 0 0 -1.0472</pose>
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/sensor2.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/sensor2.STL</uri>
             </mesh>
           </geometry>
           <material>
                     <script>
-                        <name>Gazebo/Red</name>
+                        <name>Gazebo/Blue</name>
                     </script>
                 </material>
         </visual>
 
                 <sensor name="laser2" type="ray">
-                <pose>0.05875 -0.101758 -0.014373 0 -1.570796327 0</pose>
+                <pose>0.05875 -0.101758 -0.0225 0 -1.570796327 0</pose>
                 <visualize>true</visualize>
                 <update_rate>125</update_rate>
                 <ray>
@@ -545,32 +545,32 @@
          </sensor>
 
         <collision name='upper_platform3_fixed_joint_lump__sensor3_collision_3'>
-          <pose frame=''>0 0 0.113013 0 -0 1.0472</pose>
+          <pose frame=''>0 0 -0.0225 0 -0 1.0472</pose>
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/sensor3.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/sensor3.STL</uri>
             </mesh>
           </geometry>
           <max_contacts>10</max_contacts>
         </collision>
          <visual name='upper_platform3_fixed_joint_lump__sensor3_visual_3'>
-          <pose frame=''>0.05875 0.101758 -0.014373 0 -0 1.0472</pose>
+          <pose frame=''>0.05875 0.101758 -0.0225 0 -0 1.0472</pose>
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>model://ppr_description/meshes/sensor3.STL</uri>
+              <uri>/home/jason/catkin_ws/src/ppr_stack/ppr_description/meshes/sensor3.STL</uri>
             </mesh>
           </geometry>
           <material>
                     <script>
-                        <name>Gazebo/Red</name>
+                        <name>Gazebo/Green</name>
                     </script>
                 </material>
         </visual>
 
                  <sensor name="laser3" type="ray">
-                <pose>0.05875 0.101758 -0.014373 0 -1.570796327 0</pose>
+                <pose>0.05875 0.101758 -0.0225 0 -1.570796327 0</pose>
                 <visualize>true</visualize>
                 <update_rate>125</update_rate>
                 <ray>

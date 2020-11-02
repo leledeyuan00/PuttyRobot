@@ -70,6 +70,7 @@
   <export>
     <!-- Other tools can request additional information be placed here -->
     <gazebo_ros                                                                 
-          gazebo_plugin_path="${prefix}/lib"/> 
+          gazebo_plugin_path="${prefix}/lib"
+          gazebo_model_path="${prefix}/.." /> 
   </export>
 </package>
