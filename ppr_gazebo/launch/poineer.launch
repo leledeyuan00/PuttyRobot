@@ -26,7 +26,7 @@
   </node>
 
   <node name="parabot_simulator" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" 
-    args="-sdf -model poineer -file $(find ppr_description)/models/poineer/model.sdf -x 0.0 -y 0.0 -z 0.0 -R 0.0 -P 0.0 -Y 0.0">
+    args="-sdf -model poineer -file $(find ppr_description)/models/poineer/model_v2.sdf -x 0.0 -y 0.0 -z 0.0 -R 0.0 -P 0.0 -Y 0.0">
   </node>
 
   <!-- launch joint state controller -->

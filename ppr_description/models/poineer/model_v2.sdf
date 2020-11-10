@@ -13,12 +13,12 @@
             </plugin>
             <static>0</static>
         </include>
-        
+
         <!-- 0.089159 -->
-        <!-- <include>
+        <include>
             <uri>model://gtrobot_arm</uri>
             <name>gtrobot_arm</name>
-            <pose>-0 -0.531 1.25 1.5708 -1.5708 -0</pose>
+            <pose>0 -0.531 1.2368 1.570796327 -1.570796327 0</pose>
             <static>0</static>
             <plugin name='ros_control_arm' filename='libgazebo_ros_control.so'>
                 <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
@@ -49,24 +49,28 @@
                     <provide_feedback>1</provide_feedback>
                     <fudge_factor>1</fudge_factor>
                     <limit>
-                    <cfm>0</cfm>
-                    <erp>0.2</erp>
+                        <cfm>0</cfm>
+                        <erp>0.2</erp>
                     </limit>
                 </ode>
             </physics>
-        </joint> -->
+        </joint>
 
 
         <!-- offset r 90 p -45 -->
-        <!-- <include>
+        <!-- 0 0.0823 0 -3.14159 -0 1.5708 -->
+        <!-- <pose frame=''>0.655064 -0.525509 0.736098 1.5708 -0.785398 3.14159</pose> -->
+        <!-- <pose frame=''>0 0.0823 0 0 -0 1.5708</pose> -->
+        <!-- 0.058194888 -->
+        <include>
             <uri>model://parabot</uri>
             <name>parabot</name>
-            <pose>0.723259 -0.525509 0.857493 0 0.713259 0</pose>
+            <pose>0.714258888 -0.525509 0.795292888 0 0.713259 0</pose>
         </include>
         <joint name='ur_parabot' type='fixed'>
             <parent>gtrobot_arm::arm_wrist_3_link</parent>
             <child>parabot::lower_platform</child>
-        </joint> -->
+        </joint>
 
         <!-- <plugin name='ros_control_poineer' filename='libgazebo_ros_control.so'>
             <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
