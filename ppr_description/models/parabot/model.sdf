@@ -20,7 +20,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/base_link.STL</uri>
+            <uri>model://parabot/meshes/base_link.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -30,7 +30,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/base_link.STL</uri>
+            <uri>model://parabot/meshes/base_link.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -68,7 +68,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_base.STL</uri>
+            <uri>model://parabot/meshes/motor_base.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -78,7 +78,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_base.STL</uri>
+            <uri>model://parabot/meshes/motor_base.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -128,7 +128,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_link.STL</uri>
+            <uri>model://parabot/meshes/motor_link.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -138,7 +138,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_link.STL</uri>
+            <uri>model://parabot/meshes/motor_link.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -182,7 +182,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_base.STL</uri>
+            <uri>model://parabot/meshes/motor_base.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -192,7 +192,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_base.STL</uri>
+            <uri>model://parabot/meshes/motor_base.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -242,7 +242,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_link.STL</uri>
+            <uri>model://parabot/meshes/motor_link.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -252,7 +252,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_link.STL</uri>
+            <uri>model://parabot/meshes/motor_link.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -296,7 +296,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_base.STL</uri>
+            <uri>model://parabot/meshes/motor_base.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -306,7 +306,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_base.STL</uri>
+            <uri>model://parabot/meshes/motor_base.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -356,7 +356,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_link.STL</uri>
+            <uri>model://parabot/meshes/motor_link.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -366,7 +366,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_link.STL</uri>
+            <uri>model://parabot/meshes/motor_link.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -411,7 +411,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/upper_platform.STL</uri>
+            <uri>model://parabot/meshes/upper_platform.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -421,7 +421,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/upper_platform.STL</uri>
+            <uri>model://parabot/meshes/upper_platform.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -437,7 +437,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/laser.STL</uri>
+            <uri>model://parabot/meshes/laser.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -447,7 +447,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/laser.STL</uri>
+            <uri>model://parabot/meshes/laser.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -493,7 +493,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/laser.STL</uri>
+            <uri>model://parabot/meshes/laser.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -503,7 +503,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/laser.STL</uri>
+            <uri>model://parabot/meshes/laser.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -549,7 +549,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/laser.STL</uri>
+            <uri>model://parabot/meshes/laser.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -559,7 +559,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/laser.STL</uri>
+            <uri>model://parabot/meshes/laser.STL</uri>
           </mesh>
         </geometry>
         <material>
