@@ -4,11 +4,12 @@
  <include file="$(find ppr_control)/launch/ppr_control_sim.launch"/>
 
  <arg name="transmission_hw_interface" default="hardware_interface/PositionJointInterface" />
+<arg name="paused" default="true"/>
 
  <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
   <!-- startup simulated world -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="paused" value="true"/>
+    <arg name="paused" value="$(arg paused)"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="gui" value="true"/>
     <arg name="recording" value="false"/>

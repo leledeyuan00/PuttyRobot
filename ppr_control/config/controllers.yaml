@@ -2,8 +2,6 @@ joints:
       - motor1
       - motor2
       - motor3
-      - motor4
-      - motor5
 
 joint_state_controller:
   type: joint_state_controller/JointStateController

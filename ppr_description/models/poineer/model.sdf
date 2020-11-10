@@ -119,7 +119,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_base/base_link.STL</uri>
+              <uri>model://gtrobot_base/meshes//base_link.STL</uri>
             </mesh>
           </geometry>
           <surface>
@@ -145,7 +145,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_base/base_link.STL</uri>
+              <uri>model://gtrobot_base/meshes//base_link.STL</uri>
             </mesh>
           </geometry>
           <material>
@@ -1284,7 +1284,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_base/upper.STL</uri>
+              <uri>model://gtrobot_base/meshes//upper.STL</uri>
             </mesh>
           </geometry>
           <surface>
@@ -1328,7 +1328,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_arm/collision/base.stl</uri>
+              <uri>model://gtrobot_arm/meshes/collision/base.stl</uri>
             </mesh>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -1350,7 +1350,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_base/upper.STL</uri>
+              <uri>model://gtrobot_base/meshes//upper.STL</uri>
             </mesh>
           </geometry>
           <material>
@@ -1380,7 +1380,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_arm/visual/base.dae</uri>
+              <uri>model://gtrobot_arm/meshes/visual/base.dae</uri>
             </mesh>
           </geometry>
         </visual>
@@ -1466,7 +1466,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_arm/collision/shoulder.stl</uri>
+              <uri>model://gtrobot_arm/meshes/collision/shoulder.stl</uri>
             </mesh>
           </geometry>
           <surface>
@@ -1488,7 +1488,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_arm/visual/shoulder.dae</uri>
+              <uri>model://gtrobot_arm/meshes/visual/shoulder.dae</uri>
             </mesh>
           </geometry>
           <material>
@@ -1544,7 +1544,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_arm/collision/upperarm.stl</uri>
+              <uri>model://gtrobot_arm/meshes/collision/upperarm.stl</uri>
             </mesh>
           </geometry>
           <surface>
@@ -1566,7 +1566,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_arm/visual/upperarm.dae</uri>
+              <uri>model://gtrobot_arm/meshes/visual/upperarm.dae</uri>
             </mesh>
           </geometry>
           <material>
@@ -1622,7 +1622,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_arm/collision/forearm.stl</uri>
+              <uri>model://gtrobot_arm/meshes/collision/forearm.stl</uri>
             </mesh>
           </geometry>
           <surface>
@@ -1644,7 +1644,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_arm/visual/forearm.dae</uri>
+              <uri>model://gtrobot_arm/meshes/visual/forearm.dae</uri>
             </mesh>
           </geometry>
           <material>
@@ -1700,7 +1700,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_arm/collision/wrist1.stl</uri>
+              <uri>model://gtrobot_arm/meshes/collision/wrist1.stl</uri>
             </mesh>
           </geometry>
           <surface>
@@ -1722,7 +1722,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_arm/visual/wrist1.dae</uri>
+              <uri>model://gtrobot_arm/meshes/visual/wrist1.dae</uri>
             </mesh>
           </geometry>
           <material>
@@ -1778,7 +1778,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_arm/collision/wrist2.stl</uri>
+              <uri>model://gtrobot_arm/meshes/collision/wrist2.stl</uri>
             </mesh>
           </geometry>
           <surface>
@@ -1800,7 +1800,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_arm/visual/wrist2.dae</uri>
+              <uri>model://gtrobot_arm/meshes/visual/wrist2.dae</uri>
             </mesh>
           </geometry>
           <material>
@@ -1856,7 +1856,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_arm/collision/wrist3.stl</uri>
+              <uri>model://gtrobot_arm/meshes/collision/wrist3.stl</uri>
             </mesh>
           </geometry>
           <surface>
@@ -1899,7 +1899,7 @@
           <geometry>
             <mesh>
               <scale>1 1 1</scale>
-              <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_arm/visual/wrist3.dae</uri>
+              <uri>model://gtrobot_arm/meshes/visual/wrist3.dae</uri>
             </mesh>
           </geometry>
           <material>

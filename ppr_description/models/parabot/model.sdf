@@ -4,15 +4,15 @@
     <link name='lower_platform'>
       <pose frame=''>0 0 0 0 -0 0</pose>
       <inertial>
-        <pose frame=''>-8e-06 -0 0.000606 0 -0 0</pose>
-        <mass>0.0603778</mass>
+        <pose frame=''>-5e-5 -0 0.000128 0.006041 -0 0</pose>
+        <mass>0.60560</mass>
         <inertia>
-          <ixx>5.44707e-05</ixx>
-          <ixy>-3.39473e-13</ixy>
-          <ixz>-3.70667e-09</ixz>
-          <iyy>5.44893e-05</iyy>
-          <iyz>8.47232e-14</iyz>
-          <izz>0.00010778</izz>
+          <ixx>0.5470</ixx>
+          <ixy>-1e-4</ixy>
+          <ixz>0</ixz>
+          <iyy>0.5468</iyy>
+          <iyz>0</iyz>
+          <izz>1.0820</izz>
         </inertia>
       </inertial>
       <collision name='lower_platform_collision'>
@@ -20,7 +20,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/lower_platform.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/base_link.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -30,7 +30,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/lower_platform.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/base_link.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -43,42 +43,42 @@
       <enable_wind>0</enable_wind>
       <kinematic>0</kinematic>
     </link>
-    <!-- <joint name="fixed_para" type="fixed">
+    <joint name="fixed_para" type="fixed">
       <pose>0 0 0.5 0 0 0</pose>
       <parent>world</parent>
       <child>lower_platform</child>
-    </joint> -->
+    </joint>
 
-    <link name='motor1_link'>
-      <pose frame=''>-0.06 -0.0001 0 0 -0 0</pose>
+    <link name='motor_base1'>
+      <pose frame=''>0.06 0 0 0 -0 0</pose>
       <inertial>
-        <pose frame=''>-0.003127 -4.3e-05 0.037103 0 -0 0</pose>
-        <mass>0.0185186</mass>
+        <pose frame=''>-0.002209 0.000370 0.033496 0 -0 0</pose>
+        <mass>0.23672</mass>
         <inertia>
-          <ixx>2.18492e-06</ixx>
-          <ixy>3.13901e-09</ixy>
-          <ixz>8.63034e-08</ixz>
-          <iyy>2.49671e-06</iyy>
-          <iyz>9.17597e-09</iyz>
-          <izz>1.2683e-06</izz>
+          <ixx>0.1527</ixx>
+          <ixy>-3e-4</ixy>
+          <ixz>0.000052</ixz>
+          <iyy>0.1490</iyy>
+          <iyz>0.000032</iyz>
+          <izz>0.0352</izz>
         </inertia>
       </inertial>
-      <collision name='motor1_collision'>
+      <collision name='motor_base1_collision'>
         <pose frame=''>0 0 0 0 0 0</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/motor1.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_base.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
       </collision>
-      <visual name='motor1_visual'>
+      <visual name='motor_base1_visual'>
         <pose frame=''>0 0 0 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/motor1.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_base.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -91,15 +91,15 @@
       <enable_wind>0</enable_wind>
       <kinematic>0</kinematic>
     </link>
-    <joint name='motor1_joint' type='revolute'>
-      <child>motor1_link</child>
+    <joint name='passive_joint1' type='revolute'>
+      <child>motor_base1</child>
       <parent>lower_platform</parent>
       <axis>
         <xyz>0 1 0</xyz>
         <limit>
           <lower>-0.785</lower>
           <upper>0.785</upper>
-          <effort>100</effort>
+          <effort>1000</effort>
           <velocity>10</velocity>
         </limit>
         <dynamics>
@@ -109,36 +109,36 @@
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
     </joint>
-    <link name='connection1'>
-      <pose frame=''>-0.06 -0.0001 0.0734 0 0 -0.017453</pose>
+    <link name='motor_link1'>
+      <pose frame=''>0.06 0 0.0755 0 -0 0</pose>
       <inertial>
-        <pose frame=''>-0 -0 0.039505 0 -0 0</pose>
-        <mass>0.0022949</mass>
+        <pose frame=''>0 0 0.006546 0 -0 0</pose>
+        <mass>0.02678</mass>
         <inertia>
-          <ixx>1.6278e-07</ixx>
-          <ixy>-6.967e-14</ixy>
-          <ixz>6.9068e-13</ixz>
-          <iyy>1.6278e-07</iyy>
-          <iyz>3.4987e-13</iyz>
-          <izz>3.1596e-08</izz>
+          <ixx>0.0068</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.0068</iyy>
+          <iyz>0</iyz>
+          <izz>0.0004</izz>
         </inertia>
       </inertial>
-      <collision name='connection1_collision'>
+      <collision name='motor_link1_collision'>
         <pose frame=''>0 0 0 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/connection1.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_link.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
       </collision>
-      <visual name='connection1_visual'>
+      <visual name='motor_link1_visual'>
         <pose frame=''>0 0 0 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/connection1.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_link.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -147,14 +147,14 @@
       <kinematic>0</kinematic>
     </link>
     <joint name='motor1' type='prismatic'>
-      <child>connection1</child>
-      <parent>motor1_link</parent>
+      <child>motor_link1</child>
+      <parent>motor_base1</parent>
       <axis>
         <xyz>0 0 1</xyz>
         <limit>
           <lower>0</lower>
           <upper>0.027</upper>
-          <effort>100</effort>
+          <effort>1000</effort>
           <velocity>10</velocity>
         </limit>
         <dynamics>
@@ -163,36 +163,36 @@
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
     </joint>
-    <link name='motor2_link'>
-      <pose frame=''>0.030087 -0.051912 0 0 -0 2.0944</pose>
+    <link name='motor_base2'>
+      <pose frame=''>-0.03 0.05196 0 0 -0 2.0944</pose>
       <inertial>
-        <pose frame=''>-0.003127 -4.3e-05 0.037103 0 -0 0</pose>
-        <mass>0.0185187</mass>
+        <pose frame=''>-0.002209 0.000370 0.033496 0 -0 0</pose>
+        <mass>0.23672</mass>
         <inertia>
-          <ixx>2.18492e-06</ixx>
-          <ixy>3.13901e-09</ixy>
-          <ixz>8.63034e-08</ixz>
-          <iyy>2.49671e-06</iyy>
-          <iyz>9.17597e-09</iyz>
-          <izz>1.2683e-06</izz>
+          <ixx>0.1527</ixx>
+          <ixy>-3e-4</ixy>
+          <ixz>0.000052</ixz>
+          <iyy>0.1490</iyy>
+          <iyz>0.000032</iyz>
+          <izz>0.0352</izz>
         </inertia>
       </inertial>
-      <collision name='motor2_collision'>
+      <collision name='motor_base2_collision'>
         <pose frame=''>0 0 0 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/motor2.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_base.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
       </collision>
-      <visual name='motor2_visual'>
+      <visual name='motor_base2_visual'>
         <pose frame=''>0 0 0 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/motor2.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_base.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -205,15 +205,15 @@
       <enable_wind>0</enable_wind>
       <kinematic>0</kinematic>
     </link>
-    <joint name='motor2_joint' type='revolute'>
-      <child>motor2_link</child>
+    <joint name='passive_joint2' type='revolute'>
+      <child>motor_base2</child>
       <parent>lower_platform</parent>
       <axis>
         <xyz>-0.866025 -0.5 0</xyz>
         <limit>
           <lower>-0.785</lower>
           <upper>0.785</upper>
-          <effort>100</effort>
+          <effort>1000</effort>
           <velocity>10</velocity>
         </limit>
         <dynamics>
@@ -223,36 +223,36 @@
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
     </joint>
-    <link name='connection2'>
-      <pose frame=''>0.030087 -0.051912 0.0734 0 -0 2.07694</pose>
+    <link name='motor_link2'>
+      <pose frame=''>-0.03 0.05196 0.0775 0 -0 2.0944</pose>
       <inertial>
-        <pose frame=''>-0 -0 0.039505 0 -0 0</pose>
-        <mass>0.0022949</mass>
+        <pose frame=''>0 0 0.006546 0 -0 0</pose>
+        <mass>0.02678</mass>
         <inertia>
-          <ixx>1.6278e-07</ixx>
-          <ixy>-6.967e-14</ixy>
-          <ixz>6.9068e-13</ixz>
-          <iyy>1.6278e-07</iyy>
-          <iyz>3.4987e-13</iyz>
-          <izz>3.1596e-08</izz>
+          <ixx>0.0068</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.0068</iyy>
+          <iyz>0</iyz>
+          <izz>0.0004</izz>
         </inertia>
       </inertial>
-      <collision name='connection2_collision'>
+      <collision name='motor_link2_collision'>
         <pose frame=''>0 0 0 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/connection2.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_link.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
       </collision>
-      <visual name='connection2_visual'>
+      <visual name='motor_link2_visual'>
         <pose frame=''>0 0 0 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/connection2.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_link.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -261,8 +261,8 @@
       <kinematic>0</kinematic>
     </link>
     <joint name='motor2' type='prismatic'>
-      <child>connection2</child>
-      <parent>motor2_link</parent>
+      <child>motor_link2</child>
+      <parent>motor_base2</parent>
       <axis>
         <xyz>0 0 1</xyz>
         <limit>
@@ -277,36 +277,36 @@
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
     </joint>
-    <link name='motor3_link'>
-      <pose frame=''>0.029913 0.052012 0 0 0 -2.0944</pose>
+    <link name='motor_base3'>
+      <pose frame=''>-0.03 -0.05196 0 0 -0 -2.0944</pose>
       <inertial>
-        <pose frame=''>-0.003127 -4.3e-05 0.037103 0 -0 0</pose>
-        <mass>0.0185186</mass>
+        <pose frame=''>-0.002209 0.000370 0.033496 0 -0 0</pose>
+        <mass>0.23672</mass>
         <inertia>
-          <ixx>2.18492e-06</ixx>
-          <ixy>3.13901e-09</ixy>
-          <ixz>8.63034e-08</ixz>
-          <iyy>2.49671e-06</iyy>
-          <iyz>9.17597e-09</iyz>
-          <izz>1.2683e-06</izz>
+          <ixx>0.1527</ixx>
+          <ixy>-3e-4</ixy>
+          <ixz>0.000052</ixz>
+          <iyy>0.1490</iyy>
+          <iyz>0.000032</iyz>
+          <izz>0.0352</izz>
         </inertia>
       </inertial>
-      <collision name='motor3_collision'>
+      <collision name='motor_base3_collision'>
         <pose frame=''>0 0 0 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/motor3.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_base.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
       </collision>
-      <visual name='motor3_visual'>
+      <visual name='motor_base3_visual'>
         <pose frame=''>0 0 0 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/motor3.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_base.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -319,15 +319,15 @@
       <enable_wind>0</enable_wind>
       <kinematic>0</kinematic>
     </link>
-    <joint name='motor3_joint' type='revolute'>
-      <child>motor3_link</child>
+    <joint name='passive_joint3' type='revolute'>
+      <child>motor_base3</child>
       <parent>lower_platform</parent>
       <axis>
-        <xyz>0.866025 -0.5 0</xyz>
+        <xyz>-0.866025 0.5 0</xyz>
         <limit>
           <lower>-0.785</lower>
           <upper>0.785</upper>
-          <effort>100</effort>
+          <effort>1000</effort>
           <velocity>10</velocity>
         </limit>
         <dynamics>
@@ -337,36 +337,36 @@
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
     </joint>
-    <link name='connection3'>
-      <pose frame=''>0.029913 0.052012 0.0734 0 0 -2.11185</pose>
+    <link name='motor_link3'>
+      <pose frame=''>-0.03 -0.05196 0.0775 0 -0 -2.0944</pose>
       <inertial>
-        <pose frame=''>-0 -0 0.039505 0 -0 0</pose>
-        <mass>0.0022949</mass>
+        <pose frame=''>0 0 0.006546 0 -0 0</pose>
+        <mass>0.02678</mass>
         <inertia>
-          <ixx>1.6278e-07</ixx>
-          <ixy>-6.6347e-14</ixy>
-          <ixz>6.196e-13</ixz>
-          <iyy>1.6278e-07</iyy>
-          <iyz>4.0246e-13</iyz>
-          <izz>3.1595e-08</izz>
+          <ixx>0.0068</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.0068</iyy>
+          <iyz>0</iyz>
+          <izz>0.0004</izz>
         </inertia>
       </inertial>
-      <collision name='connection3_collision'>
+      <collision name='motor_link3_collision'>
         <pose frame=''>0 0 0 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/connection3.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_link.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
       </collision>
-      <visual name='connection3_visual'>
+      <visual name='motor_link3_visual'>
         <pose frame=''>0 0 0 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/connection3.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/motor_link.STL</uri>
           </mesh>
         </geometry>
       </visual>
@@ -375,8 +375,8 @@
       <kinematic>0</kinematic>
     </link>
     <joint name='motor3' type='prismatic'>
-      <child>connection3</child>
-      <parent>motor3_link</parent>
+      <child>motor_link3</child>
+      <parent>motor_base3</parent>
       <axis>
         <xyz>0 0 1</xyz>
         <limit>
@@ -392,19 +392,18 @@
       </axis>
     </joint>
 
-
     <link name='upper_platform'>
-      <pose frame=''>-0 -0 0.135513ray 0 -0 0</pose>
+      <pose frame=''>0.06 0 0.1015 0 -0 0</pose>
       <inertial>
-        <pose frame=''>1.5e-05 -8e-06 -0.031799 0 -0 0</pose>
-        <mass>0.30122</mass>
+        <pose>-0.06 0 -0.011912</pose>
+        <mass>0.0178</mass>
         <inertia>
-          <ixx>0.000239611231064541</ixx>
-          <ixy>-3.70810221178748e-14</ixy>
-          <ixz>-1.01144890837118e-14</ixz>
-          <iyy>0.00023945415085988</iyy>
-          <iyz>1.44059471768371e-14</iyz>
-          <izz>0.000359706115663781</izz>
+          <ixx>0.0085383</ixx>
+          <ixy>0.00006</ixy>
+          <ixz>0</ixz>
+          <iyy>0.0085391</iyy>
+          <iyz>0</iyz>
+          <izz>0.0147406</izz>
         </inertia>
       </inertial>
       <collision name='upper_platform_collision'>
@@ -412,7 +411,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/upper_platform3.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/upper_platform.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -422,7 +421,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/upper_platform3.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/upper_platform.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -433,22 +432,22 @@
       </visual>
 
       <!-- laser sensor 1 -->
-      <collision name='upper_platform_fixed_joint_lump__sensor1_collision_1'>
-        <pose frame=''>0 0 0.113013 0 0 -3.14159</pose>
+      <collision name='upper_platform_fixed_joint_lump__laser1_collision_1'>
+        <pose frame=''>0.0575 0 -0.0145 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/sensor1.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/laser.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
       </collision>
       <visual name='upper_platform_fixed_joint_lump__sensor1_visual_1'>
-        <pose frame=''>-0.1175 0 -0.014373 0 0 -3.14159</pose>
+        <pose frame=''>0.0575 0 -0.0145 0 -0 0</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/sensor1.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/laser.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -459,7 +458,7 @@
       </visual>
 
       <sensor name="laser1" type="ray">
-        <pose>-0.1175 0 -0.014373 0 -1.570796327 0</pose>
+        <pose frame=''>0.0575 0 -0.0145 0 -1.5707963268 0</pose>
         <visualize>true</visualize>
         <update_rate>125</update_rate>
         <ray>
@@ -489,22 +488,22 @@
       </sensor>
 
       <!-- laser sensor 2 -->
-      <collision name='upper_platform_fixed_joint_lump__sensor2_collision_2'>
-        <pose frame=''>0 0 0.113013 0 0 -1.0472</pose>
+      <collision name='upper_platform_fixed_joint_lump__laser2_collision_2'>
+        <pose frame=''>-0.11875 0.10176 -0.0145 0 -0 2.0944</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/sensor2.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/laser.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
       </collision>
-      <visual name='upper_platform_fixed_joint_lump__sensor2_visual_2'>
-        <pose frame=''>0.05875 -0.101758 -0.014373 0 0 -1.0472</pose>
+      <visual name='upper_platform_fixed_joint_lump__laser2_visual_2'>
+        <pose frame=''>-0.11875 0.10176 -0.0145 0 -0 2.0944</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/sensor2.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/laser.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -515,7 +514,7 @@
       </visual>
 
       <sensor name="laser2" type="ray">
-        <pose>0.05875 -0.101758 -0.014373 0 -1.570796327 0</pose>
+        <pose frame=''>-0.11875 0.10176 -0.0145 0 -1.5707963268 2.0944</pose>
         <visualize>true</visualize>
         <update_rate>125</update_rate>
         <ray>
@@ -545,22 +544,22 @@
       </sensor>
 
       <!-- laser sensor 3 -->
-      <collision name='upper_platform_fixed_joint_lump__sensor3_collision_3'>
-        <pose frame=''>0 0 0.113013 0 -0 1.0472</pose>
+      <collision name='upper_platform_fixed_joint_lump__laser3_collision_3'>
+        <pose frame=''>-0.11875 -0.10176 -0.0145 0 0 -2.0944</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/sensor3.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/laser.STL</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
       </collision>
       <visual name='upper_platform_fixed_joint_lump__sensor3_visual_3'>
-        <pose frame=''>0.05875 0.101758 -0.014373 0 -0 1.0472</pose>
+        <pose frame=''>-0.11875 -0.10176 -0.0145 0 0 -2.0944</pose>
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>model://parabot/meshes/sensor3.STL</uri>
+            <uri>/home/jiang/ppr_ws/src/ppr_stack/ppr_description/parabot/meshes/laser.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -571,7 +570,7 @@
       </visual>
 
       <sensor name="laser3" type="ray">
-        <pose>0.05875 0.101758 -0.014373 0 -1.570796327 0</pose>
+        <pose frame=''>-0.11875 -0.10176 -0.0145 0 -1.5707963268 -2.0944</pose>
         <visualize>true</visualize>
         <update_rate>125</update_rate>
         <ray>
@@ -602,22 +601,22 @@
 
     </link>
 
-    <joint name='ball3' type='ball'>
-      <pose>0.029913 0.052012 -0.007 0 0 0 </pose>
-      <child>upper_platform</child>
-      <parent>connection3</parent>
-    </joint>
-
     <joint name='ball1' type='ball'>
-      <pose>-0.06 -0.0001 -0.007 0 0 0</pose>
+      <pose>0 0 0 0 0 0 </pose>
       <child>upper_platform</child>
-      <parent>connection1</parent>
+      <parent>motor_link1</parent>
     </joint>
 
     <joint name='ball2' type='ball'>
-      <pose>0.030087 -0.051912 -0.007 0 0 0</pose>
+      <pose>-0.09 0.05196 0 0 0 0</pose>
       <child>upper_platform</child>
-      <parent>connection2</parent>
+      <parent>motor_link2</parent>
+    </joint>
+
+    <joint name='ball3' type='ball'>
+      <pose>-0.09 -0.05196 0 0 0 0</pose>
+      <child>upper_platform</child>
+      <parent>motor_link3</parent>
     </joint>
 
     <plugin name="parabot_hw_sim_plugin" filename="libparabot_plugin.so">

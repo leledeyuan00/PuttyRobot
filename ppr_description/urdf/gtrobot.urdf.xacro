@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro"
-       name="poineer" >
+       name="gtrobot" >
 
   
   <!-- The following xacro:included files set up definitions of parts of the robot body -->

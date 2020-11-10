@@ -117,7 +117,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_base/base_link.STL</uri>
+            <uri>model://gtrobot_base/meshes//base_link.STL</uri>
           </mesh>
         </geometry>
         <surface>
@@ -143,7 +143,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_base/base_link.STL</uri>
+            <uri>model://gtrobot_base/meshes//base_link.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -1282,7 +1282,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_base/upper.STL</uri>
+            <uri>model://gtrobot_base/meshes//upper.STL</uri>
           </mesh>
         </geometry>
         <surface>
@@ -1326,7 +1326,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_arm/collision/base.stl</uri>
+            <uri>model://gtrobot_arm/meshes/collision/base.stl</uri>
           </mesh>
         </geometry>
         <max_contacts>10</max_contacts>
@@ -1348,7 +1348,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_base/upper.STL</uri>
+            <uri>model://gtrobot_base/meshes//upper.STL</uri>
           </mesh>
         </geometry>
         <material>
@@ -1378,7 +1378,7 @@
         <geometry>
           <mesh>
             <scale>1 1 1</scale>
-            <uri>/home/k/gt_sim_ws/src/gt_robot/gt_description/meshes/gtrobot_arm/visual/base.dae</uri>
+            <uri>model://gtrobot_arm/meshes/visual/base.dae</uri>
           </mesh>
         </geometry>
       </visual>
