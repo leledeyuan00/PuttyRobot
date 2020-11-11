@@ -621,7 +621,7 @@
 
     <plugin name="parabot_hw_sim_plugin" filename="libparabot_plugin.so">
       <robotNamespace>parabot</robotNamespace>
-      <jointName>motor1 motor2 motor3</jointName>
+      <jointName>poineer::parabot::motor1 poineer::parabot::motor2 poineer::parabot::motor3</jointName>
     </plugin>
 
   </model>

@@ -8,12 +8,18 @@ project(ppr_gazebo)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  gazebo_dev
   roscpp
-  rospy
   std_msgs
-  hardware_interface
-  controller_manager
   control_toolbox
+  controller_manager
+  hardware_interface
+  transmission_interface
+  pluginlib
+  joint_limits_interface
+  urdf
+  angles
+  gazebo_ros_control
 )
 find_package(gazebo REQUIRED)
 
@@ -108,11 +114,18 @@ find_package(gazebo REQUIRED)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES para_description
-  CATKIN_DEPENDS roscpp rospy std_msgs
-   controller_manager
-   hardware_interface
-   control_toolbox
+  LIBRARIES para_description default_robot_hw_sim_v2
+  CATKIN_DEPENDS 
+    roscpp
+    std_msgs
+    controller_manager
+    control_toolbox
+    pluginlib
+    hardware_interface
+    transmission_interface
+    joint_limits_interface
+    urdf
+    angles
 #  DEPENDS system_lib
 )
 
@@ -176,6 +189,9 @@ target_link_libraries(parabot_plugin
   ${catkin_LIBRARIES}
   parabot_hw_sim
 )
+
+add_library(default_robot_hw_sim_v2 src/default_robot_hw_sim_v2.cpp)
+target_link_libraries(default_robot_hw_sim_v2 ${catkin_LIBRARIES})
 #############
 ## Install ##
 #############
@@ -219,6 +235,20 @@ install(DIRECTORY worlds
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
+install(TARGETS default_robot_hw_sim_v2
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+)
+
+install(DIRECTORY include/
+   DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}
+   FILES_MATCHING PATTERN "*.h"
+)
+
+install(FILES robot_hw_sim_v2_plugins.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
 #############
 ## Testing ##
 #############

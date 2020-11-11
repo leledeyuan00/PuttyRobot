@@ -1,0 +1,11 @@
+<library path="lib/libdefault_robot_hw_sim_v2">
+
+  <class
+    name="ppr_gazebo/DefaultRobotHWSimV2"
+    type="ppr_gazebo::DefaultRobotHWSimV2"
+    base_class_type="gazebo_ros_control::RobotHWSim">
+    <description>
+      A default robot simulation interface which constructs joint handles from an SDF/URDF.
+    </description>
+  </class>
+</library>

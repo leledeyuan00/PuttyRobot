@@ -118,13 +118,13 @@
 
     <joint name="motor4" type="revolute">
         <parent link="link2"/>
-        <child link="upper_link"/>
+        <child link="ppr_upper_link"/>
         <limit lower="-3.14" upper="3.14" effort="100.0" velocity="1.7"/>        
         <origin xyz="0 0 ${height2}" rpy="0.0 0.0 0"/>
         <axis xyz="1 0 0"/>
     </joint>
 
-    <link name="upper_link">
+    <link name="ppr_upper_link">
          <collision>
             <origin xyz="0 ${width1} 0" rpy="0.0 0.0 0.0"/>
             <geometry>
@@ -291,10 +291,10 @@
     
 
 
-
+<!-- 
     <transmission name="tran1">
         <type>transmission_interface/SimpleTransmission</type>
-        <joint name="motor1">
+        <joint name="poineer::motor1">
             <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
         </joint>
         <actuator name="motor1">
@@ -305,7 +305,7 @@
 
     <transmission name="tran2">
         <type>transmission_interface/SimpleTransmission</type>
-        <joint name="motor2">
+        <joint name="poineer::motor2">
             <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
         </joint>
         <actuator name="motor2">
@@ -316,13 +316,13 @@
 
     <transmission name="tran3">
         <type>transmission_interface/SimpleTransmission</type>
-        <joint name="upper_joint">
+        <joint name="poineer::motor3">
             <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
         </joint>
         <actuator name="motor3">
             <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
             <mechanicalReduction>1</mechanicalReduction>
         </actuator>
-    </transmission>
+    </transmission> -->
 
 </robot>

@@ -7,15 +7,17 @@
   <xacro:property name="wheel_mechanical_reduction" value="${624/35 * 80/18}" />
   <xacro:property name="caster_mechanical_reduction" value="${624/35 * 80/18}" />
 
+  <xacro:arg name="poineer_prefix" default="poineer::gtrobot_base::"/>
+
   <!--  Wheel transmission   -->
   <xacro:macro name="wheel_transmission" params="parent">
-    <transmission name="${parent}_wheel_trans">
+    <transmission name="$(arg poineer_prefix)${parent}_wheel_trans">
       <type>transmission_interface/SimpleTransmission</type>
-      <actuator name="${parent}_wheel_motor" >
+      <actuator name="$(arg poineer_prefix)${parent}_wheel_motor" >
         <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
         <mechanicalReduction>${wheel_mechanical_reduction}</mechanicalReduction>
       </actuator>
-      <joint name="${parent}_wheel_joint" >
+      <joint name="$(arg poineer_prefix)${parent}_wheel_joint" >
         <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
       </joint>
     </transmission>
@@ -23,13 +25,13 @@
 
   <!-- Caster transmission   -->
   <xacro:macro name="caster_transmission" params="suffix">
-    <transmission name="${suffix}_rotation_trans">
+    <transmission name="$(arg poineer_prefix)${suffix}_rotation_trans">
       <type>transmission_interface/SimpleTransmission</type>
-      <actuator name="${suffix}_rotation_motor">
+      <actuator name="$(arg poineer_prefix)${suffix}_rotation_motor">
         <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
         <mechanicalReduction>${caster_mechanical_reduction}</mechanicalReduction>
       </actuator>
-      <joint name="${suffix}_rotation_joint" >
+      <joint name="$(arg poineer_prefix)${suffix}_rotation_joint" >
         <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
       </joint>
     </transmission>
@@ -40,10 +42,10 @@
     <!-- x -->
     <transmission name="tran_x">
       <type>transmission_interface/SimpleTransmission</type>
-      <joint name="x_axis_joint">
+      <joint name="$(arg poineer_prefix)x_axis_joint">
         <hardwareInterface>${hw_interface}</hardwareInterface>
       </joint>
-      <actuator name="motor_x">
+      <actuator name="$(arg poineer_prefix)motor_x">
         <hardwareInterface>${hw_interface}</hardwareInterface>
         <mechanicalReduction>1</mechanicalReduction>
       </actuator>
@@ -52,10 +54,10 @@
     <!-- y -->
     <transmission name="tran_y">
       <type>transmission_interface/SimpleTransmission</type>
-      <joint name="y_axis_joint">
+      <joint name="$(arg poineer_prefix)y_axis_joint">
         <hardwareInterface>${hw_interface}</hardwareInterface>
       </joint>
-      <actuator name="motor_y">
+      <actuator name="$(arg poineer_prefix)motor_y">
         <hardwareInterface>${hw_interface}</hardwareInterface>
         <mechanicalReduction>1</mechanicalReduction>
       </actuator>
@@ -64,10 +66,10 @@
     <!-- rotate -->
     <transmission name="trans_rotate">
       <type>transmission_interface/SimpleTransmission</type>
-      <joint name="rotate_axis_joint">
+      <joint name="$(arg poineer_prefix)rotate_axis_joint">
         <hardwareInterface>${hw_interface}</hardwareInterface>
       </joint>
-      <actuator name="motor_rotate" >
+      <actuator name="$(arg poineer_prefix)motor_rotate" >
         <hardwareInterface>${hw_interface}</hardwareInterface>
         <mechanicalReduction>${caster_mechanical_reduction}</mechanicalReduction>
       </actuator>

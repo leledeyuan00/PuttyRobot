@@ -33,37 +33,37 @@ base_wheels_controller:
   cmd_vel_timeout: 0.0  # disabled, as it is on the real platform
 
   wheels:
-    - steering_joint: left_caster_rotation_joint
-      axle_joint: left_caster_wheel_joint
+    - steering_joint: poineer::gtrobot_base::left_caster_rotation_joint
+      axle_joint: poineer::gtrobot_base::left_caster_wheel_joint
       diameter: 0.095
-    - steering_joint: right_caster_rotation_joint
-      axle_joint: right_caster_wheel_joint
+    - steering_joint: poineer::gtrobot_base::right_caster_rotation_joint
+      axle_joint: poineer::gtrobot_base::right_caster_wheel_joint
       diameter: 0.095
-    - steering_joint: fl_caster_rotation_joint
-      axle_joint: fl_caster_wheel_joint
+    - steering_joint: poineer::gtrobot_base::fl_caster_rotation_joint
+      axle_joint: poineer::gtrobot_base::fl_caster_wheel_joint
       diameter: 0.095
-    - steering_joint: fr_caster_rotation_joint
-      axle_joint: fr_caster_wheel_joint
+    - steering_joint: poineer::gtrobot_base::fr_caster_rotation_joint
+      axle_joint: poineer::gtrobot_base::fr_caster_wheel_joint
       diameter: 0.095
-    - steering_joint: bl_caster_rotation_joint
-      axle_joint: bl_caster_wheel_joint
+    - steering_joint: poineer::gtrobot_base::bl_caster_rotation_joint
+      axle_joint: poineer::gtrobot_base::bl_caster_wheel_joint
       diameter: 0.095
-    - steering_joint: br_caster_rotation_joint
-      axle_joint: br_caster_wheel_joint
+    - steering_joint: poineer::gtrobot_base::br_caster_rotation_joint
+      axle_joint: poineer::gtrobot_base::br_caster_wheel_joint
       diameter: 0.095
 
 base_controller_x_axis:
   type: position_controllers/JointPositionController
-  joint: x_axis_joint
+  joint: poineer::gtrobot_base::x_axis_joint
   pid: {p: 10.0, i: 0.0, d: 0.0}
 
 base_controller_y_axis:
   type: position_controllers/JointPositionController
-  joint: y_axis_joint
+  joint: poineer::gtrobot_base::y_axis_joint
   pid: {p: 10.0, i: 0.0, d: 0.0}
     
 base_controller_rotate_axis:
   type: position_controllers/JointPositionController
-  joint: rotate_axis_joint
+  joint: poineer::gtrobot_base::rotate_axis_joint
   pid: {p: 10.0, i: 0.0, d: 0.0}
 

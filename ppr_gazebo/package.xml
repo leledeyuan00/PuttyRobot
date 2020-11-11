@@ -55,6 +55,15 @@
   <depend>std_msgs</depend>
   <depend>control_toolbox</depend>
   <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>gazebo_dev</build_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+  <depend>pluginlib</depend>
+  <depend>transmission_interface</depend>
+  <depend>joint_limits_interface</depend>
+  <depend>urdf</depend>
+  <depend>angles</depend>
+  <depend>gazebo_ros_control</depend>
   <!-- <build_depend>roscpp</build_depend>
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
@@ -69,7 +78,8 @@
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- Other tools can request additional information be placed here -->
-    <gazebo_ros                                                                 
-          gazebo_plugin_path="${prefix}/lib"/> 
+    <gazebo_ros gazebo_plugin_path="${prefix}/lib"/>
+    <gazebo_ros_control plugin="${prefix}/robot_hw_sim_v2_plugins.xml"/>
+
   </export>
 </package>
