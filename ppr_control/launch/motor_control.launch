@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <launch>
-        <!-- <param name="robot_description" 
-            command="$(find xacro)/xacro '$(find ppr_description)/urdf/ppr.xacro'"/> -->
+        <param name="robot_description" 
+            command="$(find xacro)/xacro '$(find ppr_description)/urdf/ppr.xacro'"/>
     <group ns="motors">
-        <rosparam command="load" file="$(find motor_driver)/config/port.yaml"/>
+        <rosparam command="load" file="$(find ppr_control)/config/port.yaml"/>
 
         <!-- Load hardware interface -->
-        <node pkg = "motor_driver" name = "motor" type = "motor_driver" output="screen">
+        <node pkg = "ppr_control" name = "motor" type = "motor_driver" output="screen">
         </node>
         <!-- Load controller settings -->
-        <rosparam command="load" file="$(find motor_driver)/config/controllers.yaml"/>
+        <rosparam command="load" file="$(find ppr_control)/config/controllers.yaml"/>
 
         <!-- Load controller manager -->
         <node name="controller_spawner" pkg="controller_manager" type="spawner"  output="screen" respawn="false" respawn_delay="0"

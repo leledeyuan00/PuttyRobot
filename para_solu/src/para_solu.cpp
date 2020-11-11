@@ -8,9 +8,9 @@ para_solu::para_solu(ros::NodeHandle &nh):nh_(nh)
 void para_solu::ros_init()
 {
     // pid_controllers_.resize(3);
-    pid_controllers_.push_back(control_toolbox::Pid(0.050,0,0.01)); //x
-    pid_controllers_.push_back(control_toolbox::Pid(0.050,0,0.01)); //y
-    pid_controllers_.push_back(control_toolbox::Pid(0.050,0,0.01)); //y
+    pid_controllers_.push_back(control_toolbox::Pid(0.020,0,0.01)); //x
+    pid_controllers_.push_back(control_toolbox::Pid(0.020,0,0.01)); //y
+    pid_controllers_.push_back(control_toolbox::Pid(0.020,0,0.01)); //y
     // 1
     Joint joint_info1;
     #ifndef SIMULATE
@@ -289,7 +289,7 @@ void para_solu::calculate(void)
     {
         if (fabs(wall_eular(i)) >= eular_threash_hold)
         {
-            pid_controllers_[i].setGains(0.1,0,0.001,0,0);
+            pid_controllers_[i].setGains(0.02,0,0.001,0,0);
         }
         else
         {

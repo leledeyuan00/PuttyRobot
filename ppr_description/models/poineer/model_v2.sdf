@@ -4,7 +4,7 @@
     <model name="poineer">
         <include>
             <uri>model://gtrobot_base</uri>
-            <name>/</name>
+            <name>gtrobot_base</name>
             <pose>0 0 0 0 0 0</pose>
             <plugin name='ros_control_poineer' filename='libgazebo_ros_control.so'>
                 <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
@@ -27,6 +27,11 @@
             </plugin>
         </include>
         <joint name='ur_base_joint' type='fixed'>
+            <parent>gtrobot_base::rotate_axis_link</parent>
+            <child>gtrobot_arm::arm_shoulder_link</child>
+        </joint>
+        
+        <!-- <joint name='ur_base_joint' type='fixed'>
             <parent>gtrobot_base::rotate_axis_link</parent>
             <child>gtrobot_arm::arm_shoulder_link</child>
             <axis>
@@ -54,7 +59,7 @@
                     </limit>
                 </ode>
             </physics>
-        </joint>
+        </joint> -->
 
 
         <!-- offset r 90 p -45 -->
