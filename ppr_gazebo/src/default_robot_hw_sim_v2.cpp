@@ -217,7 +217,7 @@ bool DefaultRobotHWSimV2::initSim(
         if(tok > "")
             joint_name_urdf_.push_back(tok);
     }
-    ROS_INFO("For test plugin joint name %s",joint_name_urdf_[joint_name_urdf_.size()-1].c_str());
+    ROS_INFO("For test plugin joint name %s \r\n ,Joint handle name is %s \r\n",joint_name_urdf_[joint_name_urdf_.size()-1].c_str(),joint_handle.getName().c_str());
     registerJointLimits(joint_name_urdf_[joint_name_urdf_.size()-1], joint_handle, joint_control_methods_[j],
                         joint_limit_nh, urdf_model,
                         &joint_types_[j], &joint_lower_limits_[j], &joint_upper_limits_[j],

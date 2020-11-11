@@ -5,11 +5,11 @@
             <uri>model://gtrobot_base</uri>
             <name>gtrobot_base</name>
             <pose>0 0 0 0 0 0</pose>
-            <plugin name='ros_control_poineer' filename='libgazebo_ros_control.so'>
+            <!-- <plugin name='ros_control_poineer' filename='libgazebo_ros_control.so'>
                 <robotSimType>ppr_gazebo/DefaultRobotHWSimV2</robotSimType>
                 <legacyModeNS>1</legacyModeNS>
                 <robotNamespace>/base_wheels_controller</robotNamespace>
-            </plugin>
+            </plugin> -->
             <static>0</static>
         </include>
 

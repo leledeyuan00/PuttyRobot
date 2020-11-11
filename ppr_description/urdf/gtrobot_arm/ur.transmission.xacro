@@ -4,15 +4,11 @@
   <xacro:macro name="gtrobot_arm_transmission" params="prefix hw_interface">
 
     <xacro:arg name="poineer_arm_prefix" default="poineer::gtrobot_arm::"/>
-    <!-- <xacro:property name="poineer_arm_prefix" value="poineer::"/> -->
-        
-    
 
     <transmission name="$(arg poineer_arm_prefix)${prefix}shoulder_pan_trans">
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="$(arg poineer_arm_prefix)${prefix}shoulder_pan_joint">
         <hardwareInterface>${hw_interface}</hardwareInterface>
-        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
       </joint>
       <actuator name="$(arg poineer_arm_prefix)${prefix}shoulder_pan_motor">
         <mechanicalReduction>1</mechanicalReduction>
@@ -23,7 +19,6 @@
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="$(arg poineer_arm_prefix)${prefix}shoulder_lift_joint">
         <hardwareInterface>${hw_interface}</hardwareInterface>
-        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
       </joint>
       <actuator name="$(arg poineer_arm_prefix)${prefix}shoulder_lift_motor">
         <mechanicalReduction>1</mechanicalReduction>
@@ -34,7 +29,6 @@
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="$(arg poineer_arm_prefix)${prefix}elbow_joint">
         <hardwareInterface>${hw_interface}</hardwareInterface>
-        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
       </joint>
       <actuator name="$(arg poineer_arm_prefix)${prefix}elbow_motor">
         <mechanicalReduction>1</mechanicalReduction>
@@ -45,7 +39,6 @@
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="$(arg poineer_arm_prefix)${prefix}wrist_1_joint">
         <hardwareInterface>${hw_interface}</hardwareInterface>
-        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
       </joint>
       <actuator name="$(arg poineer_arm_prefix)${prefix}wrist_1_motor">
         <mechanicalReduction>1</mechanicalReduction>
@@ -56,7 +49,6 @@
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="$(arg poineer_arm_prefix)${prefix}wrist_2_joint">
         <hardwareInterface>${hw_interface}</hardwareInterface>
-        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
       </joint>
       <actuator name="$(arg poineer_arm_prefix)${prefix}wrist_2_motor">
         <mechanicalReduction>1</mechanicalReduction>
@@ -67,7 +59,6 @@
       <type>transmission_interface/SimpleTransmission</type>
       <joint name="$(arg poineer_arm_prefix)${prefix}wrist_3_joint">
         <hardwareInterface>${hw_interface}</hardwareInterface>
-        <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
       </joint>
       <actuator name="$(arg poineer_arm_prefix)${prefix}wrist_3_motor">
         <mechanicalReduction>1</mechanicalReduction>

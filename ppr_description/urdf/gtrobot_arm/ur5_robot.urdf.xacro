@@ -10,7 +10,7 @@
   <xacro:arg name="urbase_parent" default="upper_link"/>
 
   <!-- common stuff -->
-  <xacro:include filename="$(find ppr_description)/urdf/common.gazebo.xacro" />
+  <!-- <xacro:include filename="$(find ppr_description)/urdf/common.gazebo.xacro" /> -->
 
   <!-- ur5 -->
   <xacro:include filename="$(find ppr_description)/urdf/gtrobot_arm/ur5.urdf.xacro" />
