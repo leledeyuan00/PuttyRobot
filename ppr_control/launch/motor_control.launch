@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-        <param name="robot_description" 
-            command="$(find xacro)/xacro '$(find ppr_description)/urdf/ppr.xacro'"/>
+    <param name="robot_description" command="$(find xacro)/xacro '$(find ppr_description)/urdf/gtrobot.urdf.xacro'"/>
     <group ns="motors">
         <rosparam command="load" file="$(find ppr_control)/config/port.yaml"/>
 
@@ -12,12 +11,11 @@
         <rosparam command="load" file="$(find ppr_control)/config/controllers.yaml"/>
 
         <!-- Load controller manager -->
-        <node name="controller_spawner" pkg="controller_manager" type="spawner"  output="screen" respawn="false" respawn_delay="0"
-        args="joint_state_controller
+        <node name="controller_spawner" pkg="controller_manager" type="spawner" output="screen" respawn="false" respawn_delay="0" args="joint_state_controller
                     joint1_position_controller
                     joint2_position_controller
                     joint3_position_controller"/>
-                    
+
         <!-- Convert joint states to /tf tranforms -->
         <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 

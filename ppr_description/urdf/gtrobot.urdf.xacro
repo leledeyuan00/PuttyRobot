@@ -56,6 +56,18 @@
     <xacro:property name="zed_offset_pitch" value="0" />
     <xacro:property name="zed_offset_yaw" value="${-pi/2}" />
   </xacro:unless>
+  
+  <!-- PARABOT -->
+  <xacro:arg name="parabot_enabled" default="true"/>
+  <xacro:if value="$(arg parabot_enabled)">
+    <xacro:include filename="$(find ppr_description)/urdf/ppr.xacro"/>
+    <joint name="parabot_fixed" type="fixed">
+      <parent link="$(arg ur_prefix)wrist_3_link"/>
+      <child link="link1"/>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+    </joint>
+    
+  </xacro:if>
 
   <!-- IMU -->
   <xacro:include filename="$(find ppr_description)/urdf/sensors/imu_gazebo.xacro" />
