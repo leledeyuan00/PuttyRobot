@@ -1,7 +1,7 @@
 #ifndef __PARA_SOLU_H__
 #define __PARA_SOLU_H__
 
-//#define SIMULATE
+#define SIMULATE
 
 #include <iostream>
 #include <ros/ros.h>

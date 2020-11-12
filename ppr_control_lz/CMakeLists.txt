@@ -219,3 +219,9 @@ target_link_libraries(listener ${catkin_LIBRARIES})
 add_dependencies(listener ${${PROJECT_NAME}_EXPORTED_TARGETS} 
   ${catkin_EXPORTED_TARGETS}
 	ppr_control_lz_generate_messages_cpp)
+
+add_executable(set_init src/set_init.cpp)
+target_link_libraries(set_init ${catkin_LIBRARIES})
+add_dependencies(set_init ${${PROJECT_NAME}_EXPORTED_TARGETS} 
+  ${catkin_EXPORTED_TARGETS}
+	ppr_control_lz_generate_messages_cpp)
