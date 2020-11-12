@@ -5,9 +5,10 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
-#include <Eigen/Dense>
-#include "Eigen/LU"  
-#include "Eigen/Core"  
+#include "eigen3/Eigen/Dense"
+// #include <Eigen/Dense>
+#include "eigen3/Eigen/LU"  
+#include "eigen3/Eigen/Core"  
 #include <time.h>
 #include <unistd.h>
 #include <sensor_msgs/LaserScan.h>

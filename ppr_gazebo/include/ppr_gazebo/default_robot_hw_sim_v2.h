@@ -111,6 +111,7 @@ protected:
                            double *const upper_limit, double *const effort_limit);
 
   unsigned int n_dof_;
+  unsigned int n_dof_raw_;
 
   hardware_interface::JointStateInterface    js_interface_;
   hardware_interface::EffortJointInterface   ej_interface_;

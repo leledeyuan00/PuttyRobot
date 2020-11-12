@@ -68,8 +68,33 @@ bool DefaultRobotHWSimV2::initSim(
   // parameter's name is "joint_limits/<joint name>". An example is "joint_limits/axle_joint".
   const ros::NodeHandle joint_limit_nh(model_nh);
 
+
+  // fixed error multy model in gazebo
+  std::vector<transmission_interface::TransmissionInfo> transmissions_new_;
+  n_dof_raw_ = transmissions.size();
+  for (size_t i = 0; i < n_dof_raw_; i++)
+  {
+    std::string joint_name;
+    joint_name = transmissions[i].joints_[0].name_;
+
+    std::stringstream joint_name_tempss(joint_name);
+    std::string tok_temp;
+    std::vector<std::string> joint_name_trans_;
+    
+    while(getline(joint_name_tempss,tok_temp,':'))
+    {
+        if(tok_temp > "")
+            joint_name_trans_.push_back(tok_temp);
+    }
+    if (("/" + joint_name_trans_[1]) == robot_namespace)
+    {
+      transmissions_new_.push_back(transmissions[i]);
+    }
+  }
+  
+
   // Resize vectors to our DOF
-  n_dof_ = transmissions.size();
+  n_dof_ = transmissions_new_.size();
   joint_names_.resize(n_dof_);
   joint_types_.resize(n_dof_);
   joint_lower_limits_.resize(n_dof_);
@@ -88,49 +113,49 @@ bool DefaultRobotHWSimV2::initSim(
   for(unsigned int j=0; j < n_dof_; j++)
   {
     // Check that this transmission has one joint
-    if(transmissions[j].joints_.size() == 0)
+    if(transmissions_new_[j].joints_.size() == 0)
     {
-      ROS_WARN_STREAM_NAMED("default_robot_hw_sim","Transmission " << transmissions[j].name_
+      ROS_WARN_STREAM_NAMED("default_robot_hw_sim","Transmission " << transmissions_new_[j].name_
         << " has no associated joints.");
       continue;
     }
-    else if(transmissions[j].joints_.size() > 1)
+    else if(transmissions_new_[j].joints_.size() > 1)
     {
-      ROS_WARN_STREAM_NAMED("default_robot_hw_sim","Transmission " << transmissions[j].name_
+      ROS_WARN_STREAM_NAMED("default_robot_hw_sim","Transmission " << transmissions_new_[j].name_
         << " has more than one joint. Currently the default robot hardware simulation "
         << " interface only supports one.");
       continue;
     }
 
-    std::vector<std::string> joint_interfaces = transmissions[j].joints_[0].hardware_interfaces_;
+    std::vector<std::string> joint_interfaces = transmissions_new_[j].joints_[0].hardware_interfaces_;
     if (joint_interfaces.empty() &&
-        !(transmissions[j].actuators_.empty()) &&
-        !(transmissions[j].actuators_[0].hardware_interfaces_.empty()))
+        !(transmissions_new_[j].actuators_.empty()) &&
+        !(transmissions_new_[j].actuators_[0].hardware_interfaces_.empty()))
     {
       // TODO: Deprecate HW interface specification in actuators in ROS J
-      joint_interfaces = transmissions[j].actuators_[0].hardware_interfaces_;
+      joint_interfaces = transmissions_new_[j].actuators_[0].hardware_interfaces_;
       ROS_WARN_STREAM_NAMED("default_robot_hw_sim", "The <hardware_interface> element of tranmission " <<
-        transmissions[j].name_ << " should be nested inside the <joint> element, not <actuator>. " <<
+        transmissions_new_[j].name_ << " should be nested inside the <joint> element, not <actuator>. " <<
         "The transmission will be properly loaded, but please update " <<
         "your robot model to remain compatible with future versions of the plugin.");
     }
     if (joint_interfaces.empty())
     {
-      ROS_WARN_STREAM_NAMED("default_robot_hw_sim", "Joint " << transmissions[j].joints_[0].name_ <<
-        " of transmission " << transmissions[j].name_ << " does not specify any hardware interface. " <<
+      ROS_WARN_STREAM_NAMED("default_robot_hw_sim", "Joint " << transmissions_new_[j].joints_[0].name_ <<
+        " of transmission " << transmissions_new_[j].name_ << " does not specify any hardware interface. " <<
         "Not adding it to the robot hardware simulation.");
       continue;
     }
     else if (joint_interfaces.size() > 1)
     {
-      ROS_WARN_STREAM_NAMED("default_robot_hw_sim", "Joint " << transmissions[j].joints_[0].name_ <<
-        " of transmission " << transmissions[j].name_ << " specifies multiple hardware interfaces. " <<
+      ROS_WARN_STREAM_NAMED("default_robot_hw_sim", "Joint " << transmissions_new_[j].joints_[0].name_ <<
+        " of transmission " << transmissions_new_[j].name_ << " specifies multiple hardware interfaces. " <<
         "Currently the default robot hardware simulation interface only supports one. Using the first entry");
       //continue;
     }
 
     // Add data from transmission
-    joint_names_[j] = transmissions[j].joints_[0].name_;
+    joint_names_[j] = transmissions_new_[j].joints_[0].name_;
     joint_position_[j] = 1.0;
     joint_velocity_[j] = 0.0;
     joint_effort_[j] = 1.0;  // N/m for continuous joints
