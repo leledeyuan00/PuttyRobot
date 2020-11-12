@@ -1,69 +1,70 @@
-base_wheels_controller:
-  type: steered_wheel_base_controller/SteeredWheelBaseController
-  
-  pid_gains:
-    left_caster_wheel_joint: {p: 10.0, i: 0.0, d: 0.0}
-    left_caster_rotation_joint: {p: 10.0, i: 0.0, d: 0.0}
-    right_caster_wheel_joint: {p: 10.0, i: 0.0, d: 0.0}
-    right_caster_rotation_joint: {p: 10.0, i: 0.0, d: 0.0}
-    fl_caster_wheel_joint: {p: 10.0, i: 0.0, d: 0.0}
-    fl_caster_rotation_joint: {p: 10.0, i: 0.0, d: 0.0}
-    fr_caster_wheel_joint: {p: 10.0, i: 0.0, d: 0.0}
-    fr_caster_rotation_joint: {p: 10.0, i: 0.0, d: 0.0}
-    bl_caster_wheel_joint: {p: 10.0, i: 0.0, d: 0.0}
-    bl_caster_rotation_joint: {p: 10.0, i: 0.0, d: 0.0}
-    br_caster_wheel_joint: {p: 10.0, i: 0.0, d: 0.0}
-    br_caster_rotation_joint: {p: 10.0, i: 0.0, d: 0.0}
-
-
-  base_frame: base_link
-  odometry_frame: odom
-
-  linear_speed_limit: 0.1
-  linear_acceleration_limit: 0.03
-  linear_deceleration_limit: 0.05
-
-  yaw_speed_limit: 0.2
-  yaw_acceleration_limit: 0.05
-  yaw_deceleration_limit: 0.1
-
-  full_axle_speed_angle: 0.35  # 10 degree; default: 0.7854(M_PI/4)
-  zero_axle_speed_angle: 0.40  # 20 degree;  default: 1.5708(M_PI/2)
-
-  cmd_vel_timeout: 0.0  # disabled, as it is on the real platform
-
-  wheels:
-    - steering_joint: poineer::gtrobot_base::left_caster_rotation_joint
-      axle_joint: poineer::gtrobot_base::left_caster_wheel_joint
-      diameter: 0.095
-    - steering_joint: poineer::gtrobot_base::right_caster_rotation_joint
-      axle_joint: poineer::gtrobot_base::right_caster_wheel_joint
-      diameter: 0.095
-    - steering_joint: poineer::gtrobot_base::fl_caster_rotation_joint
-      axle_joint: poineer::gtrobot_base::fl_caster_wheel_joint
-      diameter: 0.095
-    - steering_joint: poineer::gtrobot_base::fr_caster_rotation_joint
-      axle_joint: poineer::gtrobot_base::fr_caster_wheel_joint
-      diameter: 0.095
-    - steering_joint: poineer::gtrobot_base::bl_caster_rotation_joint
-      axle_joint: poineer::gtrobot_base::bl_caster_wheel_joint
-      diameter: 0.095
-    - steering_joint: poineer::gtrobot_base::br_caster_rotation_joint
-      axle_joint: poineer::gtrobot_base::br_caster_wheel_joint
-      diameter: 0.095
-
-base_controller_x_axis:
-  type: position_controllers/JointPositionController
-  joint: poineer::gtrobot_base::x_axis_joint
-  pid: {p: 10.0, i: 0.0, d: 0.0}
-
-base_controller_y_axis:
-  type: position_controllers/JointPositionController
-  joint: poineer::gtrobot_base::y_axis_joint
-  pid: {p: 10.0, i: 0.0, d: 0.0}
+gtrobot_base:
+  base_wheels_controller:
+    type: steered_wheel_base_controller/SteeredWheelBaseController
     
-base_controller_rotate_axis:
-  type: position_controllers/JointPositionController
-  joint: poineer::gtrobot_base::rotate_axis_joint
-  pid: {p: 10.0, i: 0.0, d: 0.0}
+    pid_gains:
+      left_caster_wheel_joint: {p: 10.0, i: 0.0, d: 0.0}
+      left_caster_rotation_joint: {p: 10.0, i: 0.0, d: 0.0}
+      right_caster_wheel_joint: {p: 10.0, i: 0.0, d: 0.0}
+      right_caster_rotation_joint: {p: 10.0, i: 0.0, d: 0.0}
+      fl_caster_wheel_joint: {p: 10.0, i: 0.0, d: 0.0}
+      fl_caster_rotation_joint: {p: 10.0, i: 0.0, d: 0.0}
+      fr_caster_wheel_joint: {p: 10.0, i: 0.0, d: 0.0}
+      fr_caster_rotation_joint: {p: 10.0, i: 0.0, d: 0.0}
+      bl_caster_wheel_joint: {p: 10.0, i: 0.0, d: 0.0}
+      bl_caster_rotation_joint: {p: 10.0, i: 0.0, d: 0.0}
+      br_caster_wheel_joint: {p: 10.0, i: 0.0, d: 0.0}
+      br_caster_rotation_joint: {p: 10.0, i: 0.0, d: 0.0}
+
+
+    base_frame: base_link
+    odometry_frame: odom
+
+    linear_speed_limit: 0.1
+    linear_acceleration_limit: 0.03
+    linear_deceleration_limit: 0.05
+
+    yaw_speed_limit: 0.2
+    yaw_acceleration_limit: 0.05
+    yaw_deceleration_limit: 0.1
+
+    full_axle_speed_angle: 0.35  # 10 degree; default: 0.7854(M_PI/4)
+    zero_axle_speed_angle: 0.40  # 20 degree;  default: 1.5708(M_PI/2)
+
+    cmd_vel_timeout: 0.0  # disabled, as it is on the real platform
+
+    wheels:
+      - steering_joint: poineer::gtrobot_base::left_caster_rotation_joint
+        axle_joint: poineer::gtrobot_base::left_caster_wheel_joint
+        diameter: 0.095
+      - steering_joint: poineer::gtrobot_base::right_caster_rotation_joint
+        axle_joint: poineer::gtrobot_base::right_caster_wheel_joint
+        diameter: 0.095
+      - steering_joint: poineer::gtrobot_base::fl_caster_rotation_joint
+        axle_joint: poineer::gtrobot_base::fl_caster_wheel_joint
+        diameter: 0.095
+      - steering_joint: poineer::gtrobot_base::fr_caster_rotation_joint
+        axle_joint: poineer::gtrobot_base::fr_caster_wheel_joint
+        diameter: 0.095
+      - steering_joint: poineer::gtrobot_base::bl_caster_rotation_joint
+        axle_joint: poineer::gtrobot_base::bl_caster_wheel_joint
+        diameter: 0.095
+      - steering_joint: poineer::gtrobot_base::br_caster_rotation_joint
+        axle_joint: poineer::gtrobot_base::br_caster_wheel_joint
+        diameter: 0.095
+
+  base_controller_x_axis:
+    type: position_controllers/JointPositionController
+    joint: poineer::gtrobot_base::x_axis_joint
+    pid: {p: 10.0, i: 0.0, d: 0.0}
+
+  base_controller_y_axis:
+    type: position_controllers/JointPositionController
+    joint: poineer::gtrobot_base::y_axis_joint
+    pid: {p: 10.0, i: 0.0, d: 0.0}
+      
+  base_controller_rotate_axis:
+    type: position_controllers/JointPositionController
+    joint: poineer::gtrobot_base::rotate_axis_joint
+    pid: {p: 10.0, i: 0.0, d: 0.0}
 

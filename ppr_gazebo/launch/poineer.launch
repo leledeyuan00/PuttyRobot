@@ -9,14 +9,23 @@
 
   <!-- <include file="$(find ppr_control)/launch/ppr_control_sim.launch"/> -->
 
+  <!-- spawn controller by differ namespace -->
+
   <node name="ppr_controllers_spawner" pkg="controller_manager" type="spawner" output="screen" respawn="false" ns="/parabot" args=" 
               joint_state_controller              
               joint1_position_controller 
               joint2_position_controller 
               joint3_position_controller
               " />
-  <!-- <node name="arm_controllers_spawner" pkg="controller_manager" type="spawner" output="screen" respawn="false" ns="/gtrobot_arm" args=" 
-              arm_group_controller -->
+  <node name="base_controllers_spawner" pkg="controller_manager" type="spawner" output="screen" respawn="false" ns="/gtrobot_base" args=" 
+              base_wheels_controller
+              base_controller_rotate_axis
+              base_controller_x_axis
+              base_controller_y_axis
+  "/>
+  <node name="arm_controllers_spawner" pkg="controller_manager" type="spawner" output="screen" respawn="false" ns="/gtrobot_arm" args=" 
+              joint_state_controller
+              arm_group_controller
   "/>
   <arg name="transmission_hw_interface" default="hardware_interface/PositionJointInterface" />
   <arg name="paused" default="false"/>

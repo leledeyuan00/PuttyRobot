@@ -1,6 +1,11 @@
 gtrobot_arm:
+
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 50  
+    
   arm_group_controller:
-    type: position_controllers/JointTrajectoryController
+    type: position_controllers/JointGroupPositionController
     joints:
       - poineer::gtrobot_arm::arm_shoulder_pan_joint
       - poineer::gtrobot_arm::arm_shoulder_lift_joint
