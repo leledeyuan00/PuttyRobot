@@ -1,0 +1,629 @@
+<?xml version='1.0'?>
+<sdf version='1.6'>
+  <model name='parabot'>
+    <link name='lower_platform'>
+      <pose frame=''>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose frame=''>-5e-5 -0 0.000128 0.006041 -0 0</pose>
+        <mass>0.060560</mass>
+        <inertia>
+          <ixx>0.05470</ixx>
+          <ixy>-1e-4</ixy>
+          <ixz>0</ixz>
+          <iyy>0.05468</iyy>
+          <iyz>0</iyz>
+          <izz>0.10820</izz>
+        </inertia>
+      </inertial>
+      <collision name='lower_platform_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/base_link.STL</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <visual name='lower_platform_visual'>
+        <pose frame=''>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/base_link.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Orange</name>
+          </script>
+        </material>
+      </visual>
+      <self_collide>0</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+    </link>
+    <!-- <joint name="fixed_para" type="fixed">
+      <pose>0 0 0.5 0 0 0</pose>
+      <parent>world</parent>
+      <child>lower_platform</child>
+    </joint> -->
+
+    <link name='motor_base1'>
+      <pose frame=''>0.06 0 0 0 -0 0</pose>
+      <inertial>
+        <pose frame=''>-0.002209 0.000370 0.033496 0 -0 0</pose>
+        <mass>0.023672</mass>
+        <inertia>
+          <ixx>0.01527</ixx>
+          <ixy>-3e-4</ixy>
+          <ixz>0.0000052</ixz>
+          <iyy>0.01490</iyy>
+          <iyz>0.0000032</iyz>
+          <izz>0.00352</izz>
+        </inertia>
+      </inertial>
+      <collision name='motor_base1_collision'>
+        <pose frame=''>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/motor_base.STL</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <visual name='motor_base1_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/motor_base.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Black</name>
+          </script>
+        </material>
+      </visual>
+      <self_collide>0</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+    </link>
+    <joint name='passive_joint1' type='revolute'>
+      <child>motor_base1</child>
+      <parent>lower_platform</parent>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>-0.785</lower>
+          <upper>0.785</upper>
+          <effort>1000</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+    <link name='motor_link1'>
+      <pose frame=''>0.06 0 0.0755 0 -0 0</pose>
+      <inertial>
+        <pose frame=''>0 0 0.006546 0 -0 0</pose>
+        <mass>0.002678</mass>
+        <inertia>
+          <ixx>0.00068</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.00068</iyy>
+          <iyz>0</iyz>
+          <izz>0.00004</izz>
+        </inertia>
+      </inertial>
+      <collision name='motor_link1_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/motor_link.STL</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <visual name='motor_link1_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/motor_link.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <self_collide>0</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+    </link>
+    <joint name='motor1' type='prismatic'>
+      <child>motor_link1</child>
+      <parent>motor_base1</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0.027</upper>
+          <effort>1000</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.7</damping>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+    <link name='motor_base2'>
+      <pose frame=''>-0.03 0.05196 0 0 -0 2.0944</pose>
+      <inertial>
+        <pose frame=''>-0.002209 0.000370 0.033496 0 -0 0</pose>
+        <mass>0.023672</mass>
+        <inertia>
+          <ixx>0.01527</ixx>
+          <ixy>-3e-4</ixy>
+          <ixz>0.0000052</ixz>
+          <iyy>0.01490</iyy>
+          <iyz>0.0000032</iyz>
+          <izz>0.00352</izz>
+        </inertia>
+      </inertial>
+      <collision name='motor_base2_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/motor_base.STL</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <visual name='motor_base2_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/motor_base.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Black</name>
+          </script>
+        </material>
+      </visual>
+      <self_collide>0</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+    </link>
+    <joint name='passive_joint2' type='revolute'>
+      <child>motor_base2</child>
+      <parent>lower_platform</parent>
+      <axis>
+        <xyz>-0.866025 -0.5 0</xyz>
+        <limit>
+          <lower>-0.785</lower>
+          <upper>0.785</upper>
+          <effort>1000</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+    <link name='motor_link2'>
+      <pose frame=''>-0.03 0.05196 0.0775 0 -0 2.0944</pose>
+      <inertial>
+        <pose frame=''>0 0 0.006546 0 -0 0</pose>
+        <mass>0.002678</mass>
+        <inertia>
+          <ixx>0.00068</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.00068</iyy>
+          <iyz>0</iyz>
+          <izz>0.00004</izz>
+        </inertia>
+      </inertial>
+      <collision name='motor_link2_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/motor_link.STL</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <visual name='motor_link2_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/motor_link.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <self_collide>0</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+    </link>
+    <joint name='motor2' type='prismatic'>
+      <child>motor_link2</child>
+      <parent>motor_base2</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0.027</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.7</damping>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+    <link name='motor_base3'>
+      <pose frame=''>-0.03 -0.05196 0 0 -0 -2.0944</pose>
+      <inertial>
+        <pose frame=''>-0.002209 0.000370 0.033496 0 -0 0</pose>
+        <mass>0.023672</mass>
+        <inertia>
+          <ixx>0.01527</ixx>
+          <ixy>-3e-4</ixy>
+          <ixz>0.000052</ixz>
+          <iyy>0.01490</iyy>
+          <iyz>0.000032</iyz>
+          <izz>0.00352</izz>
+        </inertia>
+      </inertial>
+      <collision name='motor_base3_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/motor_base.STL</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <visual name='motor_base3_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/motor_base.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Black</name>
+          </script>
+        </material>
+      </visual>
+      <self_collide>0</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+    </link>
+    <joint name='passive_joint3' type='revolute'>
+      <child>motor_base3</child>
+      <parent>lower_platform</parent>
+      <axis>
+        <xyz>-0.866025 0.5 0</xyz>
+        <limit>
+          <lower>-0.785</lower>
+          <upper>0.785</upper>
+          <effort>1000</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+    <link name='motor_link3'>
+      <pose frame=''>-0.03 -0.05196 0.0775 0 -0 -2.0944</pose>
+      <inertial>
+        <pose frame=''>0 0 0.006546 0 -0 0</pose>
+        <mass>0.002678</mass>
+        <inertia>
+          <ixx>0.00068</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.00068</iyy>
+          <iyz>0</iyz>
+          <izz>0.00004</izz>
+        </inertia>
+      </inertial>
+      <collision name='motor_link3_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/motor_link.STL</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <visual name='motor_link3_visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/motor_link.STL</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <self_collide>0</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+    </link>
+    <joint name='motor3' type='prismatic'>
+      <child>motor_link3</child>
+      <parent>motor_base3</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0.027</upper>
+          <effort>100</effort>
+          <velocity>10</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.7</damping>
+        </dynamics>
+        <use_parent_model_frame>1</use_parent_model_frame>
+      </axis>
+    </joint>
+
+    <link name='upper_platform'>
+      <pose frame=''>0.06 0 0.1015 0 -0 0</pose>
+      <inertial>
+        <pose>-0.06 0 -0.011912</pose>
+        <mass>0.00178</mass>
+        <inertia>
+          <ixx>0.00085383</ixx>
+          <ixy>0.000006</ixy>
+          <ixz>0</ixz>
+          <iyy>0.00085391</iyy>
+          <iyz>0</iyz>
+          <izz>0.00147406</izz>
+        </inertia>
+      </inertial>
+      <collision name='upper_platform_collision'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/upper_platform.STL</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <visual name='upper_platform_visual'>
+        <pose frame=''>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/upper_platform.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Orange</name>
+          </script>
+        </material>
+      </visual>
+
+      <!-- laser sensor 1 -->
+      <collision name='upper_platform_fixed_joint_lump__laser1_collision_1'>
+        <pose frame=''>0.0575 0 -0.0145 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/laser.STL</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <visual name='upper_platform_fixed_joint_lump__sensor1_visual_1'>
+        <pose frame=''>0.0575 0 -0.0145 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/laser.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Blue</name>
+          </script>
+        </material>
+      </visual>
+
+      <sensor name="laser1" type="ray">
+        <pose frame=''>0.0575 0 -0.0145 0 -1.5707963268 0</pose>
+        <visualize>true</visualize>
+        <update_rate>125</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>1</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.000</min_angle>
+              <max_angle>0.000</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.10</min>
+            <max>1.0</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.0001</stddev>
+          </noise>
+        </ray>
+        <plugin name="gazebo_ros_laser_controller1" filename="libgazebo_ros_laser.so">
+          <topicName>parabot/laser1</topicName>
+          <frameName>upper_platform</frameName>
+        </plugin>
+      </sensor>
+
+      <!-- laser sensor 2 -->
+      <collision name='upper_platform_fixed_joint_lump__laser2_collision_2'>
+        <pose frame=''>-0.11875 0.10176 -0.0145 0 -0 2.0944</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/laser.STL</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <visual name='upper_platform_fixed_joint_lump__laser2_visual_2'>
+        <pose frame=''>-0.11875 0.10176 -0.0145 0 -0 2.0944</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/laser.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Blue</name>
+          </script>
+        </material>
+      </visual>
+
+      <sensor name="laser2" type="ray">
+        <pose frame=''>-0.11875 0.10176 -0.0145 0 -1.5707963268 2.0944</pose>
+        <visualize>true</visualize>
+        <update_rate>125</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>1</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.000</min_angle>
+              <max_angle>0.000</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.10</min>
+            <max>1.0</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.0001</stddev>
+          </noise>
+        </ray>
+        <plugin name="gazebo_ros_laser_controller2" filename="libgazebo_ros_laser.so">
+          <topicName>parabot/laser2</topicName>
+          <frameName>upper_platform</frameName>
+        </plugin>
+      </sensor>
+
+      <!-- laser sensor 3 -->
+      <collision name='upper_platform_fixed_joint_lump__laser3_collision_3'>
+        <pose frame=''>-0.11875 -0.10176 -0.0145 0 0 -2.0944</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/laser.STL</uri>
+          </mesh>
+        </geometry>
+        <max_contacts>10</max_contacts>
+      </collision>
+      <visual name='upper_platform_fixed_joint_lump__sensor3_visual_3'>
+        <pose frame=''>-0.11875 -0.10176 -0.0145 0 0 -2.0944</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://parabot/meshes/laser.STL</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <name>Gazebo/Blue</name>
+          </script>
+        </material>
+      </visual>
+
+      <sensor name="laser3" type="ray">
+        <pose frame=''>-0.11875 -0.10176 -0.0145 0 -1.5707963268 -2.0944</pose>
+        <visualize>true</visualize>
+        <update_rate>125</update_rate>
+        <ray>
+          <scan>
+            <horizontal>
+              <samples>1</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.000</min_angle>
+              <max_angle>0.000</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.10</min>
+            <max>1.0</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.0001</stddev>
+          </noise>
+        </ray>
+        <plugin name="gazebo_ros_laser_controller3" filename="libgazebo_ros_laser.so">
+          <topicName>parabot/laser3</topicName>
+          <frameName>upper_platform</frameName>
+        </plugin>
+      </sensor>
+
+    </link>
+
+    <joint name='ball1' type='ball'>
+      <pose>0 0 0 0 0 0 </pose>
+      <child>upper_platform</child>
+      <parent>motor_link1</parent>
+    </joint>
+
+    <joint name='ball2' type='ball'>
+      <pose>-0.09 0.05196 0 0 0 0</pose>
+      <child>upper_platform</child>
+      <parent>motor_link2</parent>
+    </joint>
+
+    <joint name='ball3' type='ball'>
+      <pose>-0.09 -0.05196 0 0 0 0</pose>
+      <child>upper_platform</child>
+      <parent>motor_link3</parent>
+    </joint>
+
+    <plugin name="parabot_hw_sim_plugin" filename="libparabot_plugin.so">
+      <robotNamespace>parabot</robotNamespace>
+      <jointName>poineer::parabot::motor1 poineer::parabot::motor2 poineer::parabot::motor3</jointName>
+    </plugin>
+
+  </model>
+
+</sdf>

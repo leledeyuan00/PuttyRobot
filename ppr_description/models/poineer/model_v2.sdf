@@ -27,7 +27,7 @@
         </include>
         <joint name='ur_base_joint' type='fixed'>
             <parent>gtrobot_base::rotate_axis_link</parent>
-            <child>gtrobot_arm::arm_shoulder_link</child>
+            <child>gtrobot_arm::arm_base_link</child>
         </joint>
 
         <include>
