@@ -1,0 +1,5 @@
+float64[] cmd_vel
+float64 duration
+---
+
+bool success

@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   control_toolbox
+  ur_kinematics
+  orocos_kdl
 )
 
 ## System dependencies are found with CMake's conventions
@@ -56,11 +58,12 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+    go_cartisian.srv
+    go_ready_pos.srv
+    go_zero_pos.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -69,11 +72,11 @@ find_package(catkin REQUIRED COMPONENTS
 #   Action2.action
 # )
 
-## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   ppr_msgs#   std_msgs
-# )
+# Generate added messages and services with any dependencies listed here
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -135,7 +138,7 @@ include
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/para_solu.cpp)
+add_library(${PROJECT_NAME}_node src/para_solu.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -152,6 +155,19 @@ target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
 )
 
+add_library(custom_kinematic src/kinematic.cpp)
+add_dependencies(custom_kinematic ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ppr_msgs_generate_messages_cpp)
+target_link_libraries(custom_kinematic
+  ${catkin_LIBRARIES}
+)
+
+add_executable(ur_solu_node src/ur_solu.cpp)
+add_dependencies(ur_solu_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} ppr_msgs_generate_messages_cpp)
+target_link_libraries(ur_solu_node
+  ${catkin_LIBRARIES}
+  ${PROJECT_NAME}_node
+  custom_kinematic
+)
 
 #############
 ## Install ##

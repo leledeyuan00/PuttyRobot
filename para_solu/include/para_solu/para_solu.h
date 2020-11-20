@@ -1,5 +1,5 @@
-#ifndef __PARA_SOLU_H__
-#define __PARA_SOLU_H__
+#ifndef __PARA_H__
+#define __PARA_H__
 
 #define SIMULATE
 
@@ -64,27 +64,32 @@ struct para_info
 
 
 
-class para_solu
+class para
 {
 public:
-    para_solu(ros::NodeHandle &nh);
+    para(ros::NodeHandle &nh);
 
     Eigen::Vector3f get_eular(void);
+    double get_dist(void);
 
-    void run(void);
+    void control_loop(void);
+
+
+    // void run(void);
 private:
 
     ros::NodeHandle nh_;
     std::vector<Joint> para_motor_;
     #ifndef SIMULATE
-    void laser_callback1(const ppr_msgs::laser &msg);
+    // practice variable
+    uint16_t laser_state_;
     #else
-    void laser_callback1(const sensor_msgs::LaserScan &msg);
-    void laser_callback2(const sensor_msgs::LaserScan &msg);
-    void laser_callback3(const sensor_msgs::LaserScan &msg);
+    // simulation variable
+    uint16_t laser_state_;
     #endif
     para_info para_;
     Eigen::Vector3f current_eular_;
+    double current_dist_;
 
     std::vector<control_toolbox::Pid> pid_controllers_;
 
@@ -92,13 +97,19 @@ private:
     /* function */
     void ros_init(void);
     void pub_msgs(void);
+    #ifndef SIMULATE
+    void laser_callback1(const ppr_msgs::laser &msg);
+    #else
+    void laser_callback1(const sensor_msgs::LaserScan &msg);
+    void laser_callback2(const sensor_msgs::LaserScan &msg);
+    void laser_callback3(const sensor_msgs::LaserScan &msg);
+    #endif
     Eigen::Vector3f inverse_solu(Eigen::Matrix3f rotm, float top_z, Eigen::Matrix3f& xzy,Eigen::Vector3f& xyz_v);
     Eigen::Vector3f rotm2Eul(Eigen::Vector3f vec_in);
     Eigen::Matrix3f normal_vec_rotm(Eigen::Vector3f normal_vec);
     Eigen::Matrix<float, 2, 3> get_rot_element(Eigen::Vector3f vec);
     Eigen::Vector3f get_wall_plat_vec(Eigen::Vector3f laser_dist);
     float max_error(Eigen::Vector3f vector);
-    void calculate(void);
     void eul2Rotm(Eigen::Vector3f& euler_ZYX, Eigen::Matrix3f& rotm);
 
 };
