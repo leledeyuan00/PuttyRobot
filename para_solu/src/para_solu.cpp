@@ -1,6 +1,6 @@
 #include "para_solu/para_solu.h"
 
-para::para(ros::NodeHandle &nh):nh_(nh),laser_state_(0)
+para::para(ros::NodeHandle &nh):nh_(nh),laser_state_(0),current_laser_state_(0)
 {
     ros_init();
 }
@@ -49,8 +49,8 @@ void para::ros_init()
     joint_info3.cmd = 0;
     para_motor_.push_back(joint_info3);
 
-    para_.rot_matrix[CURRENT] = Eigen::Matrix3f::Identity(3,3);
-    para_.rot_matrix[NEXT] = Eigen::Matrix3f::Identity(3,3);
+    para_.rot_matrix[CURRENT] = Eigen::Matrix3d::Identity(3,3);
+    para_.rot_matrix[NEXT] = Eigen::Matrix3d::Identity(3,3);
 
     pub_msgs();
 }
@@ -67,14 +67,33 @@ void para::laser_callback1(const ppr_msgs::laser &msg)
 void para::laser_callback1(const sensor_msgs::LaserScan &msg)
 {
     para_motor_[0].laser = msg.ranges[0];
+    if (msg.ranges[0] <= 1){
+        current_laser_state_ &= ~((uint16_t)1<<0);
+    }
+    else{
+        current_laser_state_ |= (uint16_t)1<<0; 
+    }
+    
 }
 void para::laser_callback2(const sensor_msgs::LaserScan &msg)
 {
     para_motor_[1].laser = msg.ranges[0];
+    if (msg.ranges[0] <= 1){
+        current_laser_state_ &= ~((uint16_t)1<<1);
+    }
+    else{
+        current_laser_state_ |= (uint16_t)1<<1; 
+    }
 }
 void para::laser_callback3(const sensor_msgs::LaserScan &msg)
 {
     para_motor_[2].laser = msg.ranges[0];
+    if (msg.ranges[0] <= 1){
+        current_laser_state_ &= ~((uint16_t)1<<2);
+    }
+    else{
+        current_laser_state_ |= (uint16_t)1<<2; 
+    }
 }
 #endif
 void para::pub_msgs(void)
@@ -88,13 +107,13 @@ void para::pub_msgs(void)
     
 }
 
-Eigen::Vector3f para::inverse_solu(Eigen::Matrix3f rotm, float top_z, Eigen::Matrix3f& xzy, Eigen::Vector3f& xyz_v)
+Eigen::Vector3d para::inverse_solu(Eigen::Matrix3d rotm, float top_z, Eigen::Matrix3d& xzy, Eigen::Vector3d& xyz_v)
 {
     /* variable */
-    Eigen::Matrix3f top_fram, base_fram, link_matrix;
-    Eigen::Vector3f eular;
+    Eigen::Matrix3d top_fram, base_fram, link_matrix;
+    Eigen::Vector3d eular;
     float s1,s2,s3,c1,c2,c3,arfa,beta,gama;
-    Eigen::Vector3f desired_eula, rot_vectors, target_dist;
+    Eigen::Vector3d desired_eula, rot_vectors, target_dist;
 
     eular = rotm2Eul(rotm.col(2));
     c1 = cos(eular(0));
@@ -121,7 +140,7 @@ Eigen::Vector3f para::inverse_solu(Eigen::Matrix3f rotm, float top_z, Eigen::Mat
     return target_dist;
 }
 
-void para::eul2Rotm(Eigen::Vector3f& euler_ZYX, Eigen::Matrix3f& rotm)
+void para::eul2Rotm(Eigen::Vector3d& euler_ZYX, Eigen::Matrix3d& rotm)
 {
     //将欧拉角转变为旋转矩阵
     float tan3;
@@ -137,9 +156,9 @@ void para::eul2Rotm(Eigen::Vector3f& euler_ZYX, Eigen::Matrix3f& rotm)
             s(0)*s(2)-c(0)*c(2)*s(1),   c(2)*s(0)+c(0)*s(1)*s(2),   c(0)*c(1);
 }
 
-Eigen::Vector3f para::rotm2Eul(Eigen::Vector3f vec_in)
+Eigen::Vector3d para::rotm2Eul(Eigen::Vector3d vec_in)
 {
-    Eigen::Vector3f vec;
+    Eigen::Vector3d vec;
     float a,b,c;
     float s1,s2,c1,c2,tan1,tan3;
 
@@ -161,14 +180,14 @@ Eigen::Vector3f para::rotm2Eul(Eigen::Vector3f vec_in)
 /* get Rotation Matrix for this parallel platform */
 /* R(x)*R(y) -- R(z)=I */
 
-Eigen::Matrix3f para::normal_vec_rotm(Eigen::Vector3f normal_vec)
+Eigen::Matrix3d para::normal_vec_rotm(Eigen::Vector3d normal_vec)
 {
-    Eigen::Matrix<float,2,3> element;
+    Eigen::Matrix<double,2,3> element;
     float s1,s2,s3,c1,c2,c3,arfa,beta,gama;
     float theta;
     float denominator,x,y,z;
-    Eigen::Vector3f vector_z,vector_wall,vector;
-    Eigen::Matrix3f rotm;
+    Eigen::Vector3d vector_z,vector_wall,vector;
+    Eigen::Matrix3d rotm;
 
     /* normalize vector */
     element = get_rot_element(normal_vec);
@@ -187,13 +206,13 @@ Eigen::Matrix3f para::normal_vec_rotm(Eigen::Vector3f normal_vec)
     return rotm;
 }
 
-Eigen::Matrix<float, 2, 3> para::get_rot_element(Eigen::Vector3f vec)
+Eigen::Matrix<double, 2, 3> para::get_rot_element(Eigen::Vector3d vec)
 {
-    Eigen::Matrix<float,2,3> element;
+    Eigen::Matrix<double,2,3> element;
     float x,y,z,a,b,c;
     float s1,s2,s3,c1,c2,c3,tan1,tan3;
     float denominator;
-    Eigen::Matrix3f rotm;
+    Eigen::Matrix3d rotm;
 
     x = vec(0);
     y = vec(1);
@@ -218,10 +237,10 @@ Eigen::Matrix<float, 2, 3> para::get_rot_element(Eigen::Vector3f vec)
 }
 
 /* get Normal Vector by Laser Sensor */
-Eigen::Vector3f para::get_wall_plat_vec(Eigen::Vector3f laser_dist)
+Eigen::Vector3d para::get_wall_plat_vec(Eigen::Vector3d laser_dist)
 {
-    Eigen::Matrix3f wall_fram;
-    Eigen::Vector3f p12,p13,temp_col;
+    Eigen::Matrix3d wall_fram;
+    Eigen::Vector3d p12,p13,temp_col;
 
     wall_fram << LASERPLAT_RADIUS,                             -LASERPLAT_RADIUS/2,                 -LASERPLAT_RADIUS/2,
                                0,                       sqrt(3)*LASERPLAT_RADIUS/2,         -sqrt(3)*LASERPLAT_RADIUS/2,
@@ -233,7 +252,7 @@ Eigen::Vector3f para::get_wall_plat_vec(Eigen::Vector3f laser_dist)
     return p12.cross(p13);
 }
 
-float para::max_error(Eigen::Vector3f vector)
+float para::max_error(Eigen::Vector3d vector)
 {
     float max_temp=vector(0), min_temp=vector(0);
     for (size_t i = 0; i < MOTOR_NUM; i++)
@@ -255,12 +274,16 @@ float para::max_error(Eigen::Vector3f vector)
 
 void para::control_loop(void)
 {
+    #ifndef SIMULATE
     if(laser_state_ == 0){
+    #else
+    if(current_laser_state_ == 0){
+    #endif
     /* variable */
-        Eigen::Vector3f wall_plat_vector,wall_eular,pid_error;
-        Eigen::Matrix3f rot_matrix,rot_matrix_temp,laser2Base,laser2Base_matrix;
-        Eigen::Matrix3f xyz_temp;
-        Eigen::Vector3f temp_dist,xyzv_temp;
+        Eigen::Vector3d wall_plat_vector,wall_eular,pid_error;
+        Eigen::Matrix3d rot_matrix,rot_matrix_temp,laser2Base,laser2Base_matrix;
+        Eigen::Matrix3d xyz_temp;
+        Eigen::Vector3d temp_dist,xyzv_temp;
         ros::Time last_time,curr_time;
         ros::Duration control_duration;
         float error;
@@ -272,7 +295,7 @@ void para::control_loop(void)
             rot_matrix = normal_vec_rotm(wall_plat_vector);
         }
         else{
-            rot_matrix = Eigen::Matrix3f::Identity(3,3);
+            rot_matrix = Eigen::Matrix3d::Identity(3,3);
         }
         wall_eular = rotm2Eul(rot_matrix.col(2));
 
@@ -311,8 +334,8 @@ void para::control_loop(void)
 
         /* saved status */
         para_.rot_matrix[CURRENT] = para_.rot_matrix[NEXT];
-        current_eular_ = rotm2Eul(para_.rot_matrix[CURRENT].col(2));
-        current_dist_ = (para_.laser_dist(0) + para_.laser_dist(1) + para_.laser_dist(2))/3;
+        current_wall_dist_ = (para_.laser_dist(0) + para_.laser_dist(1) + para_.laser_dist(2))/3;
+        current_ppr_dist_ = (para_motor_[0].stat + para_motor_[1].stat + para_motor_[2].stat)/3;
     }
     pub_msgs();
 }
@@ -320,14 +343,24 @@ void para::control_loop(void)
 
 /* public function */
 
-Eigen::Vector3f para::get_eular(void)
-{
-    return current_eular_;
+Eigen::Matrix3d para::get_ppr_r(void){
+    return para_.rot_matrix[CURRENT];
 }
 
-double para::get_dist(void)
-{
-    return current_dist_;
+float para::get_wall_dist(void){
+    return current_wall_dist_;
+}
+
+float para::get_ppr_dist(void){
+    return current_ppr_dist_;
+}
+
+uint16_t para::get_laser_state(void){
+#ifndef SIMULATE
+    return laser_state_;    
+#else
+    return current_laser_state_;
+#endif
 }
 
 // void para::run()

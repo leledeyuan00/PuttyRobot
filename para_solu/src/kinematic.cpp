@@ -1,7 +1,28 @@
 #include "para_solu/kinematic.h"
 
+const double d_1 =  0.089159;
+const double a_2 = -0.42500;
+const double a_3 = -0.39225;
+const double d_4 =  0.10915;
+const double d_5 =  0.09465;
+const double d_6 =  0.0823;
+
 namespace macmic_kinematic
 {
+
+    Eigen::Matrix3d EigenT2EigenR(Eigen::Matrix4d T)
+    {
+        Eigen::Matrix3d R;
+        for (size_t i = 0; i < 3; i++)
+        {
+            for (size_t j = 0; j < 3; j++)
+            {
+                R(i,j)=T(i,j);
+            }
+        }
+        return R;
+    }
+
     Eigen::Matrix3d KDLR2EigenR(KDL::Rotation R)
     {
         Eigen::Matrix3d R_eigen;
@@ -44,6 +65,19 @@ namespace macmic_kinematic
             }
         }
         return R_eigen;
+    }
+
+    Eigen::Matrix4d ur_forward(const double* q,const Eigen::Matrix4d T_Base)
+    {
+        double* T1 = new double[16];
+        double* T2 = new double[16];
+        double* T3 = new double[16];
+        double* T4 = new double[16];
+        double* T5 = new double[16];
+        double* T6 = new double[16];
+        forward_all(q, T1, T2, T3, T4, T5, T6);
+
+        return T_Base * D2EigenT(T6);
     }
 
     Eigen::Matrix<double,6,6> Jacobian(const double* q,const Eigen::Matrix4d T_Base)
@@ -150,6 +184,47 @@ namespace macmic_kinematic
         // }
         Jacobian << J1, J2, J3, J4, J5, J6;
         return Jacobian;
+    }
+
+    KDL::Rotation EigenT2KDLR(Eigen::Matrix4d T)
+    {
+        KDL::Rotation R;
+        for (int i = 0; i < 3; i ++)
+        {
+            for (int j = 0; j < 3; j ++)
+            {
+                R.data[i*3+j] = (T)(i,j);
+            }
+        }
+        return R;
+    }
+
+    void EigenT2Eular(Eigen::Matrix4d T,double* q)
+    {
+        KDL::Rotation R;
+        R = EigenT2KDLR(T);
+        R.GetRPY(q[0],q[1],q[2]);
+    }
+
+    Vector6d EigenT2Pos(Eigen::Matrix4d T)
+    {
+        double q[6];
+        for (size_t i = 0; i < 3; i++)
+        {
+            q[i] = T(i,3);
+        }
+        EigenT2Eular(T,&q[3]);
+        return D2V6(q);
+    }
+
+    Vector6d D2V6(double *q)
+    {
+        Vector6d V;
+        for (size_t i = 0; i < 6; i++)
+        {
+            V(i) = q[i];
+        }
+        return V;
     }
     
 } // namespace ur_solu

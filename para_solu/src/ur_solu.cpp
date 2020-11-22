@@ -2,13 +2,13 @@
 
 const double ur_solu::ready_pos_[6] = {2.3561,-0.5313,-2.0961,1.0409,1.5780,0};
 
-const KDL::Rotation ur_solu::R_base =  KDL::Rotation::RotY(PI/2) * KDL::Rotation::RotZ(PI/4);
+const KDL::Rotation ur_solu::R_base =  KDL::Rotation::EulerZYZ(0,PI/2,-PI*3/4);
 
 ur_solu::ur_solu(ros::NodeHandle &nh):nh_(nh),ur_init_(false)
 {
     state_init();
-    para_.reset(new para(nh));
     ros_init();
+    para_.reset(new para(nh));
 }
 
 void ur_solu::state_init(void)
@@ -21,8 +21,10 @@ void ur_solu::state_init(void)
     mapJoint_.insert(std::pair<std::string, double>("poineer::gtrobot_arm::arm_wrist_2_joint", 1.567));
     mapJoint_.insert(std::pair<std::string, double>("poineer::gtrobot_arm::arm_wrist_3_joint", -3.14));
 
+    T_ur_forward_ = Eigen::Matrix4d::Identity();
     // some flags
     srv_start_ = false;
+    go_cartisian_flag_ = false;
 }
 
 void ur_solu::ros_init(void)
@@ -32,6 +34,7 @@ void ur_solu::ros_init(void)
     go_ready_srv_ = nh_.advertiseService("/gtrobot_arm/go_ready_pos", &ur_solu::go_ready_pos,this);
     go_zero_srv_ = nh_.advertiseService("/gtrobot_arm/go_zero_pos", &ur_solu::go_zero_pos,this);
     go_cart_srv_ = nh_.advertiseService("/gtrobot_arm/go_cartisian", &ur_solu::go_cartisian,this);
+    go_feed_srv_ = nh_.advertiseService("/gtrobot_arm/go_feed",&ur_solu::go_feed,this);
 
 }
 
@@ -106,7 +109,28 @@ bool ur_solu::go_cartisian(para_solu::go_cartisian::Request &req,
     start_time_ = ros::Time::now();
 
     memcpy(start_pos_,joint_state_,sizeof(joint_state_));
-    
+    start_cart_pos_ = EigenT2Pos(T_ur_forward_);
+
+    ROS_INFO("current record pos is [%f, %f, %f, %f, %f, %f",start_cart_pos_ [0],start_cart_pos_ [1],start_cart_pos_ [2],start_cart_pos_ [3],start_cart_pos_ [4],start_cart_pos_ [5]);    
+    res.success = true;
+    return true;
+}
+
+bool ur_solu::go_feed(para_solu::go_feed::Request &req, 
+                      para_solu::go_feed::Response &res)
+{
+    Eigen::Vector3d feed_temp;
+    feed_distance_ = req.distance;
+    feed_temp << req.x_vel, 0, 0;
+    feed_d_cmd_ = EigenT2EigenR(T_ur_forward_) * feed_temp;
+
+    go_feed_flag_ = true;
+
+    memcpy(start_pos_,joint_state_,sizeof(joint_state_));
+    start_cart_pos_ = EigenT2Pos(T_ur_forward_);
+
+    std::cout << "feed cmd is \r\n" << feed_d_cmd_ << std::endl;
+
     res.success = true;
     return true;
 }
@@ -115,9 +139,9 @@ bool ur_solu::srv_handle(void)
 {
     ros::Duration current_duration((ros::Time::now() - start_time_));
     double finish_time = duration_time_.toSec();
+    double time = current_duration.toSec();
     if (current_duration <= duration_time_)
     {
-        double time = current_duration.toSec();
         for(size_t i =0; i<6; i++)
         {
             if(go_ready_pos_flag_)
@@ -128,18 +152,21 @@ bool ur_solu::srv_handle(void)
             {
                 joint_cmd_[i] = (0.0 - start_pos_[i]) * (time/finish_time ) + start_pos_[i];
             }
-            else if(go_cartisian_flag_)
+            
+        }
+        if(go_cartisian_flag_)
+        {
+            ur_jacobian_ = Jacobian(joint_state_,KDLR2EigenT(R_base));
+            Eigen::Matrix<double,6,1> cmd_vel;
+            Eigen::Matrix<double,6,1> srv_cart_vel_act;
+            srv_cart_vel_act = srv_cart_vel_ * time + start_cart_pos_ - EigenT2Pos(T_ur_forward_);
+
+            cmd_vel = ur_jacobian_.inverse()* srv_cart_vel_;
+            for (size_t i = 0; i < 6; i++)
             {
-                ur_jacobian_ = Jacobian(joint_state_,KDLR2EigenT(R_base));
-                Eigen::Matrix<double,6,1> cmd_vel;
-                cmd_vel = ur_jacobian_.inverse()* srv_cart_vel_;
-                for (size_t i = 0; i < 6; i++)
-                {
-                    joint_cmd_[i] = cmd_vel(i) + joint_state_[i];
-                }
+                joint_cmd_[i] = cmd_vel(i) + joint_state_[i];
             }
         }
-        // ROS_INFO("joint1: [%f], joint2: [%f], joint3: [%f], joint4: [%f], joint5: [%f], joint6:[%f]",joint_cmd_[0],joint_cmd_[1],joint_cmd_[2],joint_cmd_[3],joint_cmd_[4],joint_cmd_[5]);
     }
     else{
         srv_start_ = false; // reset flag
@@ -160,51 +187,95 @@ void ur_solu::pub_msg(void)
     joint_pub_.publish(ur_cmd_msg);
 }
 
+void ur_solu::state_update(void)
+{
+    // ur state first
+    T_ur_forward_ = ur_forward(joint_state_,KDLR2EigenT(R_base));
+    ur_jacobian_ = Jacobian(joint_state_,KDLR2EigenT(R_base));
+    ur_pose_current_ = EigenT2Pos(T_ur_forward_);
+
+    // parse ppr state second
+    para_->control_loop();
+    ppr_distance_  = para_->get_ppr_dist();
+    wall_distance_ = para_->get_wall_dist();
+    laser_state_   = para_->get_laser_state();
+    ppr_rotation_  = para_->get_ppr_r();
+    
+    Eigen::Vector3d ppr_v;
+    ppr_v << 0,0,ppr_distance_;
+    T_ppr_forward_ << ppr_rotation_ , ppr_v , 0,0,0,1;
+
+    T_tool_forward_ = T_ur_forward_ * T_ppr_forward_;
+    tool_pose_current_ = EigenT2Pos(T_tool_forward_);
+    
+    // std::cout<< " tool ur pose error \r\n" << tool_pose_current_ - ur_pose_current_ << std::endl;
+}
+
 
 void ur_solu::control_loop(void)
 {
     ros::Rate loop_rate(100);
     while (ros::ok())
     {
+        // ur initializing
         if(ur_init_)
         {
-            para_->control_loop();
-
+            // update state
+            state_update(); 
             // response srv
             if(srv_start_)
             {
                 srv_handle();
             }
-
-            double T[16];
-            forward(joint_state_,T);
-            Eigen::Matrix4d T_forward = Eigen::Matrix4d::Identity();
-
-            for (int i = 0; i < 4; i ++)
-            {
-                for (int j = 0; j < 4; j ++)
+            else{
+                // combine ppr
+                if (laser_state_ !=0)
                 {
-                    (T_forward)(i,j) = T[i*4+j];
+                    // laser sensor have been some error
+                }
+                else
+                {
+                    static Vector6d record_temp_start_pos = ur_pose_current_;
+                    record_temp_start_pos(5) = ur_pose_current_(5);
+
+                    if (go_feed_flag_)
+                    {
+                        record_temp_start_pos(0) -= feed_d_cmd_(0);
+                        record_temp_start_pos(1) -= feed_d_cmd_(1);
+                        record_temp_start_pos(2) -= feed_d_cmd_(2);
+                        go_feed_flag_ = false;
+                    }
+                    
+
+                    float wall_distance_d = 0.2;
+                    float pid_e = (wall_distance_ - wall_distance_d) * 0.001;
+                    Vector6d wall_distance_e  ,vel_cmdj1,vel_cmdj2 ,vel_cmdj3;
+                    wall_distance_e << pid_e,0,0,0,0,0;
+                    vel_cmdj1 = ur_jacobian_.inverse() * wall_distance_e;
+
+                    Vector6d ur_temp_e = (record_temp_start_pos - ur_pose_current_)*0.001;
+                    Vector6d ur_tool_e;
+                    ur_tool_e = - ((tool_pose_current_ - ur_pose_current_) * 0.01);
+                    ur_tool_e(0) = 0; ur_tool_e(1) = 0; ur_tool_e(2) = 0; ur_tool_e(3) = 0; ur_tool_e(4) = 0;
+
+                    vel_cmdj2 = ur_jacobian_.inverse() * ur_tool_e;
+                    vel_cmdj3 = ur_jacobian_.inverse() * ur_temp_e;
+                    // std::cout << "record pos is \r\n" << ur_temp_e << std::endl; 
+                    // std::cout << "current pos is \r\n" <<ur_pose_current_ << std::endl;
+                    // printf("rotation e is %f \r\n", ur_tool_e(5));
+                    for (size_t i = 0; i < 6; i++)
+                    {
+                        joint_cmd_[i] = joint_state_[i]  + vel_cmdj2(i) + vel_cmdj3(i);
+                        // joint_cmd_[i] = joint_state_[i]  + vel_cmdj3(i);
+                    }
+                    // printf("wall distance is [%f]\r\n",wall_distance_);
+                    // printf("wall distance e is [%f]\r\n", pid_e);
+                    // printf("vel cmd is [%f %f %f %f %f %f]", vel_cmdj(0), vel_cmdj(1), vel_cmdj(2), vel_cmdj(3), vel_cmdj(4), vel_cmdj(5));
                 }
             }
-
-            T_forward = KDLR2EigenT(R_base)*T_forward;
-
-            // ur_jacobian_ = Jacobian(joint_state_,KDLR2EigenT(R_base));
             
-            
-
-            // std::cout << "base is : \r\n" << T_forward << std::endl;
-            // std::cout << "Jacobian is : \r\n "<< ur_jacobian_<<std::endl;
-            
-            std::cout << "Current position is [ " << T_forward(0,3) << " "<< T_forward(1,3) << " "<< T_forward(2,3) << " ]" << std::endl;
-
-
-            // publish msgs
             pub_msg();
-
         }
-
         // spin
         ros::spinOnce();
         loop_rate.sleep();

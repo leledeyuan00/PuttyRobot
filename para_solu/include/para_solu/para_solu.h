@@ -50,15 +50,9 @@ struct Joint
 
 struct para_info
 {
-    Eigen::Matrix3f rot_matrix[ALL_STATE];
-    Eigen::Vector3f laser_dist;
-    Eigen::Vector3f motor_dist[ALL_STATE];
-    float laser_cor_z [ALL_STATE];
-    float motor_cor_z [ALL_STATE];
-    float delta_mm    [MOTOR_NUM];
-    Eigen::Matrix3f jacobian;
-    Eigen::Matrix3f xyz;
-    Eigen::Vector3f xyz_v;
+    Eigen::Matrix3d rot_matrix[ALL_STATE];
+    Eigen::Vector3d laser_dist;
+    Eigen::Vector3d motor_dist[ALL_STATE];
     bool state;
 };
 
@@ -69,9 +63,10 @@ class para
 public:
     para(ros::NodeHandle &nh);
 
-    Eigen::Vector3f get_eular(void);
-    double get_dist(void);
-
+    Eigen::Matrix3d get_ppr_r(void);
+    float get_wall_dist(void);
+    float get_ppr_dist(void);
+    uint16_t get_laser_state(void);
     void control_loop(void);
 
 
@@ -88,8 +83,9 @@ private:
     uint16_t laser_state_;
     #endif
     para_info para_;
-    Eigen::Vector3f current_eular_;
-    double current_dist_;
+    float current_wall_dist_;
+    float current_ppr_dist_;
+    uint16_t current_laser_state_;
 
     std::vector<control_toolbox::Pid> pid_controllers_;
 
@@ -104,13 +100,13 @@ private:
     void laser_callback2(const sensor_msgs::LaserScan &msg);
     void laser_callback3(const sensor_msgs::LaserScan &msg);
     #endif
-    Eigen::Vector3f inverse_solu(Eigen::Matrix3f rotm, float top_z, Eigen::Matrix3f& xzy,Eigen::Vector3f& xyz_v);
-    Eigen::Vector3f rotm2Eul(Eigen::Vector3f vec_in);
-    Eigen::Matrix3f normal_vec_rotm(Eigen::Vector3f normal_vec);
-    Eigen::Matrix<float, 2, 3> get_rot_element(Eigen::Vector3f vec);
-    Eigen::Vector3f get_wall_plat_vec(Eigen::Vector3f laser_dist);
-    float max_error(Eigen::Vector3f vector);
-    void eul2Rotm(Eigen::Vector3f& euler_ZYX, Eigen::Matrix3f& rotm);
+    Eigen::Vector3d inverse_solu(Eigen::Matrix3d rotm, float top_z, Eigen::Matrix3d& xzy,Eigen::Vector3d& xyz_v);
+    Eigen::Vector3d rotm2Eul(Eigen::Vector3d vec_in);
+    Eigen::Matrix3d normal_vec_rotm(Eigen::Vector3d normal_vec);
+    Eigen::Matrix<double, 2, 3> get_rot_element(Eigen::Vector3d vec);
+    Eigen::Vector3d get_wall_plat_vec(Eigen::Vector3d laser_dist);
+    float max_error(Eigen::Vector3d vector);
+    void eul2Rotm(Eigen::Vector3d& euler_ZYX, Eigen::Matrix3d& rotm);
 
 };
 

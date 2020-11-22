@@ -63,6 +63,7 @@ add_service_files(
     go_cartisian.srv
     go_ready_pos.srv
     go_zero_pos.srv
+    go_feed.srv
 )
 
 ## Generate actions in the 'action' folder
