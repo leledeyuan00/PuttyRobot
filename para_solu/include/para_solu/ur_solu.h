@@ -37,6 +37,17 @@
 using namespace ur_kinematics;
 using namespace macmic_kinematic;
 
+typedef enum
+{
+    PUTTY_INIT =0,
+    PUTTY_PUSH,
+    PUTTY_START,
+    PUTTY_BACK,
+    PUTTY_ERROR,
+    PUTTY_FEED,
+    PUTTY_ALL
+}PUTTY_TASK_SMC;
+
 class ur_solu
 {
 
@@ -52,6 +63,7 @@ private:
     // ros
     ros::NodeHandle nh_;
     ros::Publisher joint_pub_;
+    ros::Publisher cmd_vel_monitor_pub_;
     ros::Subscriber joint_state_sub_;
     ros::ServiceServer go_ready_srv_;
     ros::ServiceServer go_zero_srv_;
@@ -72,11 +84,17 @@ private:
     Eigen::Matrix4d T_ppr_forward_;
     Eigen::Matrix4d T_tool_forward_;
     Eigen::Matrix4d T_ur_forward_;
+
+    PUTTY_TASK_SMC putty_smc_;
+
+    // monitor data
+    float cmd_vel_monitor_[6];
     
 
     //service variable
     double start_pos_[6];
-    Eigen::Matrix<double,6,1> start_cart_pos_;
+    Vector6d start_cart_pos_;
+    Vector6d start_tool_pos_;
     ros::Time start_time_;
     ros::Duration duration_time_;
     bool srv_start_;
@@ -84,7 +102,7 @@ private:
     bool go_zero_pos_flag_;
     bool go_cartisian_flag_;
     bool go_feed_flag_;
-    Eigen::Matrix<double,6,1> srv_cart_vel_;
+    Vector6d srv_cart_vel_;
 
     Eigen::Vector3d feed_d_cmd_;
     float feed_distance_;
@@ -113,6 +131,20 @@ private:
 
     void pub_msg(void); // tipic pub
     bool srv_handle(void);
+    
+    // -- task handles
+    void task_handle(void);
+
+    bool task_reset(void);
+    bool task_error_detect(void);
+    void task_init(void);
+    void task_push(void);
+    void task_feed(void);
+    void task_back(void);
+    void task_start(void);
+    void task_next_point(void);
+
+    void error_handle(void);
 
     // algorithm function
     void state_update(void);

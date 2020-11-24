@@ -2,7 +2,20 @@
 
 para::para(ros::NodeHandle &nh):nh_(nh),laser_state_(0),current_laser_state_(0)
 {
+    state_init();
     ros_init();
+}
+
+void para::state_init(void)
+{
+    top_fram_ << MOTORPLAT_RADIUS,               -MOTORPLAT_RADIUS/2,          -MOTORPLAT_RADIUS/2,
+                               0,        sqrt(3)*MOTORPLAT_RADIUS/2,  -sqrt(3)*MOTORPLAT_RADIUS/2,
+                               0,                                 0,                            0;
+    base_fram_ = top_fram_;
+
+    para_inverse_[CURRENT].target_dist = Eigen::Vector3d(PARA_LEN_MEAN,PARA_LEN_MEAN,PARA_LEN_MEAN);
+    para_inverse_[CURRENT].n_vector3 << Eigen::Vector3d(0,0,1), Eigen::Vector3d(0,0,1), Eigen::Vector3d(0,0,1);
+    para_inverse_[NEXT] = para_inverse_[CURRENT];
 }
 
 void para::ros_init()
@@ -107,42 +120,203 @@ void para::pub_msgs(void)
     
 }
 
-Eigen::Vector3d para::inverse_solu(Eigen::Matrix3d rotm, float top_z, Eigen::Matrix3d& xzy, Eigen::Vector3d& xyz_v)
+// TODO: Eular gamma: -atan( (sin(delta_eular(0))*sin(delta_eular(1))) / (cos(delta_eular(0))+cos(delta_eular(1))) );
+
+// Eigen::Vector3d para::inverse_solu(Eigen::Matrix3d rotm, float top_z, Eigen::Matrix3d& xzy, Eigen::Vector3d& xyz_v)
+inverse_info para::inverse_solu(Eigen::Matrix4d T)
 {
     /* variable */
-    Eigen::Matrix3d top_fram, base_fram, link_matrix;
+    inverse_info inverse;
+    Eigen::Matrix3d link_matrix,R;
     Eigen::Vector3d eular;
     float s1,s2,s3,c1,c2,c3,arfa,beta,gama;
-    Eigen::Vector3d desired_eula, rot_vectors, target_dist;
+    Eigen::Vector3d desired_eula, rot_vectors;
 
-    eular = rotm2Eul(rotm.col(2));
-    c1 = cos(eular(0));
-    c2 = cos(eular(1));
-    c3 = cos(eular(2));
-    s1 = sin(eular(0));
-    s2 = sin(eular(1));
-    s3 = sin(eular(2));
-   
-    top_fram << MOTORPLAT_RADIUS,               -MOTORPLAT_RADIUS/2,          -MOTORPLAT_RADIUS/2,
-                               0,        sqrt(3)*MOTORPLAT_RADIUS/2,  -sqrt(3)*MOTORPLAT_RADIUS/2,
-                               0,                                 0,                            0;
-    base_fram = top_fram;
+    for (size_t i = 0; i < 3; i++)
+    {
+        for (size_t j = 0; j < 3; j++)
+        {
+            R(i,j) = T(i,j);
+        }
+    }
 
-    rot_vectors << 0.5*MOTORPLAT_RADIUS*(c2*c3+s1*s2*s3-c1*c3), MOTORPLAT_RADIUS*(c2*s3),top_z;
+    rot_vectors << T(0,3), T(1,3), T(2,3);
     link_matrix << rot_vectors,rot_vectors,rot_vectors;
 
-    xyz_v = rot_vectors;
-    xzy = rotm * top_fram + link_matrix - base_fram;
+    inverse.n_vector3 = R * top_fram_ + link_matrix - base_fram_;
     
-    target_dist << sqrt( pow(xzy(0,0),2) + pow(xzy(1,0),2) + pow(xzy(2,0),2)), 
-                   sqrt( pow(xzy(0,1),2) + pow(xzy(1,1),2) + pow(xzy(2,1),2)), 
-                   sqrt( pow(xzy(0,2),2) + pow(xzy(1,2),2) + pow(xzy(2,2),2));
-    return target_dist;
+    inverse.target_dist << sqrt( pow(inverse.n_vector3(0,0),2) + pow(inverse.n_vector3(1,0),2) + pow(inverse.n_vector3(2,0),2)), 
+                           sqrt( pow(inverse.n_vector3(0,1),2) + pow(inverse.n_vector3(1,1),2) + pow(inverse.n_vector3(2,1),2)), 
+                           sqrt( pow(inverse.n_vector3(0,2),2) + pow(inverse.n_vector3(1,2),2) + pow(inverse.n_vector3(2,2),2));
+    return inverse;
+}
+// length: motor lengths
+// n_vector3 : 3motor n vector 
+Eigen::Matrix3d para::Jacobian(Eigen::Matrix3d rotm, Eigen::Vector3d length, Eigen::Matrix3d n_vector3)
+{
+    double factor_1,factor_2,factor_3,factor_4,factor_5;
+    double alpha,beta,gamma;
+    Eigen::Vector3d eular;
+    Eigen::Matrix3d r,n,r_n_cross,jac_part;
+    Eigen::MatrixXd jac1_transposed(6,3);  // 转置矩阵
+    Eigen::MatrixXd jac1(3,6);
+    Eigen::MatrixXd jac2(6,6);
+    Eigen::MatrixXd jac3(6,3);
+
+    eular = rotm2Eul(rotm.col(2));
+    alpha = eular(0);
+    beta  = eular(1);
+    gamma = eular(2);
+
+    r = rotm * base_fram_;
+    n.col(0) = n_vector3.col(0) / length(0);
+    n.col(1) = n_vector3.col(1) / length(1);
+    n.col(2) = n_vector3.col(2) / length(2);
+    r_n_cross.col(0) = (r.col(0)).cross(n.col(0));
+    r_n_cross.col(1) = (r.col(1)).cross(n.col(1));
+    r_n_cross.col(2) = (r.col(2)).cross(n.col(2));
+
+    jac1_transposed.row(0) = n.row(0);
+    jac1_transposed.row(1) = n.row(1);
+    jac1_transposed.row(2) = n.row(2);
+    jac1_transposed.row(3) = r_n_cross.row(0);
+    jac1_transposed.row(4) = r_n_cross.row(1);
+    jac1_transposed.row(5) = r_n_cross.row(2);
+    jac1 = jac1_transposed.transpose();
+    jac2 << 1, 0, 0, 0,          0,                      0,
+            0, 1, 0, 0,          0,                      0,
+            0, 0, 1, 0,          0,                      0,
+            0, 0, 0, 1,          0,              sin(beta),
+            0, 0, 0, 0, cos(alpha),  -sin(alpha)*cos(beta),
+            0, 0, 0, 0, sin(alpha),   cos(alpha)*cos(beta);
+    
+    factor_1 = 1 + cos(alpha)*cos(beta);
+    factor_2 = sin(alpha)*cos(beta)*cos(gamma);
+    factor_3 = sin(beta)*sin(gamma);
+    factor_4 = sin(alpha)*sin(gamma);
+    factor_5 = sin(beta)*cos(gamma);
+    
+    jac3 << 0,  
+                0.5*MOTORPLAT_RADIUS*( factor_2*(cos(beta)+cos(alpha)) + factor_3*cos(beta)*(1+cos(alpha)*cos(alpha)) ) / factor_1,  
+                                                    0.5*MOTORPLAT_RADIUS*( 2*factor_4*cos(beta) - factor_5*(factor_1 + sin(alpha)*sin(alpha)) - factor_4*cos(alpha)*sin(beta)*sin(beta) ) / factor_1,
+            0,                                                                     -MOTORPLAT_RADIUS*factor_5*cos(beta) / factor_1,        -MOTORPLAT_RADIUS*( factor_3*factor_1 + factor_2 ) / factor_1,
+            1,                                                                                                                  0,                                                                   0,
+            0,                                                                                                                  1,                                                                   0,
+            0,                                                                                                                  0,                                                                   1,
+            0,                                                                                              -sin(beta) / factor_1,                                              -sin(alpha) / factor_1;
+    
+    jac_part = (jac1 * jac2 * jac3 ).inverse();
+    return jac_part;
 }
 
-void para::eul2Rotm(Eigen::Vector3d& euler_ZYX, Eigen::Matrix3d& rotm)
+Eigen::Matrix4d para::forward(Eigen::Matrix4d last_T, Eigen::Matrix3d last_nv3, Eigen::Vector3d last_length, Eigen::Vector3d current_length)
+{
+
+    Eigen::Matrix4d current_T;
+    Eigen::Matrix3d last_R,current_R;
+    inverse_info temp_inverse_info;
+    Eigen::Vector3d temp_length, error_length, rotm_vec, temp_eular,delta_eular,result_jacobian,delta_length,temp_xyzv;
+    Eigen::Matrix3d temp_jacobian,temp_nv3,temp_rotm;
+    int loop_count = 0;
+    bool forward_finished = 0;
+    float temp_z;
+
+    const Eigen::Vector3d target_length = current_length;
+
+    /* parse data */
+    for (size_t i = 0; i < 3; i++)
+    {
+        for (size_t j = 0; j < 3; j++)
+        {
+            last_R(i,j) = last_T(i,j);
+        }
+    }    
+    temp_length   = last_length;
+    temp_nv3      = last_nv3;
+    temp_rotm     = last_R;
+    temp_z = temp_length.sum()/3 + result_jacobian(0);
+
+    
+    temp_eular = rotm2Eul(temp_rotm.col(2));
+    error_length = target_length - temp_length;
+    /* loop */
+    while(error_length.array().abs().maxCoeff() >= 0.000001)
+    {
+        loop_count++;
+        temp_jacobian = Jacobian(temp_rotm, temp_length, temp_nv3);
+        /* start forward */
+        result_jacobian = temp_jacobian * error_length;
+        delta_eular(0) = result_jacobian(1);
+        delta_eular(1) = result_jacobian(2);
+        // delta_eular(2) = -atan( (sin(delta_eular(0))*sin(delta_eular(1))) / (cos(delta_eular(0))+cos(delta_eular(1))) );
+        delta_eular(2) = -(delta_eular(0) * sin(temp_eular(1)) + delta_eular(1) * sin(temp_eular(0)))/ (1 + cos(temp_eular(0))*cos(temp_eular(1)));
+        temp_eular = temp_eular + delta_eular;
+        // temp_rotm = eul2Rotm(temp_eular);
+        temp_rotm = eul2Rotm(temp_eular);
+        temp_z = temp_length.sum()/3 + result_jacobian(0);
+
+        temp_inverse_info = inverse_solu(makeTrans(temp_rotm,Eigen::Vector3d(0,0,temp_z)));
+
+        temp_length = temp_inverse_info.target_dist;
+        
+        // temp_length = inverse_solu(temp_rotm,temp_z,temp_xyz,temp_xyzv);
+        /* whether finished */
+        error_length = target_length - temp_length;
+        if(loop_count>=100)
+        {
+            // ROS_ERROR("Para robot forward error, too many loops!");
+            break;
+        }
+    }
+    // ROS_INFO("Forward finish, loop count is:%d",loop_count);
+    // std::cout << "temp jacobian is \r\n" << temp_jacobian<<std::endl;
+    // para->jacobian = temp_jacobian;
+    // para->xyz = temp_xyz;
+    // para->xyz_v = temp_xyzv;
+    current_T = makeTrans(temp_rotm,Eigen::Vector3d(0,0,temp_z));
+    // ROS_INFO("tempz is [%f]",temp_z);
+    return current_T;
+}
+
+Eigen::Matrix4d para::makeTrans(Eigen::Matrix3d R, Eigen::Vector3d V)
+{
+    // Make transformation 4x4 by R and V
+    Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
+    Eigen::Vector3d eular,V_actual;
+    Eigen::Matrix3d R_actual;
+    float s1,s2,s3,c1,c2,c3;
+
+    eular = rotm2Eul(R.col(2));
+
+    c1 = cos(eular(0));
+    c2 = cos(eular(1));
+    s1 = sin(eular(0));
+    s2 = sin(eular(1));
+   
+    eular(2) = -MOTORPLAT_RADIUS * (s1*s2/(c1+c2)); // passive gamma
+
+    V_actual << 0.5*MOTORPLAT_RADIUS*(c2*c3+s1*s2*s3-c1*c3), MOTORPLAT_RADIUS*(c2*s3),V(2);
+
+    R_actual = eul2Rotm(eular);
+
+    // x y  and construct a new rotation matirx
+
+    for (size_t i = 0; i < 3; i++)
+    {
+        for (size_t j = 0; j < 3; j++)
+        {
+            T(i,j) = R_actual(i,j);
+        }
+        T(i,3) = V(i);        
+    }
+    
+    return T;
+}
+
+Eigen::Matrix3d para::eul2Rotm(Eigen::Vector3d& euler_ZYX)
 {
     //将欧拉角转变为旋转矩阵
+    Eigen::Matrix3d rotm;
     float tan3;
     Eigen::Vector3d c = Eigen::Vector3d(cos(euler_ZYX(0)), cos(euler_ZYX(1)), cos(euler_ZYX(2)));
     Eigen::Vector3d s = Eigen::Vector3d(sin(euler_ZYX(0)), sin(euler_ZYX(1)), sin(euler_ZYX(2)));
@@ -154,6 +328,8 @@ void para::eul2Rotm(Eigen::Vector3d& euler_ZYX, Eigen::Matrix3d& rotm)
     rotm <<                c(1)*c(2),                 -c(1)*s(2),        s(1),
             c(0)*s(2)+c(2)*s(0)*s(1),   c(0)*c(2)-s(0)*s(1)*s(2),  -c(1)*s(0),
             s(0)*s(2)-c(0)*c(2)*s(1),   c(2)*s(0)+c(0)*s(1)*s(2),   c(0)*c(1);
+
+    return rotm;
 }
 
 Eigen::Vector3d para::rotm2Eul(Eigen::Vector3d vec_in)
@@ -282,8 +458,7 @@ void para::control_loop(void)
     /* variable */
         Eigen::Vector3d wall_plat_vector,wall_eular,pid_error;
         Eigen::Matrix3d rot_matrix,rot_matrix_temp,laser2Base,laser2Base_matrix;
-        Eigen::Matrix3d xyz_temp;
-        Eigen::Vector3d temp_dist,xyzv_temp;
+        Eigen::Vector3d temp_dist;
         ros::Time last_time,curr_time;
         ros::Duration control_duration;
         float error;
@@ -298,6 +473,7 @@ void para::control_loop(void)
             rot_matrix = Eigen::Matrix3d::Identity(3,3);
         }
         wall_eular = rotm2Eul(rot_matrix.col(2));
+        wall_eular(2) = 0; // gamma is a passive joint
 
         curr_time = ros::Time::now();
         control_duration = curr_time - last_time;
@@ -316,18 +492,35 @@ void para::control_loop(void)
             }
             pid_error(i) = pid_controllers_[i].computeCommand(wall_eular(i),control_duration);
         }
-        
 
-        eul2Rotm(pid_error,rot_matrix_temp);
+        rot_matrix_temp = eul2Rotm(pid_error);
 
         para_.rot_matrix[NEXT] = rot_matrix_temp * para_.rot_matrix[CURRENT];
+        //test forward
+        Eigen::Matrix4d test_forward;
+        Eigen::Matrix3d test_R;
+        test_forward = forward(makeTrans(para_.rot_matrix[CURRENT],Eigen::Vector3d(0,0,para_inverse_[CURRENT].target_dist.sum()/3)),para_inverse_[CURRENT].n_vector3,para_inverse_[CURRENT].target_dist,para_inverse_[NEXT].target_dist);
 
-        temp_dist = inverse_solu(para_.rot_matrix[NEXT],PARA_LEN_MEAN,xyz_temp,xyzv_temp);
+        for (size_t i = 0; i < 3; i++)
+        {
+            for (size_t j = 0; j < 3; j++)
+            {
+                test_R(i,j)=test_forward(i,j);
+            }
+        }
+        // para_.rot_matrix[NEXT] = rot_matrix_temp * test_R;
+
+        // std::cout << "traditional T matrix is \r\n" << makeTrans(para_.rot_matrix[NEXT],Eigen::Vector3d(0,0,para_inverse_[NEXT].target_dist.sum()/3)) << std::endl;
+        // std::cout << "Jacobian T matrix is \r\n" << test_forward << std::endl;
+
+        para_inverse_[CURRENT] = para_inverse_[NEXT]; // update state
+        para_inverse_[NEXT] = inverse_solu(makeTrans(para_.rot_matrix[NEXT],Eigen::Vector3d(0,0,PARA_LEN_MEAN)));
+        // temp_dist = para_inverse_.target_dist;
 
         for (size_t i = 0; i < para_motor_.size(); i++)
         {
             para_motor_[i].stat = para_motor_[i].cmd;
-            error = (temp_dist(i) - MOTOR_LEN_INIT) - para_motor_[i].stat;
+            error = (para_inverse_[NEXT].target_dist(i) - MOTOR_LEN_INIT) - para_motor_[i].stat;
             para_motor_[i].cmd = para_motor_[i].stat + error ;
         }
 

@@ -56,6 +56,12 @@ struct para_info
     bool state;
 };
 
+struct inverse_info
+{
+    Eigen::Matrix3d n_vector3;
+    Eigen::Vector3d target_dist;
+};
+
 
 
 class para
@@ -87,10 +93,15 @@ private:
     float current_ppr_dist_;
     uint16_t current_laser_state_;
 
+    Eigen::Matrix3d top_fram_, base_fram_;
+
     std::vector<control_toolbox::Pid> pid_controllers_;
+
+    inverse_info para_inverse_[ALL_STATE];
 
     
     /* function */
+    void state_init(void);
     void ros_init(void);
     void pub_msgs(void);
     #ifndef SIMULATE
@@ -100,13 +111,21 @@ private:
     void laser_callback2(const sensor_msgs::LaserScan &msg);
     void laser_callback3(const sensor_msgs::LaserScan &msg);
     #endif
-    Eigen::Vector3d inverse_solu(Eigen::Matrix3d rotm, float top_z, Eigen::Matrix3d& xzy,Eigen::Vector3d& xyz_v);
+    // Eigen::Vector3d inverse_solu(Eigen::Matrix3d rotm, float top_z, Eigen::Matrix3d& xzy,Eigen::Vector3d& xyz_v);
+    inverse_info inverse_solu(Eigen::Matrix4d trans);
     Eigen::Vector3d rotm2Eul(Eigen::Vector3d vec_in);
     Eigen::Matrix3d normal_vec_rotm(Eigen::Vector3d normal_vec);
     Eigen::Matrix<double, 2, 3> get_rot_element(Eigen::Vector3d vec);
     Eigen::Vector3d get_wall_plat_vec(Eigen::Vector3d laser_dist);
     float max_error(Eigen::Vector3d vector);
-    void eul2Rotm(Eigen::Vector3d& euler_ZYX, Eigen::Matrix3d& rotm);
+    Eigen::Matrix3d eul2Rotm(Eigen::Vector3d& euler_ZYX);
+    Eigen::Matrix3d Jacobian(Eigen::Matrix3d rotm, Eigen::Vector3d length, Eigen::Matrix3d xyz);
+
+    Eigen::Matrix4d forward(Eigen::Matrix4d last_T, Eigen::Matrix3d last_nv3, Eigen::Vector3d last_length, Eigen::Vector3d current_length);
+
+    Eigen::Matrix4d makeTrans(Eigen::Matrix3d R, Eigen::Vector3d V);
+
+    Eigen::Matrix3d get_forward();
 
 };
 
