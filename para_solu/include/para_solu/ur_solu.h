@@ -12,6 +12,7 @@
 #include "ros/ros.h"
 #include <std_msgs/Float64MultiArray.h>
 #include <sensor_msgs/JointState.h>
+#include <std_msgs/String.h>
 #include <control_toolbox/pid.h> // pid 
 #include <control_toolbox/filters.h> // low_pass_filter
 

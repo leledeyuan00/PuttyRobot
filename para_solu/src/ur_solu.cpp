@@ -2,6 +2,8 @@
 
 // const double ur_solu::ready_pos_[6] = {2.3561,-0.5313,-2.0961,1.0409,1.5780,0};
 // const double ur_solu::ready_pos_[6] = {2.3630071714692953, -0.3361866517154537,-2.0500701271791417 , 0.777506008855223, 1.5781260694960224, 0.003906303596900251};
+
+//right position
 const double ur_solu::ready_pos_[6] = {3.1538477188384766, 0.012988474539133321, -1.9388980514208418, 0.3013533012388496, 1.5421069907327087, -0.7460776516580543};
 // singularity position
 // const double ur_solu::ready_pos_[6] = { 1.2517773551034281, -0.8450580025012533,  -2.0178354557875986, 1.3312313417301347, 1.5946120510301638, 1.2499124779019208};
@@ -15,16 +17,26 @@ ur_solu::ur_solu(ros::NodeHandle &nh):nh_(nh),ur_init_(false)
     para_.reset(new para(nh));
 }
 
+//TODO:: Transform UR -> tool  axis x pi
+
 void ur_solu::state_init(void)
 {
     /* joint_state initial */
+    #ifndef SIMULATE
+    mapJoint_.insert(std::pair<std::string, double>("arm_shoulder_pan_joint", 2.359));
+    mapJoint_.insert(std::pair<std::string, double>("arm_shoulder_lift_joint", -0.534));
+    mapJoint_.insert(std::pair<std::string, double>("arm_elbow_joint", -2.096));
+    mapJoint_.insert(std::pair<std::string, double>("arm_wrist_1_joint", 1.05));
+    mapJoint_.insert(std::pair<std::string, double>("arm_wrist_2_joint", 1.567));
+    mapJoint_.insert(std::pair<std::string, double>("arm_wrist_3_joint", -3.14));
+    #else
     mapJoint_.insert(std::pair<std::string, double>("poineer::gtrobot_arm::arm_shoulder_pan_joint", 2.359));
     mapJoint_.insert(std::pair<std::string, double>("poineer::gtrobot_arm::arm_shoulder_lift_joint", -0.534));
     mapJoint_.insert(std::pair<std::string, double>("poineer::gtrobot_arm::arm_elbow_joint", -2.096));
     mapJoint_.insert(std::pair<std::string, double>("poineer::gtrobot_arm::arm_wrist_1_joint", 1.05));
     mapJoint_.insert(std::pair<std::string, double>("poineer::gtrobot_arm::arm_wrist_2_joint", 1.567));
     mapJoint_.insert(std::pair<std::string, double>("poineer::gtrobot_arm::arm_wrist_3_joint", -3.14));
-
+    #endif
     T_ur_forward_ = Eigen::Matrix4d::Identity();
     // some flags
     srv_start_ = false;
@@ -39,11 +51,20 @@ void ur_solu::state_init(void)
 void ur_solu::ros_init(void)
 {
     // sub
+    #ifndef SIMULATE
+    joint_state_sub_ = nh_.subscribe("/joint_states", 10, &ur_solu::JointStateCallback, this);
+    #else
     joint_state_sub_ = nh_.subscribe("/gtrobot_arm/joint_states", 10, &ur_solu::JointStateCallback, this);
+    #endif
 
     // pub
+    #ifndef SIMULATE
+    joint_pub_ = nh_.advertise<std_msgs::String>("ur_driver/URScript", 1);
+    #else
     joint_pub_ = nh_.advertise<std_msgs::Float64MultiArray>("/gtrobot_arm/arm_group_controller/command", 1);
+    #endif
     cmd_vel_monitor_pub_ = nh_.advertise<std_msgs::Float64MultiArray>("/gtrobot_arm/arm_group_controller/cmd_vel_monitor", 1);
+
 
     //srv
     go_ready_srv_ = nh_.advertiseService("/gtrobot_arm/go_ready_pos", &ur_solu::go_ready_pos,this);
@@ -62,20 +83,28 @@ void ur_solu::JointStateCallback(const sensor_msgs::JointStateConstPtr& msg)
         mapJoint_[msg->name[i]] = msg->position[i];
     }
 
+    #ifndef SIMULATE
+    joint_state_[0] = mapJoint_["arm_shoulder_pan_joint"];
+    joint_state_[1] = mapJoint_["arm_shoulder_lift_joint"];
+    joint_state_[2] = mapJoint_["arm_elbow_joint"];
+    joint_state_[3] = mapJoint_["arm_wrist_1_joint"];
+    joint_state_[4] = mapJoint_["arm_wrist_2_joint"];
+    joint_state_[5] = mapJoint_["arm_wrist_3_joint"];
+    #else
     joint_state_[0] = mapJoint_["poineer::gtrobot_arm::arm_shoulder_pan_joint"];
     joint_state_[1] = mapJoint_["poineer::gtrobot_arm::arm_shoulder_lift_joint"];
     joint_state_[2] = mapJoint_["poineer::gtrobot_arm::arm_elbow_joint"];
     joint_state_[3] = mapJoint_["poineer::gtrobot_arm::arm_wrist_1_joint"];
     joint_state_[4] = mapJoint_["poineer::gtrobot_arm::arm_wrist_2_joint"];
     joint_state_[5] = mapJoint_["poineer::gtrobot_arm::arm_wrist_3_joint"];
-    
+    #endif
     if (!ur_init_)
     {
         memcpy(joint_cmd_,joint_state_,sizeof(joint_state_));
         ur_init_ = true;
     }
     
-    // ROS_INFO("joint1: [%f], joint2: [%f], joint3: [%f], joint4: [%f], joint5: [%f], joint6:[%f]",joint_state_[0],joint_state_[1],joint_state_[2],joint_state_[3],joint_state_[4],joint_state_[5]);
+    // ROS_INFO("joint1: [%f], joint2: [%f], joint3: [%f], joint4: [%f], joint5: [%f], joint6:[%f]\r\n",joint_state_[0],joint_state_[1],joint_state_[2],joint_state_[3],joint_state_[4],joint_state_[5]);
     // lock.unlock();
 }
 
@@ -201,6 +230,29 @@ bool ur_solu::srv_handle(void)
 // publish function
 void ur_solu::pub_msg(void)
 {
+
+    #ifndef SIMULATE
+    double ace,vel,urt;
+    std_msgs::String msg;
+    std::stringstream ss;
+    ace = 0.0; vel = 0.0;  urt = 0.0125;
+    #endif
+    
+    #ifndef SIMULATE
+    ss << "servoj([" << joint_cmd_[0] << "," << joint_cmd_[1] << "," << joint_cmd_[2] << ","    
+                    << joint_cmd_[3] << "," << joint_cmd_[4] << "," << joint_cmd_[5] <<"]," 
+                    << "a=" << ace << ",v=" << vel << ", t=" << urt << ")";
+    msg.data = ss.str();
+
+    printf("ur joint cmd is [");
+    for(size_t i = 0; i<6 ; i++)
+    {
+        printf("%f, ",joint_cmd_[i]);
+    }
+    printf("]\r\n");
+    joint_pub_.publish(msg);
+
+    #else
     std_msgs::Float64MultiArray ur_cmd_msg;
     std_msgs::Float64MultiArray ur_cmd_vel_monitor_msg;
     for(size_t i = 0; i<6 ; i++)
@@ -209,9 +261,12 @@ void ur_solu::pub_msg(void)
         ur_cmd_vel_monitor_msg.data.push_back(cmd_vel_monitor_[i]);
     }
     joint_pub_.publish(ur_cmd_msg);
-    
     //monitor
     cmd_vel_monitor_pub_.publish(ur_cmd_vel_monitor_msg);
+    #endif
+
+
+    
 }
 
 
@@ -237,6 +292,7 @@ void ur_solu::state_update(void)
     T_tool_forward_ = T_ur_forward_ * T_ppr_forward_;
     tool_pose_current_ = EigenT2Pos(T_tool_forward_);
 
+    std::cout << "wall distance is " << wall_distance_ << std::endl;
     // std::cout << "ur pos current \r\n" << ur_pose_current_ << std::endl;
     
     // std::cout<< " tool ur pose error \r\n" << tool_pose_current_ - ur_pose_current_ << std::endl;
@@ -282,9 +338,9 @@ void ur_solu::task_init()
 void ur_solu::task_push(void)
 {
     // float push_vel = 0.1;
-    float wall_distance_d = 0.2; // has a bug , should to change to tool frame
-    float y_distance_d = 0.05;
-    float pid_e = (wall_distance_ - wall_distance_d) * 0.01;
+    float wall_distance_d = 0.096; // 
+    float y_distance_d = 0.005;
+    float pid_e = (wall_distance_ - wall_distance_d) * 1;
 
     Vector6d wall_distance_e  ,vel_cmdj,vel_cmdj1,vel_cmdj2,vel_cmdj3;
     Vector6d error_pose;
@@ -299,6 +355,17 @@ void ur_solu::task_push(void)
     }
     
     vel_cmdj1 = ur_jacobian_.inverse() * error_pose;
+
+    if (pid_e >= 0.005)
+    {
+       pid_e = 0.005;
+    }
+    else if (pid_e <= -0.005)
+    {
+        pid_e = -0.005;
+    }
+    
+    ROS_INFO("pid e is [%f]",pid_e);
 
     wall_distance_e << pid_e,0,0,0,0,0;
 
@@ -332,10 +399,10 @@ void ur_solu::task_push(void)
 // task start 
 void ur_solu::task_start(void)
 {
-    float wall_distance_d = 0.2;
-    float y_distance_d = 0.8;
+    float wall_distance_d = 0.096;
+    float y_distance_d = 0.8; // actual sign error
     float finish_time = 20;
-    float pid_e = (wall_distance_ - wall_distance_d) * 0.01; // keep a fixed distance
+    float pid_e = (wall_distance_ - wall_distance_d) * 1; // keep a fixed distance
     Vector6d wall_distance_e  ,vel_cmdj,vel_cmdj1,vel_cmdj2,vel_cmdj3;
     Vector6d error_pose;
 
@@ -349,6 +416,14 @@ void ur_solu::task_start(void)
     vel_cmdj1 = ur_jacobian_.inverse() * error_pose;
 
     /* cmdj2 keep ur and wall distance */
+    if (pid_e >= 0.005)
+    {
+       pid_e = 0.005;
+    }
+    else if (pid_e <= -0.005)
+    {
+        pid_e = -0.005;
+    }
     wall_distance_e << pid_e,0,0,0,0,0;
 
     vel_cmdj2 = ur_jacobian_.inverse() * wall_distance_e;
@@ -397,7 +472,7 @@ void ur_solu::task_start(void)
 void ur_solu::task_back(void)
 {
     // float push_vel = 0.1;
-    float wall_distance_d = 0.3; // has a bug , should to change to tool frame
+    float wall_distance_d = 0.25; // has a bug , should to change to tool frame
     float pid_e = (wall_distance_ - wall_distance_d) * 0.01;
 
     Vector6d wall_distance_e  ,vel_cmdj,vel_cmdj1,vel_cmdj2,vel_cmdj3;
