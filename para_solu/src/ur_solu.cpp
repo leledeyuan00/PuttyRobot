@@ -179,6 +179,16 @@ bool ur_solu::go_feed(para_solu::go_feed::Request &req,
     start_tool_pos_ = tool_pose_current_;
 
     // std::cout << "feed cmd is \r\n" << feed_d_cmd_ << std::endl;
+    // record states for variable smc
+    // switch (putty_smc_)
+    // {
+    // case /* constant-expression */:
+    //     /* code */
+    //     break;
+    
+    // default:
+    //     break;
+    // }
 
     res.success = true;
     return true;
@@ -292,10 +302,7 @@ void ur_solu::state_update(void)
     T_tool_forward_ = T_ur_forward_ * T_ppr_forward_;
     tool_pose_current_ = EigenT2Pos(T_tool_forward_);
 
-    std::cout << "wall distance is " << wall_distance_ << std::endl;
-    // std::cout << "ur pos current \r\n" << ur_pose_current_ << std::endl;
-    
-    // std::cout<< " tool ur pose error \r\n" << tool_pose_current_ - ur_pose_current_ << std::endl;
+    // std::cout << "wall distance is " << wall_distance_ << std::endl;    
 }
 
 /* tasks */
@@ -313,6 +320,7 @@ bool ur_solu::task_error_detect(void)
     }
     if(wall_distance_ < 0.050)
     {
+        ROS_ERROR("It's too close to wall !!!");
         return false;
     }
     return true;
@@ -338,9 +346,9 @@ void ur_solu::task_init()
 void ur_solu::task_push(void)
 {
     // float push_vel = 0.1;
-    float wall_distance_d = 0.096; // 
+    float wall_distance_d = 0.101; // 
     float y_distance_d = 0.005;
-    float pid_e = (wall_distance_ - wall_distance_d) * 1;
+    float pid_e = (wall_distance_ - wall_distance_d) * 0.5;
 
     Vector6d wall_distance_e  ,vel_cmdj,vel_cmdj1,vel_cmdj2,vel_cmdj3;
     Vector6d error_pose;
@@ -356,13 +364,13 @@ void ur_solu::task_push(void)
     
     vel_cmdj1 = ur_jacobian_.inverse() * error_pose;
 
-    if (pid_e >= 0.005)
+    if (pid_e >= 0.002)
     {
-       pid_e = 0.005;
+       pid_e = 0.002;
     }
-    else if (pid_e <= -0.005)
+    else if (pid_e <= -0.002)
     {
-        pid_e = -0.005;
+        pid_e = -0.002;
     }
     
     ROS_INFO("pid e is [%f]",pid_e);
@@ -399,12 +407,34 @@ void ur_solu::task_push(void)
 // task start 
 void ur_solu::task_start(void)
 {
-    float wall_distance_d = 0.096;
-    float y_distance_d = 0.8; // actual sign error
+    float wall_distance_d = 0.101;
+    float y_distance_d = 0.7; // actual sign error
     float finish_time = 20;
-    float pid_e = (wall_distance_ - wall_distance_d) * 1; // keep a fixed distance
+    float pid_e = (wall_distance_ - wall_distance_d) * 0.5; // keep a fixed distance
     Vector6d wall_distance_e  ,vel_cmdj,vel_cmdj1,vel_cmdj2,vel_cmdj3;
     Vector6d error_pose;
+
+    // singularity ?
+    double lamuda = 10;
+
+    Eigen::JacobiSVD<Eigen::MatrixXd> jacobian_svd(ur_jacobian_,0x28);
+    Eigen::VectorXd jacobian_eigenV;
+    Eigen::Matrix<double,6,6> jacobian_inverse, j_jt,jacobian_psu;
+    jacobian_eigenV = jacobian_svd.singularValues();
+    if (jacobian_eigenV(5)>= 0.1)
+    {
+        jacobian_inverse = ur_jacobian_.inverse();
+    }
+    else{
+        // svd psudo inverse
+        ROS_ERROR("I'm using svd psudo");
+        j_jt = (ur_jacobian_.transpose()*ur_jacobian_ + (lamuda* Eigen::Matrix<double,6,6>::Identity()));
+        jacobian_psu = j_jt.inverse() * ur_jacobian_.transpose();
+        jacobian_inverse = jacobian_psu;
+    }
+    
+
+
 
     /* cmdj1 keep ur a right pose */
     error_pose = (start_cart_pos_ - ur_pose_current_)*0.01;
@@ -413,27 +443,31 @@ void ur_solu::task_start(void)
     error_pose(2) = 0;
     error_pose(5) = 0;
 
-    vel_cmdj1 = ur_jacobian_.inverse() * error_pose;
+    // vel_cmdj1 = ur_jacobian_.inverse() * error_pose;
+    vel_cmdj1 = jacobian_inverse * error_pose;
 
     /* cmdj2 keep ur and wall distance */
-    if (pid_e >= 0.005)
+    if (pid_e >= 0.002)
     {
-       pid_e = 0.005;
+       pid_e = 0.002;
     }
-    else if (pid_e <= -0.005)
+    else if (pid_e <= -0.002)
     {
-        pid_e = -0.005;
+        pid_e = -0.002;
     }
-    wall_distance_e << pid_e,0,0,0,0,0;
+    // pid_e = 0;
+    // wall_distance_e << pid_e,0,0,0,0,0;
 
-    vel_cmdj2 = ur_jacobian_.inverse() * wall_distance_e;
+    // vel_cmdj2 = ur_jacobian_.inverse() * wall_distance_e;
+    // std::cout << "Start feed vel_cmdj is " << wall_distance_e << std::endl;
 
     /* cmdj3 keep ur trace ppr rotation to keep ppr has a Identity rot matrix */
     Vector6d ur_tool_e; // gamma
     ur_tool_e = - ((tool_pose_current_ - ur_pose_current_) * 0.01);
     ur_tool_e(0) = 0; ur_tool_e(1) = 0; ur_tool_e(2) = 0; ur_tool_e(3) = 0; ur_tool_e(4) = 0;
 
-    vel_cmdj3 = ur_jacobian_.inverse() * ur_tool_e;
+    // vel_cmdj3 = ur_jacobian_.inverse() * ur_tool_e;
+    vel_cmdj3 = jacobian_inverse * ur_tool_e;
 
     /* cmdj4 start putty */
     // time
@@ -442,17 +476,23 @@ void ur_solu::task_start(void)
     Vector6d ur_start_e,vel_cmdj4;
     Eigen::Vector3d tool_d2base;
     time_e = (current_duration.toSec()/finish_time) <= 1? (current_duration.toSec()/finish_time):1;
-    tool_d2base = EigenT2EigenR(T_ur_forward_) * Eigen::Vector3d(y_distance_d*time_e,0,0);
+    tool_d2base = EigenT2EigenR(T_tool_forward_) * Eigen::Vector3d(y_distance_d*time_e,0,0);
+    Eigen::Vector3d pid_trans = EigenT2EigenR(T_tool_forward_) * Eigen::Vector3d(0,0,pid_e);
     for (size_t i = 0; i < 3; i++)
     {
-        ur_start_e(i) = (start_cart_pos_(i) - tool_d2base(i)  - ur_pose_current_(i));
+        start_tool_pos_(i) += pid_trans(i);
+        ur_start_e(i) = (start_tool_pos_(i) - tool_d2base(i)  - tool_pose_current_(i));
         ur_start_e(i+3) =0;
     }
-    std::cout<< "ur start feed e \r\n" << ur_start_e << std::endl;
+    // std::cout<< "ur start feed e \r\n" << ur_start_e << std::endl;
     // vel_cmdj4 << 0,0,0,0,0,0;
-    vel_cmdj4 = ur_jacobian_.inverse()*ur_start_e;
+    // ur_start_e (0) += pid_e;
+    
 
-    vel_cmdj = vel_cmdj1 + vel_cmdj2 + vel_cmdj3 + vel_cmdj4;
+    // vel_cmdj4 = ur_jacobian_.inverse()*ur_start_e;
+    vel_cmdj4 = jacobian_inverse*ur_start_e;
+
+    vel_cmdj = vel_cmdj1  + vel_cmdj3 + vel_cmdj4;
 
     for (size_t i = 0; i < 6; i++)
     {
@@ -463,9 +503,12 @@ void ur_solu::task_start(void)
         }
         else{
             ROS_ERROR("joint [%zu] vel is too large %f",i,vel_cmdj(i));
+            putty_smc_ = PUTTY_ERROR; // test
         }
         // joint_cmd_[i] = joint_state_[i]  + vel_cmdj3(i);
     }
+
+    // std::cout << "SVD is \r\n" << jacobian_svd.singularValues() << std::endl;
 } 
 
 // task back
@@ -552,52 +595,146 @@ void ur_solu::task_feed()
     // printf("vel cmd is [%f %f %f %f %f %f]", vel_cmdj(0), vel_cmdj(1), vel_cmdj(2), vel_cmdj(3), vel_cmdj(4), vel_cmdj(5));
 }
 
+void ur_solu::task_down(void)
+{
+    // float push_vel = 0.1;
+    // float wall_z = -0.3; // 
+    // float pid_e = (start_tool_pos_(1) + wall_z - tool_pose_current_(1)) * 1;
+
+    // Vector6d wall_z_e  ,vel_cmdj,vel_cmdj1,vel_cmdj2,vel_cmdj3;
+    // Vector6d error_pose;
+
+    // error_pose = (start_cart_pos_ - ur_pose_current_)*0.01;
+    // error_pose(0) = 0;
+    // error_pose(1) = 0;
+    // error_pose(2) = 0;
+    // error_pose(4) = 0;
+    // error_pose(5) = 0;
+
+    // // if (start_cart_pos_(1) - wall_distance_d < 0.05)
+    // // {
+    // //     error_pose(1) = (start_cart_pos_(1) - ur_pose_current_(1))*0.01;
+    // // }
+    
+    // vel_cmdj1 = ur_jacobian_.inverse() * error_pose;
+
+    // if (pid_e >= 0.005)
+    // {
+    //    pid_e = 0.005;
+    // }
+    // else if (pid_e <= -0.005)
+    // {
+    //     pid_e = -0.005;
+    // }
+    
+    // ROS_INFO("pid e is [%f]",pid_e);
+    
+
+    // wall_z_e << (EigenT2EigenR(T_tool_forward_)  * Eigen::Vector3d(0,-pid_e,0)),0,0,0;
+
+    // vel_cmdj2 = ur_jacobian_.inverse() * wall_z_e;
+
+    // Vector6d ur_tool_e; // gamma
+    // ur_tool_e = - ((tool_pose_current_ - ur_pose_current_) * 0.01);
+    // ur_tool_e(0) = 0; ur_tool_e(1) = 0; ur_tool_e(2) = 0; ur_tool_e(3) = 0;
+
+    // vel_cmdj3 = ur_jacobian_.inverse() * ur_tool_e;
+
+
+    // vel_cmdj = vel_cmdj1 + vel_cmdj2 + vel_cmdj3;
+
+    // for (size_t i = 0; i < 6; i++)
+    // {
+    //     cmd_vel_monitor_[i] = vel_cmdj(i);
+    //     if (fabs(vel_cmdj(i)) <= 0.5 )
+    //     {
+    //         joint_cmd_[i] = joint_state_[i]  + vel_cmdj(i);
+    //     }
+    //     else{
+    //         ROS_ERROR("joint [%zu] vel is too large %f",i,vel_cmdj(i));
+    //     }
+        
+    //     // joint_cmd_[i] = joint_state_[i]  + vel_cmdj3(i);
+    // }
+    Eigen::Matrix<double,6,1> cmd_vel;
+    Eigen::Matrix<double,6,1> srv_cart_vel_act;
+    float vel;
+    if (feed_distance_ >0)
+    {
+        vel = 0.003;
+    }
+    else{
+        vel = -0.003;
+    }
+    if ( fabs(start_cart_pos_(2) - ur_pose_current_(2)) <= fabs(feed_distance_))
+    {
+        // srv_cart_vel_act = srv_cart_vel_ *  + start_cart_pos_ - EigenT2Pos(T_ur_forward_);
+        srv_cart_vel_act << 0,0,vel,0,0,0;
+
+        cmd_vel = ur_jacobian_.inverse()* srv_cart_vel_act;
+    }
+    else{
+        cmd_vel << 0,0,0,0,0,0;
+    }
+    
+    
+    
+    for (size_t i = 0; i < 6; i++)
+    {
+        joint_cmd_[i] = cmd_vel(i) + joint_state_[i];
+    }
+}
+
 // main task
 void ur_solu::task_handle(void)
 {
     if (!task_error_detect())
     {
         /* some error */
-        // putty_smc_ = PUTTY_ERROR;
+        putty_smc_ = PUTTY_ERROR;
     }
-    else
+    
+    switch (putty_smc_)
     {
-        switch (putty_smc_)
-        {
-        case PUTTY_INIT:
-        {
-            task_init();
-            break;
-        }
-        case PUTTY_PUSH:
-        {
-            task_push();
-            break;
-        }
-        case PUTTY_START:
-        {
-            task_start();
-            break;
-        }
-        case PUTTY_BACK:
-        {
-            task_back();
-            break;
-        }
-        case PUTTY_FEED:
-        {
-            task_feed();
-            break;
-        }
-        case PUTTY_ERROR:
-        {
-            error_handle();
-            break;
-        }
-        default:
-            break;
-        }
-    }    
+    case PUTTY_INIT:
+    {
+        task_init();
+        break;
+    }
+    case PUTTY_PUSH:
+    {
+        task_push();
+        break;
+    }
+    case PUTTY_START:
+    {
+        task_start();
+        break;
+    }
+    case PUTTY_BACK:
+    {
+        task_back();
+        break;
+    }
+    case PUTTY_DOWN:
+    {
+        task_down();
+        break;
+    }
+    case PUTTY_FEED:
+    {
+        task_feed();
+        break;
+    }
+    case PUTTY_ERROR:
+    {
+        error_handle();
+        break;
+    }
+    default:
+        break;
+    }
+    
 }
 
 void ur_solu::control_loop(void)

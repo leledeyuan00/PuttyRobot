@@ -21,6 +21,7 @@
 #include <math.h>
 #include <eigen3/Eigen/Dense>
 #include <eigen3/Eigen/Geometry>
+#include <eigen3/Eigen/src/SVD/JacobiSVD.h>
 #include <ur_kinematics/ur_kin.h>
 #include <kdl/frames_io.hpp>
 
@@ -44,6 +45,7 @@ typedef enum
     PUTTY_PUSH,
     PUTTY_START,
     PUTTY_BACK,
+    PUTTY_DOWN,
     PUTTY_ERROR,
     PUTTY_FEED,
     PUTTY_ALL
@@ -143,7 +145,7 @@ private:
     void task_feed(void);
     void task_back(void);
     void task_start(void);
-    void task_next_point(void);
+    void task_down(void);
 
     void error_handle(void);
 
