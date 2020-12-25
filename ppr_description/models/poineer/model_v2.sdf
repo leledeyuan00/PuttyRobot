@@ -33,7 +33,7 @@
         <include>
             <uri>model://parabot</uri>
             <name>parabot</name>
-            <pose>0.714258888 -0.525509 0.795292888 0 0.713259 0</pose>
+            <pose>0.714258888 -0.525509 0.795292888 0 -0.713259 3.141592654</pose>
         </include>
         <joint name='ur_parabot' type='fixed'>
             <parent>gtrobot_arm::arm_wrist_3_link</parent>

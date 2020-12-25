@@ -8,6 +8,7 @@
 #include "ppr_msgs/setImMode.h"
 #include "ppr_msgs/setPositionMode.h"
 #include "ppr_msgs/setStiffDamp.h"
+#include "ppr_msgs/setStmPosition.h"
 
 #define RECEIVE_LENGTH  8
 #define SEND_LENGTH     6
@@ -15,6 +16,8 @@
 #define COM_D_MAX		1.0f
 #define COM_RES_MAX		32767.0f
 #define COM_RES_MAX_2	255.0f
+#define COM_ANGLE_MAX   180.0f
+#define COM_FORCE_MAX   2.0f
 
 class STM32
 {
@@ -31,6 +34,8 @@ private:
     ros::ServiceServer set_position_mode_;
     ros::ServiceServer set_im_mode_;
     ros::ServiceServer set_stiff_damp_;
+    ros::ServiceServer set_des_position_;
+    
     
 
     serial::Serial stm_ser_;
@@ -47,6 +52,8 @@ private:
                                   ppr_msgs::setPositionMode::Response &res);
     bool handle_set_stiff_damp(ppr_msgs::setStiffDamp::Request  &req,
                                ppr_msgs::setStiffDamp::Response &res);
+    bool handle_set_des_position(ppr_msgs::setStmPosition::Request  &req,
+                                 ppr_msgs::setStmPosition::Response &res);
     uint8_t crc8_update(uint8_t crc, uint8_t data);
     uint8_t crc_cal(uint8_t *buf, uint8_t size);
 

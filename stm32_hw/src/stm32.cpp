@@ -17,7 +17,7 @@ void STM32::stm_init(){
     set_im_mode_ = nh_.advertiseService("setImMode", &STM32::handle_set_im_mode,this);
     set_position_mode_ = nh_.advertiseService("setPositionMode", &STM32::handle_set_position_mode,this);
     set_stiff_damp_ = nh_.advertiseService("setStiffDamp",  &STM32::handle_set_stiff_damp,this);
-    
+    set_des_position_ = nh_.advertiseService("setStmPosition", &STM32::handle_set_des_position,this);
 }
 
 int STM32::encoder_ser_init(serial::Serial* ser,int port)
@@ -37,13 +37,13 @@ int STM32::encoder_ser_init(serial::Serial* ser,int port)
     } 
     catch (serial::IOException& e) 
     { 
-        ROS_ERROR("Unable to Open Laser Sensor Serial Port %d",port); 
+        ROS_ERROR("Unable to Open STM Serial Port %d",port); 
         return -1; 
     } 
     //检测串口是否已经打开，并给出提示信息 
     if(ser->isOpen()) 
     { 
-        ROS_INFO("Laser Sensor Serial Port%d Initialized",port); 
+        ROS_INFO("STM  Serial Port%d Initialized",port); 
     } 
     else 
     { 
@@ -81,8 +81,6 @@ int STM32::fetch_data(serial::Serial* ser)
         uint8_t recieve_data3;
         uint8_t error_code, status;
         const float RES = 32767;
-        const float COM_ANGLE_MAX=180;
-        const float COM_FORCE_MAX=2;
         
 
         /* fetch data from serial prot */
@@ -171,8 +169,8 @@ bool STM32::handle_set_stiff_damp(ppr_msgs::setStiffDamp::Request  &req,
     k_im = req.k_im;
     d_im = req.d_im;
 
-    k_im_char = ((k_im  * COM_RES_MAX_2) / COM_K_MAX ) && 0x00ff;
-    d_im_char = ((d_im  * COM_RES_MAX_2) / COM_D_MAX ) && 0x00ff;
+    k_im_char = (int16_t)((k_im  * COM_RES_MAX_2) / COM_K_MAX ) & 0x00ff;
+    d_im_char = (int16_t)((d_im  * COM_RES_MAX_2) / COM_D_MAX ) & 0x00ff;
 
     send_data[0] = 0xA5;
     send_data[1] = 0x5A;
@@ -184,6 +182,35 @@ bool STM32::handle_set_stiff_damp(ppr_msgs::setStiffDamp::Request  &req,
 
     stm_ser_.write(send_data,SEND_LENGTH);
 
+    res.success = true;
+    return true;
+}
+
+bool STM32::handle_set_des_position(ppr_msgs::setStmPosition::Request  &req,
+                                    ppr_msgs::setStmPosition::Response &res)
+{
+    float des_pos = req.data;
+    float tempf;
+    int16_t tempi;
+    unsigned char send_data[6];
+
+    if(des_pos < COM_ANGLE_MAX && des_pos > -COM_ANGLE_MAX)
+        tempf = des_pos;
+    else
+        tempf = COM_ANGLE_MAX - des_pos;
+    tempi = (tempf / COM_ANGLE_MAX) * COM_RES_MAX;
+
+    send_data[0] = 0xA5;
+    send_data[1] = 0x5A;
+    send_data[2] = GB_ANGLED;
+    send_data[3] = (tempi>>8) & 0x00ff;
+    send_data[4] =  tempi & 0x00ff;
+
+    send_data[5] = crc_cal(send_data,SEND_LENGTH-1);
+    stm_ser_.flushInput();
+    stm_ser_.flushOutput();
+    stm_ser_.write(send_data,SEND_LENGTH);
+    ROS_INFO("send data is[%02x %02x %02x %02x %02x %02x]",send_data[0],send_data[1],send_data[2],send_data[3],send_data[4],send_data[5]);
     res.success = true;
     return true;
 }
@@ -218,7 +245,7 @@ uint8_t STM32::crc_cal(uint8_t *buf, uint8_t size)
 
 void STM32::run()
 {
-    ros::Rate loop_rate(250);
+    ros::Rate loop_rate(100);
     while (ros::ok())
     {
         /* code for loop body */

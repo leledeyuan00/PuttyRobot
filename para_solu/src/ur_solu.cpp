@@ -1,14 +1,19 @@
 #include "para_solu/ur_solu.h"
 
-// const double ur_solu::ready_pos_[6] = {2.3561,-0.5313,-2.0961,1.0409,1.5780,0};
+// const double ur_solu::ready_pos_[6] = {2.3561,-0.5313,-2.0961,1.0409,1.5780,PI};
 // const double ur_solu::ready_pos_[6] = {2.3630071714692953, -0.3361866517154537,-2.0500701271791417 , 0.777506008855223, 1.5781260694960224, 0.003906303596900251};
 
 //right position
-const double ur_solu::ready_pos_[6] = {3.1538477188384766, 0.012988474539133321, -1.9388980514208418, 0.3013533012388496, 1.5421069907327087, -0.7460776516580543};
-// singularity position
-// const double ur_solu::ready_pos_[6] = { 1.2517773551034281, -0.8450580025012533,  -2.0178354557875986, 1.3312313417301347, 1.5946120510301638, 1.2499124779019208};
+// const double ur_solu::ready_pos_[6] = {3.1538477188384766, 0.012988474539133321, -1.9388980514208418, 0.3013533012388496, 1.5421069907327087, -0.7460776516580543+PI};
+// const double ur_solu::ready_pos_[6] = {3.1356465511484553, 0.017377816650038902, -1.9296997347895655, 0.28723617156258374, 1.5430918346293536, 2.4137534246624694};
+const double ur_solu::ready_pos_[6] = {2.9986374856312388, -0.07798873279574714, -1.7902944337701348, 0.280497818416781, 1.5671034304284603, 2.4992552297940165};
 
+// singularity position
+// const double ur_solu::ready_pos_[6] = { 1.2517773551034281, -0.8450580025012533,  -2.0178354557875986, 1.3312313417301347, 1.5946120510301638, 1.2499124779019208+ PI};
+
+// const KDL::Rotation ur_solu::R_base =  KDL::Rotation::EulerZYZ(0,PI/2,PI/4);
 const KDL::Rotation ur_solu::R_base =  KDL::Rotation::EulerZYZ(0,PI/2,-PI*3/4);
+// const KDL::Rotation ur_solu::R_base =   KDL::Rotation::RotZ(0);
 
 ur_solu::ur_solu(ros::NodeHandle &nh):nh_(nh),ur_init_(false)
 {
@@ -38,9 +43,24 @@ void ur_solu::state_init(void)
     mapJoint_.insert(std::pair<std::string, double>("poineer::gtrobot_arm::arm_wrist_3_joint", -3.14));
     #endif
     T_ur_forward_ = Eigen::Matrix4d::Identity();
+
+    ppr_cmd_ = Eigen::Vector3d(MID_PARA_LEN,MID_PARA_LEN,MID_PARA_LEN);
+
+    // pid initial
+    monitor_rqt_.resize(8);
+    for (size_t i = 0; i < mapJoint_.size(); i++)
+    {
+        control_toolbox::Pid PID(1e-1,0,0,1e-5,-1e-5,true); // just p i d
+        cmd_pids_.push_back(PID);
+    }
+    pid_time_.resize(2);
+    pid_time_[1] = ros::Time::now();
+    
     // some flags
     srv_start_ = false;
     go_cartisian_flag_ = false;
+    go_ready_pos_flag_ = false;
+    go_zero_pos_flag_  = false;
 
     // smc init
     putty_smc_ = PUTTY_INIT;
@@ -63,7 +83,7 @@ void ur_solu::ros_init(void)
     #else
     joint_pub_ = nh_.advertise<std_msgs::Float64MultiArray>("/gtrobot_arm/arm_group_controller/command", 1);
     #endif
-    cmd_vel_monitor_pub_ = nh_.advertise<std_msgs::Float64MultiArray>("/gtrobot_arm/arm_group_controller/cmd_vel_monitor", 1);
+    monitor_rqt_pub_ = nh_.advertise<std_msgs::Float64MultiArray>("/gtrobot/monitor", 1);
 
 
     //srv
@@ -71,7 +91,7 @@ void ur_solu::ros_init(void)
     go_zero_srv_ = nh_.advertiseService("/gtrobot_arm/go_zero_pos", &ur_solu::go_zero_pos,this);
     go_cart_srv_ = nh_.advertiseService("/gtrobot_arm/go_cartisian", &ur_solu::go_cartisian,this);
     go_feed_srv_ = nh_.advertiseService("/gtrobot_arm/go_feed",&ur_solu::go_feed,this);
-
+    set_stm_des_pos_ = nh_.serviceClient<ppr_msgs::setStmPosition>("/setStmPosition");
 }
 
 // sub call back functions
@@ -120,7 +140,12 @@ bool ur_solu::go_ready_pos(para_solu::go_ready_pos::Request &req,
 
     memcpy(start_pos_,joint_state_,sizeof(joint_state_));
     // start_pos_ = joint_state_;
-    
+    start_ppr_pos_ = ppr_distance_;
+
+    ppr_msgs::setStmPosition stmsrv;
+    stmsrv.request.data = 0;
+    set_stm_des_pos_.call(stmsrv);
+
     res.success = true;
     return true;
 }
@@ -135,6 +160,7 @@ bool ur_solu::go_zero_pos(para_solu::go_zero_pos::Request &req,
     start_time_ = ros::Time::now();
 
     memcpy(start_pos_,joint_state_,sizeof(joint_state_));
+    start_ppr_pos_ = ppr_distance_;
     // start_pos_ = joint_state_;
     
     res.success = true;
@@ -155,7 +181,8 @@ bool ur_solu::go_cartisian(para_solu::go_cartisian::Request &req,
     start_time_ = ros::Time::now();
 
     memcpy(start_pos_,joint_state_,sizeof(joint_state_));
-    start_cart_pos_ = EigenT2Pos(T_ur_forward_);
+    start_cart_pos_ = current_ur_pose_;
+    start_tool_pos_ = current_tool_pose_;
 
     ROS_INFO("current record pos is [%f, %f, %f, %f, %f, %f",start_cart_pos_ [0],start_cart_pos_ [1],start_cart_pos_ [2],start_cart_pos_ [3],start_cart_pos_ [4],start_cart_pos_ [5]);    
     res.success = true;
@@ -175,20 +202,39 @@ bool ur_solu::go_feed(para_solu::go_feed::Request &req,
     start_time_ = ros::Time::now();
 
     memcpy(start_pos_,joint_state_,sizeof(joint_state_));
-    start_cart_pos_ = ur_pose_current_;
-    start_tool_pos_ = tool_pose_current_;
+    start_cart_pos_ = current_ur_pose_;
+    start_tool_pos_ = current_tool_pose_;
 
+    for (size_t i = 0; i < cmd_pids_.size(); i++)
+    {
+        cmd_pids_[i].reset();
+    }
+    
+    start_task_beta_delta_ = 0;
+    start_last_run_dist_ = 0;
     // std::cout << "feed cmd is \r\n" << feed_d_cmd_ << std::endl;
     // record states for variable smc
-    // switch (putty_smc_)
-    // {
-    // case /* constant-expression */:
-    //     /* code */
-    //     break;
+    switch (putty_smc_)
+    {
+    case PUTTY_START:
+        {
+            std::stringstream filename;
+            std::time_t now = std::time(NULL);
+            std::tm *lt = std::localtime(&now);
+            filename <<"./lg/" << lt->tm_mon << "-" << lt->tm_mday << "-" << lt->tm_hour << "-" << lt->tm_min << "-" << lt->tm_sec << ".txt";
+            outfile_.open(filename.str());
+            if(!outfile_) std::cout<<"error"<<std::endl;
+            break;
+        }
     
-    // default:
-    //     break;
+    default:
+        break;
+    }
+    // for (size_t i = 0; i < cmd_pids_.size(); i++)
+    // {
+    //     cmd_pids_[i].reset();
     // }
+    
 
     res.success = true;
     return true;
@@ -201,31 +247,55 @@ bool ur_solu::srv_handle(void)
     double time = current_duration.toSec();
     if (current_duration <= duration_time_)
     {
-        for(size_t i =0; i<6; i++)
+        if(go_ready_pos_flag_)
         {
-            if(go_ready_pos_flag_)
+            for(size_t i =0; i<6; i++)
             {
                 joint_cmd_[i] = (ready_pos_[i] - start_pos_[i]) * (time/finish_time ) + start_pos_[i];
             }
-            else if(go_zero_pos_flag_)
-            {
-                joint_cmd_[i] = (0.0 - start_pos_[i]) * (time/finish_time ) + start_pos_[i];
-            }
-            
+            ppr_cmd_ = (Eigen::Vector3d(MID_PARA_LEN,MID_PARA_LEN,MID_PARA_LEN) - start_ppr_pos_) * (time/finish_time ) + start_ppr_pos_ ; 
         }
-        if(go_cartisian_flag_)
+        else if(go_zero_pos_flag_)
         {
-            ur_jacobian_ = Jacobian(joint_state_,KDLR2EigenT(R_base));
-            Eigen::Matrix<double,6,1> cmd_vel;
-            Eigen::Matrix<double,6,1> srv_cart_vel_act;
-            srv_cart_vel_act = srv_cart_vel_ * time + start_cart_pos_ - EigenT2Pos(T_ur_forward_);
+            for(size_t i =0; i<6; i++)
+            {
+                joint_cmd_[i] = (0.0 - start_pos_[i]) * (time/finish_time ) + start_pos_[i];       
+            }
+            // test for forward ppr
+            ppr_cmd_ = (Eigen::Vector3d(MIN_PARA_LEN,MAX_PARA_LEN,MAX_PARA_LEN) - start_ppr_pos_) * (time/finish_time ) + start_ppr_pos_ ;
+        }    
+        else if(go_cartisian_flag_)
+        {
+            // ur_jacobian_ = Jacobian(joint_state_,KDLR2EigenT(R_base));
+            Vector6d cmd_vel;
+            Vector6d srv_cart_vel_act;
+            Vector9d cmd_all;
+            // start_cart_pos_+=srv_cart_vel_;
+            // srv_cart_vel_act =  start_cart_pos_ - current_ur_pose_;
+            srv_cart_vel_act = srv_cart_vel_ * time*100 + start_tool_pos_ - current_tool_pose_;
 
-            cmd_vel = ur_jacobian_.inverse()* srv_cart_vel_;
+            std::cout << " srv_cart_vel_act is \r\n" << srv_cart_vel_act << std::endl;
+        #ifndef RDKINEMATIC
+            cmd_vel = ur_jacobian_.inverse()* srv_cart_vel_act;
             for (size_t i = 0; i < 6; i++)
             {
                 joint_cmd_[i] = cmd_vel(i) + joint_state_[i];
             }
+        #else
+            cmd_all = WetProjK(rd_jacobian_,srv_cart_vel_act,USE_ALL);
+            for (size_t i = 0; i < 6; i++)
+            {
+                joint_cmd_[i] = cmd_all(i) + joint_state_[i];
+            }
+            for (size_t i = 0; i < 3; i++)
+            {
+                ppr_cmd_(i) = cmd_all(i+6) + ppr_distance_(i);
+            }      
+        #endif
+            
         }
+        // std::cout << "ppr_cmd is \r\n" << ppr_cmd_ << std::endl;
+
     }
     else{
         srv_start_ = false; // reset flag
@@ -240,450 +310,120 @@ bool ur_solu::srv_handle(void)
 // publish function
 void ur_solu::pub_msg(void)
 {
-
     #ifndef SIMULATE
     double ace,vel,urt;
     std_msgs::String msg;
     std::stringstream ss;
     ace = 0.0; vel = 0.0;  urt = 0.0125;
-    #endif
-    
-    #ifndef SIMULATE
     ss << "servoj([" << joint_cmd_[0] << "," << joint_cmd_[1] << "," << joint_cmd_[2] << ","    
                     << joint_cmd_[3] << "," << joint_cmd_[4] << "," << joint_cmd_[5] <<"]," 
                     << "a=" << ace << ",v=" << vel << ", t=" << urt << ")";
     msg.data = ss.str();
 
-    printf("ur joint cmd is [");
-    for(size_t i = 0; i<6 ; i++)
-    {
-        printf("%f, ",joint_cmd_[i]);
-    }
-    printf("]\r\n");
+    // printf("ur joint cmd is [");
+    // for(size_t i = 0; i<6 ; i++)
+    // {
+    //     printf("%f, ",joint_cmd_[i]);
+    // }
+    // printf("]\r\n");
     joint_pub_.publish(msg);
 
     #else
     std_msgs::Float64MultiArray ur_cmd_msg;
-    std_msgs::Float64MultiArray ur_cmd_vel_monitor_msg;
+    std_msgs::Float64MultiArray monitor_rqt_msg;
     for(size_t i = 0; i<6 ; i++)
     {
         ur_cmd_msg.data.push_back(joint_cmd_[i]);
-        ur_cmd_vel_monitor_msg.data.push_back(cmd_vel_monitor_[i]);
     }
+    for (size_t i = 0; i < monitor_rqt_.size(); i++)
+    {
+        monitor_rqt_msg.data.push_back(monitor_rqt_[i]);
+    }
+    
     joint_pub_.publish(ur_cmd_msg);
     //monitor
-    cmd_vel_monitor_pub_.publish(ur_cmd_vel_monitor_msg);
-    #endif
-
-
-    
+    monitor_rqt_pub_.publish(monitor_rqt_msg);
+    #endif    
 }
 
 
 // state update function
 void ur_solu::state_update(void)
 {
+    // time 
+    pid_time_[0] = pid_time_[1];
+    pid_time_[1] = ros::Time::now();
+    task_duration_ = pid_time_[1] - pid_time_[0];
     // ur state first
-    T_ur_forward_ = ur_forward(joint_state_,KDLR2EigenT(R_base));
-    ur_jacobian_ = Jacobian(joint_state_,KDLR2EigenT(R_base));
-    ur_pose_current_ = EigenT2Pos(T_ur_forward_);
+    T_ur_forward_ = KDLR2EigenT(R_base) * ur_forward(joint_state_,KDLR2EigenT(R_base));
+    current_ur_pose_ = EigenT2Pos( T_ur_forward_);
+    /* TODO some error in transfer */
+    double temp;
+    temp = current_ur_pose_(3);
+    current_ur_pose_(3) = -current_ur_pose_(4);
+    current_ur_pose_(4) = temp;
+    // std::cout << "ur pose \r\n" << current_ur_pose_ << std::endl;
+
+    /* quaternion */
+    Eigen::Vector4d ur_quaternion = EigenT2Qua(T_ur_forward_);
+    // std::cout << "ur quaternion is \r\n" << ur_quaternion << std::endl;
+
 
     // parse ppr state second
-    para_->control_loop();
     ppr_distance_  = para_->get_ppr_dist();
-    wall_distance_ = para_->get_wall_dist();
+
+    // std::cout << "ppr_distance_\r\n "<< ppr_distance_ << std::endl; 
+
+    wall_distance_[LAST]    = wall_distance_[CURRENT];
+    wall_distance_[CURRENT] = para_->get_wall_dist();
     laser_state_   = para_->get_laser_state();
     ppr_rotation_  = para_->get_ppr_r();
+
     
     Eigen::Vector3d ppr_v;
-    ppr_v << 0,0,ppr_distance_;
+    ppr_v << 0,0,ppr_distance_.sum()/3;
+    // ppr_v << 0,0,1;
     T_ppr_forward_ << ppr_rotation_ , ppr_v , 0,0,0,1;
+    // std::cout << "PPR pose \r\n" <<  EigenT2Pos(T_ur_forward_* KDLR2EigenT(KDL::Rotation::EulerZYX(PI/2,0,PI/2)) * T_ppr_forward_) << std::endl;
+    // std::cout << "PPR pose \r\n" <<  EigenT2Pos(T_ur_forward_* T_ppr_forward_) << std::endl;
 
-    T_tool_forward_ = T_ur_forward_ * T_ppr_forward_;
-    tool_pose_current_ = EigenT2Pos(T_tool_forward_);
+    T_tool_forward_ = T_ur_forward_ *  T_ppr_forward_;
 
+    last_tool_pose_ = current_tool_pose_;
+    current_tool_pose_ = EigenT2Pos(T_tool_forward_);
+    /* TODO some error in transfer */
+    temp = current_tool_pose_(3);
+    current_tool_pose_(3) = -current_tool_pose_(4);
+    current_tool_pose_(4) = temp;
+    // std::cout << "tool pose \r\n" << current_tool_pose_ << std::endl;
+
+    R_tool_forward_ = EigenT2M6(T_tool_forward_);
+
+
+    Eigen::Vector4d tool_quaternion = EigenT2Qua(T_tool_forward_);
+
+    ur_jacobian_ = Jacobian(joint_state_,KDLR2EigenT(R_base),(T_ppr_forward_).col(3).head(3));
+
+#ifdef RDKINEMATIC
+    Eigen::Matrix<double,6,6> R_ur_forward = EigenT2M6(T_ur_forward_);
+    rd_jacobian_ << ur_jacobian_ , R_ur_forward * para_->get_Jacobian();
+#endif
+
+    for (size_t i = 0; i < 3; i++)
+    {
+        monitor_rqt_[i] = current_tool_pose_(i+3);
+    }
+    for (size_t i = 0; i < 4; i++)
+    {
+        monitor_rqt_[i+3] = tool_quaternion(i);
+    }
+    
+    
+    
     // std::cout << "wall distance is " << wall_distance_ << std::endl;    
 }
 
-/* tasks */
 
-// error detect
-bool ur_solu::task_error_detect(void)
-{
-    if (laser_state_ != 0)
-    {
-        return false;
-    }
-    if ( fabs( wall_distance_ + ur_pose_current_(0) - 0.581463) > 0.3) // ready pos x axis
-    {
-        return false;
-    }
-    if(wall_distance_ < 0.050)
-    {
-        ROS_ERROR("It's too close to wall !!!");
-        return false;
-    }
-    return true;
-    
-}
-
-void ur_solu::error_handle(void)
-{
-    // error handle TODO
-}
-
-// task init
-void ur_solu::task_init()
-{
-    // stop UR
-    for (size_t i = 0; i < 6; i++)
-    {
-        joint_cmd_[i] = joint_state_[i] ;
-    }
-}
-
-// task push
-void ur_solu::task_push(void)
-{
-    // float push_vel = 0.1;
-    float wall_distance_d = 0.101; // 
-    float y_distance_d = 0.005;
-    float pid_e = (wall_distance_ - wall_distance_d) * 0.5;
-
-    Vector6d wall_distance_e  ,vel_cmdj,vel_cmdj1,vel_cmdj2,vel_cmdj3;
-    Vector6d error_pose;
-
-    error_pose = (start_cart_pos_ - ur_pose_current_)*0.01;
-    error_pose(0) = 0;
-    error_pose(5) = 0;
-
-    if (wall_distance_ - wall_distance_d < 0.05)
-    {
-        error_pose(1) = (y_distance_d + start_cart_pos_(1) - ur_pose_current_(1))*0.01;
-    }
-    
-    vel_cmdj1 = ur_jacobian_.inverse() * error_pose;
-
-    if (pid_e >= 0.002)
-    {
-       pid_e = 0.002;
-    }
-    else if (pid_e <= -0.002)
-    {
-        pid_e = -0.002;
-    }
-    
-    ROS_INFO("pid e is [%f]",pid_e);
-
-    wall_distance_e << pid_e,0,0,0,0,0;
-
-    vel_cmdj2 = ur_jacobian_.inverse() * wall_distance_e;
-
-    Vector6d ur_tool_e; // gamma
-    ur_tool_e = - ((tool_pose_current_ - ur_pose_current_) * 0.01);
-    ur_tool_e(0) = 0; ur_tool_e(1) = 0; ur_tool_e(2) = 0; ur_tool_e(3) = 0; ur_tool_e(4) = 0;
-
-    vel_cmdj3 = ur_jacobian_.inverse() * ur_tool_e;
-
-
-    vel_cmdj = vel_cmdj1 + vel_cmdj2 + vel_cmdj3;
-
-    for (size_t i = 0; i < 6; i++)
-    {
-        cmd_vel_monitor_[i] = vel_cmdj(i);
-        if (fabs(vel_cmdj(i)) <= 0.5 )
-        {
-            joint_cmd_[i] = joint_state_[i]  + vel_cmdj(i);
-        }
-        else{
-            ROS_ERROR("joint [%zu] vel is too large %f",i,vel_cmdj(i));
-        }
-        
-        // joint_cmd_[i] = joint_state_[i]  + vel_cmdj3(i);
-    }
-}
-
-
-// task start 
-void ur_solu::task_start(void)
-{
-    float wall_distance_d = 0.101;
-    float y_distance_d = 0.7; // actual sign error
-    float finish_time = 20;
-    float pid_e = (wall_distance_ - wall_distance_d) * 0.5; // keep a fixed distance
-    Vector6d wall_distance_e  ,vel_cmdj,vel_cmdj1,vel_cmdj2,vel_cmdj3;
-    Vector6d error_pose;
-
-    // singularity ?
-    double lamuda = 10;
-
-    Eigen::JacobiSVD<Eigen::MatrixXd> jacobian_svd(ur_jacobian_,0x28);
-    Eigen::VectorXd jacobian_eigenV;
-    Eigen::Matrix<double,6,6> jacobian_inverse, j_jt,jacobian_psu;
-    jacobian_eigenV = jacobian_svd.singularValues();
-    if (jacobian_eigenV(5)>= 0.1)
-    {
-        jacobian_inverse = ur_jacobian_.inverse();
-    }
-    else{
-        // svd psudo inverse
-        ROS_ERROR("I'm using svd psudo");
-        j_jt = (ur_jacobian_.transpose()*ur_jacobian_ + (lamuda* Eigen::Matrix<double,6,6>::Identity()));
-        jacobian_psu = j_jt.inverse() * ur_jacobian_.transpose();
-        jacobian_inverse = jacobian_psu;
-    }
-    
-
-
-
-    /* cmdj1 keep ur a right pose */
-    error_pose = (start_cart_pos_ - ur_pose_current_)*0.01;
-    error_pose(0) = 0; // open x and y and gamma to adjust ppr
-    error_pose(1) = 0;
-    error_pose(2) = 0;
-    error_pose(5) = 0;
-
-    // vel_cmdj1 = ur_jacobian_.inverse() * error_pose;
-    vel_cmdj1 = jacobian_inverse * error_pose;
-
-    /* cmdj2 keep ur and wall distance */
-    if (pid_e >= 0.002)
-    {
-       pid_e = 0.002;
-    }
-    else if (pid_e <= -0.002)
-    {
-        pid_e = -0.002;
-    }
-    // pid_e = 0;
-    // wall_distance_e << pid_e,0,0,0,0,0;
-
-    // vel_cmdj2 = ur_jacobian_.inverse() * wall_distance_e;
-    // std::cout << "Start feed vel_cmdj is " << wall_distance_e << std::endl;
-
-    /* cmdj3 keep ur trace ppr rotation to keep ppr has a Identity rot matrix */
-    Vector6d ur_tool_e; // gamma
-    ur_tool_e = - ((tool_pose_current_ - ur_pose_current_) * 0.01);
-    ur_tool_e(0) = 0; ur_tool_e(1) = 0; ur_tool_e(2) = 0; ur_tool_e(3) = 0; ur_tool_e(4) = 0;
-
-    // vel_cmdj3 = ur_jacobian_.inverse() * ur_tool_e;
-    vel_cmdj3 = jacobian_inverse * ur_tool_e;
-
-    /* cmdj4 start putty */
-    // time
-    ros::Duration current_duration((ros::Time::now() - start_time_));
-    float start_e, time_e;
-    Vector6d ur_start_e,vel_cmdj4;
-    Eigen::Vector3d tool_d2base;
-    time_e = (current_duration.toSec()/finish_time) <= 1? (current_duration.toSec()/finish_time):1;
-    tool_d2base = EigenT2EigenR(T_tool_forward_) * Eigen::Vector3d(y_distance_d*time_e,0,0);
-    Eigen::Vector3d pid_trans = EigenT2EigenR(T_tool_forward_) * Eigen::Vector3d(0,0,pid_e);
-    for (size_t i = 0; i < 3; i++)
-    {
-        start_tool_pos_(i) += pid_trans(i);
-        ur_start_e(i) = (start_tool_pos_(i) - tool_d2base(i)  - tool_pose_current_(i));
-        ur_start_e(i+3) =0;
-    }
-    // std::cout<< "ur start feed e \r\n" << ur_start_e << std::endl;
-    // vel_cmdj4 << 0,0,0,0,0,0;
-    // ur_start_e (0) += pid_e;
-    
-
-    // vel_cmdj4 = ur_jacobian_.inverse()*ur_start_e;
-    vel_cmdj4 = jacobian_inverse*ur_start_e;
-
-    vel_cmdj = vel_cmdj1  + vel_cmdj3 + vel_cmdj4;
-
-    for (size_t i = 0; i < 6; i++)
-    {
-        cmd_vel_monitor_[i] = vel_cmdj(i);
-        if (fabs(vel_cmdj(i)) <= 0.5 )
-        {
-            joint_cmd_[i] = joint_state_[i]  + vel_cmdj(i);
-        }
-        else{
-            ROS_ERROR("joint [%zu] vel is too large %f",i,vel_cmdj(i));
-            putty_smc_ = PUTTY_ERROR; // test
-        }
-        // joint_cmd_[i] = joint_state_[i]  + vel_cmdj3(i);
-    }
-
-    // std::cout << "SVD is \r\n" << jacobian_svd.singularValues() << std::endl;
-} 
-
-// task back
-void ur_solu::task_back(void)
-{
-    // float push_vel = 0.1;
-    float wall_distance_d = 0.25; // has a bug , should to change to tool frame
-    float pid_e = (wall_distance_ - wall_distance_d) * 0.01;
-
-    Vector6d wall_distance_e  ,vel_cmdj,vel_cmdj1,vel_cmdj2,vel_cmdj3;
-    Vector6d error_pose;
-
-    error_pose = (start_cart_pos_ - ur_pose_current_)*0.01;
-    error_pose(0) = 0;
-    error_pose(5) = 0;
-    
-    vel_cmdj1 = ur_jacobian_.inverse() * error_pose;
-
-    wall_distance_e << pid_e,0,0,0,0,0;
-
-    vel_cmdj2 = ur_jacobian_.inverse() * wall_distance_e;
-
-    Vector6d ur_tool_e; // gamma
-    ur_tool_e = - ((tool_pose_current_ - ur_pose_current_) * 0.01);
-    ur_tool_e(0) = 0; ur_tool_e(1) = 0; ur_tool_e(2) = 0; ur_tool_e(3) = 0; ur_tool_e(4) = 0;
-
-    vel_cmdj3 = ur_jacobian_.inverse() * ur_tool_e;
-
-
-    vel_cmdj = vel_cmdj1 + vel_cmdj2 + vel_cmdj3;
-
-    for (size_t i = 0; i < 6; i++)
-    {
-        cmd_vel_monitor_[i] = vel_cmdj(i);
-        if (fabs(vel_cmdj(i)) <= 0.5 )
-        {
-            joint_cmd_[i] = joint_state_[i]  + vel_cmdj(i);
-        }
-        else{
-            ROS_ERROR("joint [%zu] vel is too large %f",i,vel_cmdj(i));
-        }
-        
-        // joint_cmd_[i] = joint_state_[i]  + vel_cmdj3(i);
-    }
-}
-void ur_solu::task_feed()
-{
-    static Vector6d record_temp_start_pos = ur_pose_current_;
-    record_temp_start_pos(5) = ur_pose_current_(5);
-
-    if (go_feed_flag_)
-    {
-        record_temp_start_pos(0) -= feed_d_cmd_(0);
-        record_temp_start_pos(1) -= feed_d_cmd_(1);
-        record_temp_start_pos(2) -= feed_d_cmd_(2);
-        go_feed_flag_ = false;
-    }
-
-    float wall_distance_d = 0.2;
-    float pid_e = (wall_distance_ - wall_distance_d) * 0.01;
-    Vector6d wall_distance_e  ,vel_cmdj1,vel_cmdj2 ,vel_cmdj3;
-    wall_distance_e << pid_e,0,0,0,0,0;
-    vel_cmdj1 = ur_jacobian_.inverse() * wall_distance_e;
-
-    Vector6d ur_temp_e = (record_temp_start_pos - ur_pose_current_)*0.001;
-    Vector6d ur_tool_e;
-    ur_tool_e = - ((tool_pose_current_ - ur_pose_current_) * 0.01);
-    ur_tool_e(0) = 0; ur_tool_e(1) = 0; ur_tool_e(2) = 0; ur_tool_e(3) = 0; ur_tool_e(4) = 0;
-
-    vel_cmdj2 = ur_jacobian_.inverse() * ur_tool_e;
-    vel_cmdj3 = ur_jacobian_.inverse() * ur_temp_e;
-    // std::cout << "record pos is \r\n" << ur_temp_e << std::endl; 
-    // std::cout << "current pos is \r\n" <<ur_pose_current_ << std::endl;
-    // printf("rotation e is %f \r\n", ur_tool_e(5));
-    
-    for (size_t i = 0; i < 6; i++)
-    {
-        cmd_vel_monitor_[i] = vel_cmdj1(i) + vel_cmdj2(i) + vel_cmdj3(i);
-        joint_cmd_[i] = joint_state_[i]  + vel_cmdj1(i) + vel_cmdj2(i) + vel_cmdj3(i);
-        // joint_cmd_[i] = joint_state_[i]  + vel_cmdj3(i);
-    }
-    // printf("wall distance is [%f]\r\n",wall_distance_);
-    // printf("wall distance e is [%f]\r\n", pid_e);
-    // printf("vel cmd is [%f %f %f %f %f %f]", vel_cmdj(0), vel_cmdj(1), vel_cmdj(2), vel_cmdj(3), vel_cmdj(4), vel_cmdj(5));
-}
-
-void ur_solu::task_down(void)
-{
-    // float push_vel = 0.1;
-    // float wall_z = -0.3; // 
-    // float pid_e = (start_tool_pos_(1) + wall_z - tool_pose_current_(1)) * 1;
-
-    // Vector6d wall_z_e  ,vel_cmdj,vel_cmdj1,vel_cmdj2,vel_cmdj3;
-    // Vector6d error_pose;
-
-    // error_pose = (start_cart_pos_ - ur_pose_current_)*0.01;
-    // error_pose(0) = 0;
-    // error_pose(1) = 0;
-    // error_pose(2) = 0;
-    // error_pose(4) = 0;
-    // error_pose(5) = 0;
-
-    // // if (start_cart_pos_(1) - wall_distance_d < 0.05)
-    // // {
-    // //     error_pose(1) = (start_cart_pos_(1) - ur_pose_current_(1))*0.01;
-    // // }
-    
-    // vel_cmdj1 = ur_jacobian_.inverse() * error_pose;
-
-    // if (pid_e >= 0.005)
-    // {
-    //    pid_e = 0.005;
-    // }
-    // else if (pid_e <= -0.005)
-    // {
-    //     pid_e = -0.005;
-    // }
-    
-    // ROS_INFO("pid e is [%f]",pid_e);
-    
-
-    // wall_z_e << (EigenT2EigenR(T_tool_forward_)  * Eigen::Vector3d(0,-pid_e,0)),0,0,0;
-
-    // vel_cmdj2 = ur_jacobian_.inverse() * wall_z_e;
-
-    // Vector6d ur_tool_e; // gamma
-    // ur_tool_e = - ((tool_pose_current_ - ur_pose_current_) * 0.01);
-    // ur_tool_e(0) = 0; ur_tool_e(1) = 0; ur_tool_e(2) = 0; ur_tool_e(3) = 0;
-
-    // vel_cmdj3 = ur_jacobian_.inverse() * ur_tool_e;
-
-
-    // vel_cmdj = vel_cmdj1 + vel_cmdj2 + vel_cmdj3;
-
-    // for (size_t i = 0; i < 6; i++)
-    // {
-    //     cmd_vel_monitor_[i] = vel_cmdj(i);
-    //     if (fabs(vel_cmdj(i)) <= 0.5 )
-    //     {
-    //         joint_cmd_[i] = joint_state_[i]  + vel_cmdj(i);
-    //     }
-    //     else{
-    //         ROS_ERROR("joint [%zu] vel is too large %f",i,vel_cmdj(i));
-    //     }
-        
-    //     // joint_cmd_[i] = joint_state_[i]  + vel_cmdj3(i);
-    // }
-    Eigen::Matrix<double,6,1> cmd_vel;
-    Eigen::Matrix<double,6,1> srv_cart_vel_act;
-    float vel;
-    if (feed_distance_ >0)
-    {
-        vel = 0.003;
-    }
-    else{
-        vel = -0.003;
-    }
-    if ( fabs(start_cart_pos_(2) - ur_pose_current_(2)) <= fabs(feed_distance_))
-    {
-        // srv_cart_vel_act = srv_cart_vel_ *  + start_cart_pos_ - EigenT2Pos(T_ur_forward_);
-        srv_cart_vel_act << 0,0,vel,0,0,0;
-
-        cmd_vel = ur_jacobian_.inverse()* srv_cart_vel_act;
-    }
-    else{
-        cmd_vel << 0,0,0,0,0,0;
-    }
-    
-    
-    
-    for (size_t i = 0; i < 6; i++)
-    {
-        joint_cmd_[i] = cmd_vel(i) + joint_state_[i];
-    }
-}
 
 // main task
 void ur_solu::task_handle(void)
@@ -737,6 +477,93 @@ void ur_solu::task_handle(void)
     
 }
 
+/**
+ * @brief: ur cmd generate
+*/
+void ur_solu::cmdGen(double *cmd, Vector6d v)
+{
+    double threshold = 0.5;
+    for (size_t i = 0; i < 6; i++)
+    {
+        if (fabs(v(i)) <= threshold )
+        {
+            cmd[i] = joint_state_[i]  + v(i);
+        }
+        else{
+            cmd[i] = joint_state_[i]  + clamp(v(i),-threshold,threshold);
+            ROS_ERROR("joint [%zu] vel is too large %f",i,cmd[i]);
+        }
+    }
+}
+
+Vector6d ur_solu::keepPose(Vector6d startV, Vector6d currentV, uint8_t option)
+{
+    Vector6d cmd;
+    for (size_t i = 0; i < 6; i++)
+    {
+        if ((option >> i) & 0x01 )
+        {
+            cmd(i) = 0;
+        }
+        else
+        {
+            cmd(i) = startV(i) - currentV(i);
+        }
+    }
+    return cmd;
+}
+
+Vector6d ur_solu::comPPr(Vector6d tool_pose, Vector6d ur_pose)
+{
+    Vector6d v = Vector6d::Zero();
+    v[4] = tool_pose[4] - ur_pose[4];
+    v[5] = tool_pose[5] - ur_pose[5];
+    return v;
+}
+
+
+/* Not Used -- cdy 2020.12.18 */
+Vector9d ur_solu::WetProjK(Eigen::Matrix<double,6,9> jacobian, Vector6d vel_c, RDKINE_OPTION option)
+{
+    Vector9d delta_j;
+    Eigen::Matrix<double,9,9> WeightM;
+    WeightM << 0.01 * Eigen::Matrix<double,6,6>::Identity(), Eigen::Matrix<double,6,3>::Zero(),
+               Eigen::Matrix<double,3,6>::Zero(), 10 * Eigen::Matrix3d::Identity();
+
+    Eigen::Matrix<double,9,6> j_pseudo = jacobian.transpose()*((jacobian * jacobian.transpose()).inverse());
+
+    switch (option)
+    {
+    case USE_NONE:
+    {
+        delta_j = j_pseudo * vel_c;
+        break;
+    }
+    case USE_WEIGHTED:
+    {
+        delta_j = WeightM.inverse()* jacobian.transpose() * ((jacobian * WeightM.inverse() * jacobian.transpose()).inverse()) * vel_c;
+        break;
+    }
+    case USE_PROJECT:
+    {
+        Vector9d pro_phi = graProjVector(ppr_distance_,MID_PARA_LEN, MAX_PARA_LEN);
+        delta_j = j_pseudo * vel_c + (Eigen::Matrix<double,9,9>::Identity() - j_pseudo*jacobian) * pro_phi;
+        break;
+    }
+    case USE_ALL:
+    {
+        Vector9d pro_phi = graProjVector(ppr_distance_,MID_PARA_LEN, MAX_PARA_LEN);
+        delta_j = WeightM.inverse()* jacobian.transpose() * ((jacobian * WeightM.inverse() * jacobian.transpose()).inverse()) * vel_c
+                  + (Eigen::Matrix<double,9,9>::Identity() - j_pseudo*jacobian) * pro_phi;
+        break;
+    }
+    
+    default:
+        break;
+    }
+    return delta_j;
+}
+
 void ur_solu::control_loop(void)
 {
     ros::Rate loop_rate(100);
@@ -746,6 +573,12 @@ void ur_solu::control_loop(void)
         if(ur_init_)
         {
             // update state
+        #ifndef RDKINEMATIC
+            para_->control_loop();
+        #else
+            para_->ppr_update();
+        #endif
+
             state_update(); 
             // response srv
             if(srv_start_)
@@ -756,6 +589,11 @@ void ur_solu::control_loop(void)
                 task_handle();   
             }
             pub_msg();
+
+        #ifndef RDKINEMATIC
+        #else
+            para_->pub_msgs(ppr_cmd_);
+        #endif
         }
         // spin
         ros::spinOnce();

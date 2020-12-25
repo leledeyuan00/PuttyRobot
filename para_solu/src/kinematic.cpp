@@ -77,10 +77,10 @@ namespace macmic_kinematic
         double* T6 = new double[16];
         forward_all(q, T1, T2, T3, T4, T5, T6);
 
-        return T_Base * D2EigenT(T6);
+        return  D2EigenT(T6);
     }
 
-    Eigen::Matrix<double,6,6> Jacobian(const double* q,const Eigen::Matrix4d T_Base)
+    Eigen::Matrix<double,6,6> Jacobian(const double* q,const Eigen::Matrix4d T_Base, const Eigen::Vector3d T_tool)
     {
         double* T1 = new double[16];
         double* T2 = new double[16];
@@ -99,19 +99,26 @@ namespace macmic_kinematic
         Eigen::Matrix4d T_5 = D2EigenT(T5);
         Eigen::Matrix4d T_6 = D2EigenT(T6);
 
-        T_1 = T_Base * T_1;
-        T_2 = T_Base * T_2;
-        T_3 = T_Base * T_3;
-        T_4 = T_Base * T_4;
-        T_5 = T_Base * T_5;
-        T_6 = T_Base * T_6;
+        // T_1 = T_Base * T_1 ;
+        // T_2 = T_Base * T_2 ;
+        // T_3 = T_Base * T_3 ;
+        // T_4 = T_Base * T_4 ;
+        // T_5 = T_Base * T_5 ;
+        // T_6 = T_Base * T_6 * T_tool;
+        // T_6 = T_6 * T_tool;
+        // std::cout << " after T transfer \r\n" << T_6.col(3).head(3) << std::endl;
 
-        Eigen::Vector3d pe(T_6(0,3), T_6(1,3), T_6(2,3));
+        // Eigen::Vector3d pe(T_6(0,3), T_6(1,3), T_6(2,3));
+        // std::cout << " before T transfer \r\n" << pe << std::endl;
+        Eigen::Vector4d V_tool;
+        V_tool << T_tool, 1;
+        Eigen::Vector3d pe = (T_6 * V_tool).head(3);
+        // std::cout << "after T transfer \r\n" << pe << std::endl;
         Eigen::Vector3d jpi(0.0, 0.0, 0.0);
 
         // J1
         Eigen::Matrix4d T0 = Eigen::Matrix4d::Identity();
-        T0 = T_Base * T0;
+        // T0 = T_Base * T0;
         Eigen::Vector3d z0(T0(0,2),T0(1,2),T0(2,2));
         Eigen::Vector3d p0(0.0, 0.0, 0.0);
         Eigen::Vector3d pe_minus_p0(pe - p0);
@@ -183,7 +190,18 @@ namespace macmic_kinematic
         //     J[i*6 + 5] = J6[i];
         // }
         Jacobian << J1, J2, J3, J4, J5, J6;
-        return Jacobian;
+        Eigen::Matrix<double,6,6> R_ur_forward;
+        R_ur_forward << EigenT2EigenR(T_Base) , Eigen::Matrix3d::Zero(),
+                        Eigen::Matrix3d::Zero(),EigenT2EigenR(T_Base) ;
+
+        // Eigen::Matrix<double,6,6> R_tool_forward1;
+        // R_ur_forward << KDLR2EigenR(KDL::Rotation::RotX(KDL::PI)) , Eigen::Matrix3d::Zero(),
+        //             Eigen::Matrix3d::Zero(), KDLR2EigenR(KDL::Rotation::RotX(KDL::PI)) ;
+        // Eigen::Matrix<double,6,6> R_ur_forward;
+        // R_ur_forward << EigenT2EigenR(T_Base) * KDLR2EigenR(KDL::Rotation::RotX(KDL::PI/2)), Eigen::Matrix3d::Zero(),
+        //             Eigen::Matrix3d::Zero(), EigenT2EigenR(T_Base) * KDLR2EigenR(KDL::Rotation::RotX(KDL::PI/2));
+
+        return R_ur_forward  *Jacobian ;
     }
 
     KDL::Rotation EigenT2KDLR(Eigen::Matrix4d T)
@@ -202,8 +220,10 @@ namespace macmic_kinematic
     void EigenT2Eular(Eigen::Matrix4d T,double* q)
     {
         KDL::Rotation R;
+        double qt[3];
         R = EigenT2KDLR(T);
-        R.GetRPY(q[0],q[1],q[2]);
+        R.GetRPY(qt[0],qt[1],qt[2]);
+        q[1] = qt[1]; q[0] = qt[0]; q[2] = qt[2];
     }
 
     Vector6d EigenT2Pos(Eigen::Matrix4d T)
@@ -217,6 +237,17 @@ namespace macmic_kinematic
         return D2V6(q);
     }
 
+    Eigen::Vector4d EigenT2Qua(Eigen::Matrix4d T)
+    {
+        double q[4];
+        KDL::Rotation R;
+        R = EigenT2KDLR(T);
+        R.GetQuaternion(q[0],q[1],q[2],q[3]);
+
+        return Eigen::Vector4d(q);
+    }
+
+
     Vector6d D2V6(double *q)
     {
         Vector6d V;
@@ -227,4 +258,86 @@ namespace macmic_kinematic
         return V;
     }
     
+    Eigen::Matrix<double,6,9> rdJacobian(const Eigen::Matrix<double,6,6> ur_j, const Eigen::Matrix<double,6,3> ppr_j, const Eigen::Matrix4d T_b2ur)
+    {
+        Eigen::Matrix<double,6,9> rdjacobian;
+        Eigen::Matrix3d R_b2ur = EigenT2EigenR(T_b2ur);
+        Eigen::Matrix<double,6,6> M_b2ur;
+        M_b2ur << R_b2ur , Eigen::Matrix3d::Zero(),
+                  Eigen::Matrix3d::Zero(), R_b2ur;
+
+        rdjacobian << ur_j , M_b2ur * ppr_j;
+        
+        return rdjacobian;
+    }
+
+    Vector9d graProjVector(const Eigen::Vector3d ppr_stat, const float dist_mid, const float dist_max)
+    {
+        Vector9d phi;
+
+        Vector6d Zeros;
+        Zeros = Vector6d::Zero();
+
+        Eigen::Matrix3d K;
+        K = -0.05 * Eigen::Matrix3d::Identity();
+
+        Eigen::Vector3d pH;
+        for (size_t i = 0; i < 3; i++)
+        {
+            (ppr_stat(i) - dist_mid) / pow((dist_mid - dist_max),2);
+        }
+
+        phi << Zeros , K * pH;
+        return phi;
+    }
+
+    Eigen::Matrix<double,6,6> EigenT2M6(Eigen::Matrix4d T)
+    {
+        Eigen::Matrix<double,6,6> M;
+        Eigen::Matrix3d R;
+        R = EigenT2EigenR(T);
+
+        M << R , Eigen::Matrix3d::Zero(),
+             Eigen::Matrix3d::Zero(),  R;
+        return M;
+    }
+
+    Eigen::Matrix<double,6,6> JacoInvSVD(Eigen::Matrix<double,6,6> Jacobian)
+    {
+        // singularity ?
+        double lamda = 10;
+
+        Eigen::JacobiSVD<Eigen::MatrixXd> jacobian_svd(Jacobian,0x28);
+        Eigen::VectorXd jacobian_eigenV;
+        Eigen::Matrix<double,6,6> jacobian_inverse, j_jt,jacobian_psu, sigama_psudo,jacobian_matrixv;
+        sigama_psudo << 0,0,0,0,0,0,
+                        0,0,0,0,0,0,
+                        0,0,0,0,0,0,
+                        0,0,0,0,0,0,
+                        0,0,0,0,0,0,
+                        0,0,0,0,0,1;
+        jacobian_eigenV = jacobian_svd.singularValues();
+        jacobian_matrixv = jacobian_svd.matrixV();
+        if (jacobian_eigenV(5)>= 0.1)
+        {
+            jacobian_inverse = Jacobian.inverse();
+        }
+        else{
+            // svd psudo inverse
+            std::cout << COUT_RED << "I'm in SVD inverse" << std::endl;
+            j_jt = (Jacobian.transpose()*Jacobian + (jacobian_matrixv*(lamda* sigama_psudo)*jacobian_matrixv.transpose()));
+            jacobian_psu = j_jt.inverse() * Jacobian.transpose();
+            jacobian_inverse = jacobian_psu;
+        }
+        return jacobian_inverse;
+    }
+
+    Eigen::Matrix4d V2EigenT(Vector6d V)
+    {
+        Eigen::Matrix4d T =  KDLR2EigenT(KDL::Rotation::RPY(V(3),V(4),V(5)));
+        T(3,0) = V(0);
+        T(3,1) = V(1);
+        T(3,2) = V(2);
+        return T;
+    }
 } // namespace ur_solu

@@ -13,9 +13,13 @@ void para::state_init(void)
                                0,                                 0,                            0;
     base_fram_ = top_fram_;
 
-    para_inverse_[CURRENT].target_dist = Eigen::Vector3d(PARA_LEN_MEAN,PARA_LEN_MEAN,PARA_LEN_MEAN);
-    para_inverse_[CURRENT].n_vector3 << Eigen::Vector3d(0,0,1), Eigen::Vector3d(0,0,1), Eigen::Vector3d(0,0,1);
-    para_inverse_[NEXT] = para_inverse_[CURRENT];
+    para_.inverse[CURRENT].target_dist = Eigen::Vector3d(MID_PARA_LEN,MID_PARA_LEN,MID_PARA_LEN);
+    para_.inverse[CURRENT].n_vector3 << Eigen::Vector3d(0,0,1), Eigen::Vector3d(0,0,1), Eigen::Vector3d(0,0,1);
+    para_.inverse[NEXT] = para_.inverse[CURRENT];
+
+    para_.rot_matrix[CURRENT] = Eigen::Matrix3d::Identity(3,3);
+    para_.rot_matrix[NEXT] = Eigen::Matrix3d::Identity(3,3);
+
 }
 
 void para::ros_init()
@@ -33,9 +37,9 @@ void para::ros_init()
     joint_info1.pub = nh_.advertise<std_msgs::Float64>("/parabot/joint1_position_controller/command", 10);
     joint_info1.sub = nh_.subscribe("/parabot/laser1", 10, &para::laser_callback1,this);
     #endif
-    joint_info1.stat = 0;
+    joint_info1.stat = PARA_CMD_INIT;
     joint_info1.laser = 0;
-    joint_info1.cmd = 0;
+    joint_info1.cmd = PARA_CMD_INIT;
     para_motor_.push_back(joint_info1);
     // 2
     Joint joint_info2;
@@ -45,9 +49,9 @@ void para::ros_init()
     joint_info2.pub = nh_.advertise<std_msgs::Float64>("/parabot/joint2_position_controller/command", 10);
     joint_info2.sub = nh_.subscribe("/parabot/laser2", 10, &para::laser_callback2,this);
     #endif
-    joint_info2.stat = 0;
+    joint_info2.stat = PARA_CMD_INIT;
     joint_info2.laser = 0;
-    joint_info2.cmd = 0;
+    joint_info2.cmd = PARA_CMD_INIT;
     para_motor_.push_back(joint_info2);
     // 3
     Joint joint_info3;
@@ -57,13 +61,10 @@ void para::ros_init()
     joint_info3.pub = nh_.advertise<std_msgs::Float64>("/parabot/joint3_position_controller/command", 10);
     joint_info3.sub = nh_.subscribe("/parabot/laser3", 10, &para::laser_callback3,this);
     #endif
-    joint_info3.stat = 0;
+    joint_info3.stat = PARA_CMD_INIT;
     joint_info3.laser = 0;
-    joint_info3.cmd = 0;
+    joint_info3.cmd = PARA_CMD_INIT;
     para_motor_.push_back(joint_info3);
-
-    para_.rot_matrix[CURRENT] = Eigen::Matrix3d::Identity(3,3);
-    para_.rot_matrix[NEXT] = Eigen::Matrix3d::Identity(3,3);
 
     pub_msgs();
 }
@@ -152,8 +153,9 @@ inverse_info para::inverse_solu(Eigen::Matrix4d T)
 }
 // length: motor lengths
 // n_vector3 : 3motor n vector 
-Eigen::Matrix3d para::Jacobian(Eigen::Matrix3d rotm, Eigen::Vector3d length, Eigen::Matrix3d n_vector3)
+Jacobian_info para::Jacobian(Eigen::Matrix3d rotm, Eigen::Vector3d length, Eigen::Matrix3d n_vector3)
 {
+    Jacobian_info jacobian;
     double factor_1,factor_2,factor_3,factor_4,factor_5;
     double alpha,beta,gamma;
     Eigen::Vector3d eular;
@@ -196,17 +198,17 @@ Eigen::Matrix3d para::Jacobian(Eigen::Matrix3d rotm, Eigen::Vector3d length, Eig
     factor_4 = sin(alpha)*sin(gamma);
     factor_5 = sin(beta)*cos(gamma);
     
-    jac3 << 0,  
-                0.5*MOTORPLAT_RADIUS*( factor_2*(cos(beta)+cos(alpha)) + factor_3*cos(beta)*(1+cos(alpha)*cos(alpha)) ) / factor_1,  
-                                                    0.5*MOTORPLAT_RADIUS*( 2*factor_4*cos(beta) - factor_5*(factor_1 + sin(alpha)*sin(alpha)) - factor_4*cos(alpha)*sin(beta)*sin(beta) ) / factor_1,
-            0,                                                                     -MOTORPLAT_RADIUS*factor_5*cos(beta) / factor_1,        -MOTORPLAT_RADIUS*( factor_3*factor_1 + factor_2 ) / factor_1,
-            1,                                                                                                                  0,                                                                   0,
-            0,                                                                                                                  1,                                                                   0,
-            0,                                                                                                                  0,                                                                   1,
-            0,                                                                                              -sin(beta) / factor_1,                                              -sin(alpha) / factor_1;
+    jacobian.trans <<   0, 
+                            0.5*MOTORPLAT_RADIUS*( factor_2*(cos(beta)+cos(alpha)) + factor_3*cos(beta)*(1+cos(alpha)*cos(alpha)) ) / factor_1,  
+                                                                0.5*MOTORPLAT_RADIUS*( 2*factor_4*cos(beta) - factor_5*(factor_1 + sin(alpha)*sin(alpha)) - factor_4*cos(alpha)*sin(beta)*sin(beta) ) / factor_1,
+                        0,                                                                     -MOTORPLAT_RADIUS*factor_5*cos(beta) / factor_1,        -MOTORPLAT_RADIUS*( factor_3*factor_1 + factor_2 ) / factor_1,
+                        1,                                                                                                                  0,                                                                   0,
+                        0,                                                                                                                  1,                                                                   0,
+                        0,                                                                                                                  0,                                                                   1,
+                        0,                                                                                              -sin(beta) / factor_1,                                              -sin(alpha) / factor_1;
     
-    jac_part = (jac1 * jac2 * jac3 ).inverse();
-    return jac_part;
+    jacobian.j3 = (jac1 * jac2 * jacobian.trans ).inverse();
+    return jacobian;
 }
 
 Eigen::Matrix4d para::forward(Eigen::Matrix4d last_T, Eigen::Matrix3d last_nv3, Eigen::Vector3d last_length, Eigen::Vector3d current_length)
@@ -215,13 +217,15 @@ Eigen::Matrix4d para::forward(Eigen::Matrix4d last_T, Eigen::Matrix3d last_nv3, 
     Eigen::Matrix4d current_T;
     Eigen::Matrix3d last_R,current_R;
     inverse_info temp_inverse_info;
+    Jacobian_info temp_jacobian;
     Eigen::Vector3d temp_length, error_length, rotm_vec, temp_eular,delta_eular,result_jacobian,delta_length,temp_xyzv;
-    Eigen::Matrix3d temp_jacobian,temp_nv3,temp_rotm;
+    Eigen::Matrix3d temp_nv3,temp_rotm;
     int loop_count = 0;
     bool forward_finished = 0;
     float temp_z;
 
     const Eigen::Vector3d target_length = current_length;
+
 
     /* parse data */
     for (size_t i = 0; i < 3; i++)
@@ -239,13 +243,24 @@ Eigen::Matrix4d para::forward(Eigen::Matrix4d last_T, Eigen::Matrix3d last_nv3, 
     
     temp_eular = rotm2Eul(temp_rotm.col(2));
     error_length = target_length - temp_length;
-    /* loop */
-    while(error_length.array().abs().maxCoeff() >= 0.000001)
+
+    // temp_jacobian = Jacobian(temp_rotm, temp_length, temp_nv3);
+
+    if ((current_length - Eigen::Vector3d(MID_PARA_LEN,MID_PARA_LEN,MID_PARA_LEN)).array().abs().maxCoeff() <= 1e-5)
     {
+        current_T = makeTrans(Eigen::Matrix3d::Identity(),Eigen::Vector3d(0,0,MID_PARA_LEN));
+        return current_T;
+    }
+    
+    /* loop */
+    while(error_length.array().abs().maxCoeff() >= 1e-4)
+    {
+        // std::cout << "error_length.array().abs().maxCoeff() = " << error_length.array().abs().maxCoeff() << std::endl;
+        // std::cout << "error_length \r\n" << error_length << std::endl;
         loop_count++;
         temp_jacobian = Jacobian(temp_rotm, temp_length, temp_nv3);
         /* start forward */
-        result_jacobian = temp_jacobian * error_length;
+        result_jacobian = temp_jacobian.j3 * error_length;
         delta_eular(0) = result_jacobian(1);
         delta_eular(1) = result_jacobian(2);
         // delta_eular(2) = -atan( (sin(delta_eular(0))*sin(delta_eular(1))) / (cos(delta_eular(0))+cos(delta_eular(1))) );
@@ -264,12 +279,18 @@ Eigen::Matrix4d para::forward(Eigen::Matrix4d last_T, Eigen::Matrix3d last_nv3, 
         error_length = target_length - temp_length;
         if(loop_count>=100)
         {
-            // ROS_ERROR("Para robot forward error, too many loops!");
+            ROS_ERROR("Para robot forward error, too many loops!");
+            ROS_INFO("current length is [%f, %f, %f]",current_length(0),current_length(1),current_length(2));
+            ROS_INFO("last length is [%f, %f, %f]",last_length(0),last_length(1),last_length(2));
+            ros::shutdown();
             break;
         }
     }
     // ROS_INFO("Forward finish, loop count is:%d",loop_count);
-    // std::cout << "temp jacobian is \r\n" << temp_jacobian<<std::endl;
+    // ROS_INFO("current length is [%f, %f, %f]",current_length(0),current_length(1),current_length(2));
+    // ROS_INFO("last length is [%f, %f, %f]",last_length(0),last_length(1),last_length(2));
+
+    // std::cout << "temp jacobian is \r\n" << temp_jacobian.j3<<std::endl;
     // para->jacobian = temp_jacobian;
     // para->xyz = temp_xyz;
     // para->xyz_v = temp_xyzv;
@@ -499,7 +520,7 @@ void para::control_loop(void)
         //test forward
         Eigen::Matrix4d test_forward;
         Eigen::Matrix3d test_R;
-        test_forward = forward(makeTrans(para_.rot_matrix[CURRENT],Eigen::Vector3d(0,0,para_inverse_[CURRENT].target_dist.sum()/3)),para_inverse_[CURRENT].n_vector3,para_inverse_[CURRENT].target_dist,para_inverse_[NEXT].target_dist);
+        test_forward = forward(makeTrans(para_.rot_matrix[CURRENT],Eigen::Vector3d(0,0,para_.inverse[CURRENT].target_dist.sum()/3)),para_.inverse[CURRENT].n_vector3,para_.inverse[CURRENT].target_dist,para_.inverse[NEXT].target_dist);
 
         for (size_t i = 0; i < 3; i++)
         {
@@ -510,31 +531,82 @@ void para::control_loop(void)
         }
         // para_.rot_matrix[NEXT] = rot_matrix_temp * test_R;
 
-        // std::cout << "traditional T matrix is \r\n" << makeTrans(para_.rot_matrix[NEXT],Eigen::Vector3d(0,0,para_inverse_[NEXT].target_dist.sum()/3)) << std::endl;
+        // std::cout << "traditional T matrix is \r\n" << makeTrans(para_.rot_matrix[NEXT],Eigen::Vector3d(0,0,para_.inverse[NEXT].target_dist.sum()/3)) << std::endl;
         // std::cout << "Jacobian T matrix is \r\n" << test_forward << std::endl;
 
-        para_inverse_[CURRENT] = para_inverse_[NEXT]; // update state
-        para_inverse_[NEXT] = inverse_solu(makeTrans(para_.rot_matrix[NEXT],Eigen::Vector3d(0,0,PARA_LEN_MEAN)));
-        // temp_dist = para_inverse_.target_dist;
+        para_.inverse[CURRENT] = para_.inverse[NEXT]; // update state
+        para_.inverse[NEXT] = inverse_solu(makeTrans(para_.rot_matrix[NEXT],Eigen::Vector3d(0,0,MID_PARA_LEN)));
+        // temp_dist = para_.inverse.target_dist;
 
         for (size_t i = 0; i < para_motor_.size(); i++)
         {
             para_motor_[i].stat = para_motor_[i].cmd;
-            error = (para_inverse_[NEXT].target_dist(i) - MOTOR_LEN_INIT) - para_motor_[i].stat;
-            para_motor_[i].cmd = para_motor_[i].stat + error ;
+            para_motor_[i].cmd = para_.inverse[NEXT].target_dist(i) - MIN_PARA_LEN;
+            // error = (para_.inverse[NEXT].target_dist(i) - MIN_PARA_LEN) - para_motor_[i].stat;
+            // para_motor_[i].cmd = para_motor_[i].stat + error ;
         }
 
 
         /* saved status */
         para_.rot_matrix[CURRENT] = para_.rot_matrix[NEXT];
         current_wall_dist_ = (para_.laser_dist(0) + para_.laser_dist(1) + para_.laser_dist(2))/3;
-        current_ppr_dist_ = (para_motor_[0].stat + para_motor_[1].stat + para_motor_[2].stat)/3;
+        // current_ppr_dist_ = (para_motor_[0].stat + para_motor_[1].stat + para_motor_[2].stat)/3;
     }
     pub_msgs();
 }
 
 
 /* public function */
+/*
+ * 1. Update ppr motor length 
+ * 2. ppr forward kinematics, update rotation matrix
+ * 3. Calculate current Jaociban matrix, update current rotation matrix
+*/
+void para::ppr_update(void)
+{
+    // 1 
+    para_.laser_dist << para_motor_[0].laser , para_motor_[1].laser, para_motor_[2].laser;
+    current_wall_dist_ = para_.laser_dist.sum()/3;
+    for (size_t i = 0; i < para_motor_.size(); i++)
+    {
+        para_motor_[i].stat = para_motor_[i].cmd;
+    }
+    para_.inverse[LAST] = para_.inverse[CURRENT];
+    para_.rot_matrix[LAST] = para_.rot_matrix[CURRENT];
+    para_.inverse[CURRENT].target_dist = Eigen::Vector3d(para_motor_[0].stat,para_motor_[1].stat,para_motor_[2].stat) + 
+                                         Eigen::Vector3d(MIN_PARA_LEN,MIN_PARA_LEN,MIN_PARA_LEN);
+    
+    // 2
+    para_.trans_matrix = forward(makeTrans(para_.rot_matrix[LAST],Eigen::Vector3d(0,0,para_.inverse[LAST].target_dist.sum()/3)),para_.inverse[LAST].n_vector3,para_.inverse[LAST].target_dist,para_.inverse[CURRENT].target_dist);
+    para_.rot_matrix[CURRENT] = EigenT2EigenR(para_.trans_matrix);
+    // std::cout << "para rot angle is \r\n" << EigenT2Pos(para_.trans_matrix) << std::endl;
+
+    //3 
+    para_.jacobian = Jacobian(para_.rot_matrix[CURRENT],para_.inverse[CURRENT].target_dist,para_.inverse[CURRENT].n_vector3);
+
+}
+
+/*
+ * for redundant kinematics pub msg
+*/
+void para::pub_msgs(Eigen::Vector3d cmd)
+{
+    std_msgs::Float64 cmd_msgs;
+    for (size_t i = 0; i < para_motor_.size(); i++)
+    {
+        // para_motor_[i].cmd += length_inc(i);
+        cmd(i) = clamp(cmd(i),MIN_PARA_LEN,MAX_PARA_LEN);
+        para_motor_[i].cmd = cmd(i) - MIN_PARA_LEN;
+        cmd_msgs.data = para_motor_[i].cmd;
+        para_motor_[i].pub.publish(cmd_msgs);
+    }
+}
+
+// for redundant kinematics
+Eigen::Matrix<double,6,3> para::get_Jacobian(void)
+{
+    return para_.jacobian.trans * para_.jacobian.j3;
+}
 
 Eigen::Matrix3d para::get_ppr_r(void){
     return para_.rot_matrix[CURRENT];
@@ -544,8 +616,8 @@ float para::get_wall_dist(void){
     return current_wall_dist_;
 }
 
-float para::get_ppr_dist(void){
-    return current_ppr_dist_;
+Eigen::Vector3d para::get_ppr_dist(void){
+    return para_.inverse[CURRENT].target_dist;
 }
 
 uint16_t para::get_laser_state(void){

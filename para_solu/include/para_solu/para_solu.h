@@ -1,7 +1,8 @@
 #ifndef __PARA_H__
 #define __PARA_H__
 
-//#define SIMULATE
+#define SIMULATE
+//#define RDKINEMATIC
 
 #include <iostream>
 #include <ros/ros.h>
@@ -18,18 +19,24 @@
 
 #include <control_toolbox/pid.h>
 
+#include "para_solu/kinematic.h"
+
 
 #define PI 3.1415926
 #define MOTOR_NUM 3
 
 #define MOTORPLAT_RADIUS 0.06
 #define LASERPLAT_RADIUS 0.1175
-#define MOTOR_LEN_INIT  0.1049
 #define LASER_DIST_UPPER 0.0245
 
-#define MAX_PARA_LEN 0.1319
-#define MIN_PARA_LEN 0.1049
-#define PARA_LEN_MEAN (MAX_PARA_LEN+MIN_PARA_LEN)/2
+// #define MAX_PARA_LEN 0.1319
+// #define MIN_PARA_LEN 0.1049
+#define MAX_PARA_LEN 0.1300
+#define MIN_PARA_LEN 0.1065
+#define MID_PARA_LEN (MAX_PARA_LEN+MIN_PARA_LEN)/2
+#define PARA_CMD_INIT (MAX_PARA_LEN - MIN_PARA_LEN)/2
+
+using namespace macmic_kinematic;
 
 enum PARREL_STATE
 {
@@ -48,20 +55,28 @@ struct Joint
     float laser;
 };
 
-struct para_info
-{
-    Eigen::Matrix3d rot_matrix[ALL_STATE];
-    Eigen::Vector3d laser_dist;
-    Eigen::Vector3d motor_dist[ALL_STATE];
-    bool state;
-};
-
 struct inverse_info
 {
     Eigen::Matrix3d n_vector3;
     Eigen::Vector3d target_dist;
 };
 
+struct Jacobian_info
+{
+    Eigen::Matrix3d j3;
+    Eigen::Matrix<double,6,3> trans;
+};
+
+struct para_info
+{
+    Eigen::Matrix4d trans_matrix;
+    Eigen::Matrix3d rot_matrix[ALL_STATE];
+    Eigen::Vector3d laser_dist;
+    Eigen::Vector3d motor_dist[ALL_STATE];
+    inverse_info inverse[ALL_STATE];
+    Jacobian_info jacobian;
+    bool state;
+};
 
 
 class para
@@ -71,9 +86,14 @@ public:
 
     Eigen::Matrix3d get_ppr_r(void);
     float get_wall_dist(void);
-    float get_ppr_dist(void);
+    Eigen::Vector3d get_ppr_dist(void);
     uint16_t get_laser_state(void);
+    Eigen::Matrix<double,6,3> get_Jacobian(void); // unTransformmed Jacobian
     void control_loop(void);
+
+    // for redundant kinematics
+    void ppr_update(void);
+    void pub_msgs(Eigen::Vector3d cmd);
 
 
     // void run(void);
@@ -96,9 +116,6 @@ private:
     Eigen::Matrix3d top_fram_, base_fram_;
 
     std::vector<control_toolbox::Pid> pid_controllers_;
-
-    inverse_info para_inverse_[ALL_STATE];
-
     
     /* function */
     void state_init(void);
@@ -119,7 +136,7 @@ private:
     Eigen::Vector3d get_wall_plat_vec(Eigen::Vector3d laser_dist);
     float max_error(Eigen::Vector3d vector);
     Eigen::Matrix3d eul2Rotm(Eigen::Vector3d& euler_ZYX);
-    Eigen::Matrix3d Jacobian(Eigen::Matrix3d rotm, Eigen::Vector3d length, Eigen::Matrix3d xyz);
+    Jacobian_info Jacobian(Eigen::Matrix3d rotm, Eigen::Vector3d length, Eigen::Matrix3d xyz);
 
     Eigen::Matrix4d forward(Eigen::Matrix4d last_T, Eigen::Matrix3d last_nv3, Eigen::Vector3d last_length, Eigen::Vector3d current_length);
 
