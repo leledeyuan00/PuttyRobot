@@ -1,5 +1,7 @@
 #include "para_solu/ur_solu.h"
 /* tasks */
+#define TEST_RECORD_PPR_FORWARD
+
 
 // error detect
 bool ur_solu::task_error_detect(void)
@@ -129,6 +131,13 @@ void ur_solu::task_start(void)
     
     static int count =0;
     static bool init =false;
+
+    // test record ppr forward instead of tool forward 2020 12 25
+    #ifdef TEST_RECORD_PPR_FORWARD
+
+    static Eigen::Matrix4d record_ppr_forward = T_ppr_forward_;
+    #endif
+
     if (count <=10)
     {
         if(fabs(wall_distance_e_dot)>=1e-6 )
@@ -151,8 +160,8 @@ void ur_solu::task_start(void)
         // comp_wall_distance = wall_distance_e;
         // init = true;
     }
-    // start_task_beta_delta_ = -0.07;
-    
+    // test a const beta;
+    start_task_beta_delta_ = -0.07;
     
     start_last_run_dist_ = current_run_dist;
 
@@ -163,7 +172,11 @@ void ur_solu::task_start(void)
     beta_deltav << 0,0,0,0,-start_task_beta_delta_,0;
     // EigenT2M6(V2EigenT(beta_deltav)) *
     // ROS_INFO("\r\n current_run_dist is %f \r\n wall_distance_e %f \r\n current_run_dist-last_run_dist %f\r\n start_task_beta_delta_ %f",current_run_dist,wall_distance_e,current_run_dist-start_last_run_dist_,start_task_beta_delta_);
+    #ifdef TEST_RECORD_PPR_FORWARD
+    Vector6d target_pose_vel = (EigenT2M6(T_ur_forward_ * record_ppr_forward) * EigenT2M6(V2EigenT(beta_deltav)) * feed ) ;
+    #else
     Vector6d target_pose_vel = (R_tool_forward_ * EigenT2M6(V2EigenT(beta_deltav)) * feed ) ;
+    #endif
     // Vector6d target_pose_vel = ( feed * time) + start_tool_pos_ - current_tool_pose_ ;
     // target_pose_vel(0) =0;
 
