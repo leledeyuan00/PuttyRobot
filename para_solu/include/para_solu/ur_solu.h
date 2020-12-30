@@ -51,6 +51,7 @@ typedef enum
     PUTTY_DOWN,
     PUTTY_ERROR,
     PUTTY_FEED,
+    PUTTY_RECORD,
     PUTTY_ALL
 }PUTTY_TASK_SMC;
 
@@ -135,6 +136,9 @@ private:
     Eigen::Vector3d feed_d_cmd_;
     float feed_distance_;
 
+    size_t record_count_;
+    size_t record_count_max_;
+
     // cmd variable
     double joint_cmd_[6];
     Eigen::Vector3d ppr_cmd_;
@@ -182,6 +186,7 @@ private:
     void task_back(void);
     void task_start(void);
     void task_down(void);
+    void task_record(void);
 
     void error_handle(void);
 

@@ -3,6 +3,8 @@
 
 #define SIMULATE
 //#define RDKINEMATIC
+#define TEST_FILTER
+
 
 #include <iostream>
 #include <ros/ros.h>
@@ -88,6 +90,10 @@ public:
     float get_wall_dist(void);
     Eigen::Vector3d get_ppr_dist(void);
     uint16_t get_laser_state(void);
+    Eigen::Vector3d get_laser_dist(void);
+    #ifdef TEST_FILTER
+    Eigen::Vector3d get_laser_raw(void);
+    #endif
     Eigen::Matrix<double,6,3> get_Jacobian(void); // unTransformmed Jacobian
     void control_loop(void);
 
@@ -112,10 +118,16 @@ private:
     float current_wall_dist_;
     float current_ppr_dist_;
     uint16_t current_laser_state_;
+    static const std::vector<double> filter_coefficient_;
+    std::vector<std::shared_ptr<LowPassFilter>> laser_filters_; 
 
     Eigen::Matrix3d top_fram_, base_fram_;
 
     std::vector<control_toolbox::Pid> pid_controllers_;
+
+    #ifdef TEST_FILTER
+    Eigen::Vector3d laser_sensors_raw_;
+    #endif
     
     /* function */
     void state_init(void);

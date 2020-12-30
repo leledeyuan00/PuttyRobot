@@ -1,5 +1,7 @@
 #include "para_solu/para_solu.h"
 
+const std::vector<double> para::filter_coefficient_ = {0.0015,0.0075,0.0217,0.0467,0.0809,0.1175,0.1459,0.1567,0.1459,0.1175,0.0809,0.0467,0.0217,0.0075,0.0015};
+
 para::para(ros::NodeHandle &nh):nh_(nh),laser_state_(0),current_laser_state_(0)
 {
     state_init();
@@ -20,6 +22,12 @@ void para::state_init(void)
     para_.rot_matrix[CURRENT] = Eigen::Matrix3d::Identity(3,3);
     para_.rot_matrix[NEXT] = Eigen::Matrix3d::Identity(3,3);
 
+    laser_filters_.resize(3);
+    for (size_t i = 0; i < laser_filters_.size(); i++)
+    {
+        laser_filters_[i].reset(new LowPassFilter(filter_coefficient_));
+    }
+    
 }
 
 void para::ros_init()
@@ -72,42 +80,56 @@ void para::ros_init()
 #ifndef SIMULATE
 void para::laser_callback1(const ppr_msgs::laser &msg)
 {
-  para_motor_[0].laser = msg.sensor1 / 1000.0;
-  para_motor_[1].laser = msg.sensor2 / 1000.0;
-  para_motor_[2].laser = msg.sensor3 / 1000.0;
-  laser_state_ = msg.state;
+    para_motor_[0].laser = laser_filters_[0]->update_filter(msg.sensor1 / 1000.0);
+    para_motor_[1].laser = laser_filters_[1]->update_filter(msg.sensor2 / 1000.0);
+    para_motor_[2].laser = laser_filters_[2]->update_filter(msg.sensor3 / 1000.0);
+    laser_state_ = msg.state;
+
+    #ifdef TEST_FILTER
+    laser_sensors_raw_(0) = msg.sensor1 / 1000.0;
+    laser_sensors_raw_(1) = msg.sensor2 / 1000.0;
+    laser_sensors_raw_(2) = msg.sensor3 / 1000.0;
+    #endif
 }
 #else
 void para::laser_callback1(const sensor_msgs::LaserScan &msg)
 {
-    para_motor_[0].laser = msg.ranges[0];
+    para_motor_[0].laser = laser_filters_[0]->update_filter(msg.ranges[0]);
     if (msg.ranges[0] <= 1){
         current_laser_state_ &= ~((uint16_t)1<<0);
     }
     else{
         current_laser_state_ |= (uint16_t)1<<0; 
     }
-    
+    #ifdef TEST_FILTER
+    laser_sensors_raw_(0) = msg.ranges[0];
+    #endif
 }
 void para::laser_callback2(const sensor_msgs::LaserScan &msg)
 {
-    para_motor_[1].laser = msg.ranges[0];
+    para_motor_[1].laser = laser_filters_[1]->update_filter(msg.ranges[0]);
     if (msg.ranges[0] <= 1){
         current_laser_state_ &= ~((uint16_t)1<<1);
     }
     else{
         current_laser_state_ |= (uint16_t)1<<1; 
     }
+    #ifdef TEST_FILTER
+    laser_sensors_raw_(1) = msg.ranges[0];
+    #endif
 }
 void para::laser_callback3(const sensor_msgs::LaserScan &msg)
 {
-    para_motor_[2].laser = msg.ranges[0];
+    para_motor_[2].laser = laser_filters_[2]->update_filter(msg.ranges[0]);
     if (msg.ranges[0] <= 1){
         current_laser_state_ &= ~((uint16_t)1<<2);
     }
     else{
         current_laser_state_ |= (uint16_t)1<<2; 
     }
+    #ifdef TEST_FILTER
+    laser_sensors_raw_(1) = msg.ranges[0];
+    #endif
 }
 #endif
 void para::pub_msgs(void)
@@ -542,8 +564,6 @@ void para::control_loop(void)
         {
             para_motor_[i].stat = para_motor_[i].cmd;
             para_motor_[i].cmd = para_.inverse[NEXT].target_dist(i) - MIN_PARA_LEN;
-            // error = (para_.inverse[NEXT].target_dist(i) - MIN_PARA_LEN) - para_motor_[i].stat;
-            // para_motor_[i].cmd = para_motor_[i].stat + error ;
         }
 
 
@@ -554,7 +574,6 @@ void para::control_loop(void)
     }
     pub_msgs();
 }
-
 
 /* public function */
 /*
@@ -619,6 +638,16 @@ float para::get_wall_dist(void){
 Eigen::Vector3d para::get_ppr_dist(void){
     return para_.inverse[CURRENT].target_dist;
 }
+
+Eigen::Vector3d para::get_laser_dist(void){
+    return para_.laser_dist;
+}
+
+#ifdef TEST_FILTER
+Eigen::Vector3d para::get_laser_raw(void){
+    return laser_sensors_raw_;
+}
+#endif
 
 uint16_t para::get_laser_state(void){
 #ifndef SIMULATE

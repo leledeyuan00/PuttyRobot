@@ -161,7 +161,7 @@ void ur_solu::task_start(void)
         // init = true;
     }
     // test a const beta;
-    start_task_beta_delta_ = -0.07;
+    start_task_beta_delta_ = -0.075;
     
     start_last_run_dist_ = current_run_dist;
 
@@ -329,5 +329,23 @@ void ur_solu::task_down(void)
     for (size_t i = 0; i < 6; i++)
     {
         joint_cmd_[i] = cmd_vel(i) + joint_state_[i];
+    }
+}
+
+void ur_solu::task_record(void)
+{
+    if (record_count_ < record_count_max_)
+    {
+        record_count_++;
+
+        ros::Duration start_duration = ros::Time::now() - start_time_;
+        Eigen::Vector3d laser,laser_raw;
+        laser = para_->get_laser_dist();
+        laser_raw = para_->get_laser_raw();
+        outfile_ << start_duration.toSec() << " " << laser(0) << " " << laser_raw(0) <<std::endl;
+    }else{
+        putty_smc_ = PUTTY_INIT;
+        outfile_.close();
+        ROS_INFO("Data record task is done!");
     }
 }

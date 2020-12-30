@@ -7,6 +7,7 @@
 #include <eigen3/Eigen/Geometry>
 #include <ur_kinematics/ur_kin.h>
 #include <kdl/frames_io.hpp>
+#include <vector>
 
 #define COUT_RED     "\033[31m"      /* Red */
 
@@ -60,6 +61,25 @@ namespace macmic_kinematic
 } // namespace ur_solu
 
 
+/**
+ * @breif: A FIR lowpass filter
+ * @param: 1. std::vector<double> coefficient 
+ *         2. size_t order
+*/
+
+class LowPassFilter
+{
+private:
+    std::vector<double> data_buffer_;
+    std::vector<double> coeffient_;
+    size_t order_;
+    
+public:
+    LowPassFilter(std::vector<double> coeffient);
+    ~LowPassFilter(){};
+
+    double update_filter(double data);
+};
 
 
 #endif

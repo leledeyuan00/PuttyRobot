@@ -341,3 +341,29 @@ namespace macmic_kinematic
         return T;
     }
 } // namespace ur_solu
+
+
+LowPassFilter::LowPassFilter(std::vector<double> coeffient):coeffient_(coeffient),order_(coeffient_.size())
+{
+    data_buffer_.resize(order_);
+}
+
+double LowPassFilter::update_filter(double data)
+{
+    double output = 0;
+    data_buffer_.erase(data_buffer_.begin());
+    data_buffer_.push_back(data);
+
+    // error detect
+    if (data_buffer_.size() != coeffient_.size())
+    {
+        std::cout << COUT_RED << "There is something wrong in low-pass filter, please check it or reset!" << std::endl;
+        return 0;
+    }
+    
+    for (size_t i = 0; i < order_; i++)
+    {
+        output+= coeffient_[order_-1 -i] * data_buffer_[i];
+    }
+    return output;
+}

@@ -15,6 +15,8 @@ const double ur_solu::ready_pos_[6] = {2.9986374856312388, -0.07798873279574714,
 const KDL::Rotation ur_solu::R_base =  KDL::Rotation::EulerZYZ(0,PI/2,-PI*3/4);
 // const KDL::Rotation ur_solu::R_base =   KDL::Rotation::RotZ(0);
 
+
+
 ur_solu::ur_solu(ros::NodeHandle &nh):nh_(nh),ur_init_(false)
 {
     state_init();
@@ -217,15 +219,27 @@ bool ur_solu::go_feed(para_solu::go_feed::Request &req,
     switch (putty_smc_)
     {
     case PUTTY_START:
-        {
-            std::stringstream filename;
-            std::time_t now = std::time(NULL);
-            std::tm *lt = std::localtime(&now);
-            filename <<"./lg/" << lt->tm_mon << "-" << lt->tm_mday << "-" << lt->tm_hour << "-" << lt->tm_min << "-" << lt->tm_sec << ".txt";
-            outfile_.open(filename.str());
-            if(!outfile_) std::cout<<"error"<<std::endl;
-            break;
-        }
+    {
+        std::stringstream filename;
+        std::time_t now = std::time(NULL);
+        std::tm *lt = std::localtime(&now);
+        filename <<"./lg/" << lt->tm_mon << "-" << lt->tm_mday << "-" << lt->tm_hour << "-" << lt->tm_min << "-" << lt->tm_sec << ".txt";
+        outfile_.open(filename.str());
+        if(!outfile_) std::cout<<"error"<<std::endl;
+        break;
+    }
+    case PUTTY_RECORD:
+    {
+        record_count_max_ = req.distance;
+        record_count_ = 0;
+        std::stringstream filename;
+        std::time_t now = std::time(NULL);
+        std::tm *lt = std::localtime(&now);
+        filename <<"./lg/laser-" << lt->tm_mon << "-" << lt->tm_mday << "-" << lt->tm_hour << "-" << lt->tm_min << "-" << lt->tm_sec << ".txt";
+        outfile_.open(filename.str());
+        if(!outfile_) std::cout<<"error"<<std::endl;
+        break;
+    }
     
     default:
         break;
@@ -469,6 +483,11 @@ void ur_solu::task_handle(void)
     case PUTTY_ERROR:
     {
         error_handle();
+        break;
+    }
+    case PUTTY_RECORD:
+    {
+        task_record();
         break;
     }
     default:
