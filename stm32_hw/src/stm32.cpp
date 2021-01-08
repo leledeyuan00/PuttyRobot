@@ -65,7 +65,7 @@ int STM32::fetch_data(serial::Serial* ser)
             final_result[i] = result2.at(i);
         }
         /* find head of line */
-        size_t pos_of_head;
+        size_t pos_of_head = 0;
         for (size_t i = 0; i < len; i++)
         {
             if(final_result[i]==0xA5 && final_result[i+1] == 0x5A){
@@ -207,8 +207,8 @@ bool STM32::handle_set_des_position(ppr_msgs::setStmPosition::Request  &req,
     send_data[4] =  tempi & 0x00ff;
 
     send_data[5] = crc_cal(send_data,SEND_LENGTH-1);
-    stm_ser_.flushInput();
-    stm_ser_.flushOutput();
+    // stm_ser_.flushInput();
+    // stm_ser_.flushOutput();
     stm_ser_.write(send_data,SEND_LENGTH);
     ROS_INFO("send data is[%02x %02x %02x %02x %02x %02x]",send_data[0],send_data[1],send_data[2],send_data[3],send_data[4],send_data[5]);
     res.success = true;

@@ -79,6 +79,8 @@ void ur_solu::ros_init(void)
     joint_state_sub_ = nh_.subscribe("/gtrobot_arm/joint_states", 10, &ur_solu::JointStateCallback, this);
     #endif
 
+    stm32_sub_ = nh_.subscribe("/stm32_topic",10,&ur_solu::Stm32Callback,this);
+
     // pub
     #ifndef SIMULATE
     joint_pub_ = nh_.advertise<std_msgs::String>("ur_driver/URScript", 1);
@@ -123,12 +125,22 @@ void ur_solu::JointStateCallback(const sensor_msgs::JointStateConstPtr& msg)
     if (!ur_init_)
     {
         memcpy(joint_cmd_,joint_state_,sizeof(joint_state_));
+        memcpy(last_start_pos_,joint_state_,sizeof(joint_state_));
         ur_init_ = true;
     }
     
     // ROS_INFO("joint1: [%f], joint2: [%f], joint3: [%f], joint4: [%f], joint5: [%f], joint6:[%f]\r\n",joint_state_[0],joint_state_[1],joint_state_[2],joint_state_[3],joint_state_[4],joint_state_[5]);
     // lock.unlock();
 }
+
+void ur_solu::Stm32Callback(const ppr_msgs::encoderConstPtr& msg)
+{
+    stm_state_.angle = msg->angle;
+    stm_state_.error_code = msg->error_code;
+    stm_state_.force = msg->force;
+    stm_state_.status = msg->status;
+}
+
 
 // srv call back functions
 bool ur_solu::go_ready_pos(para_solu::go_ready_pos::Request &req, 
@@ -220,6 +232,7 @@ bool ur_solu::go_feed(para_solu::go_feed::Request &req,
     {
     case PUTTY_START:
     {
+        memcpy(last_start_pos_,joint_state_,sizeof(joint_state_));
         std::stringstream filename;
         std::time_t now = std::time(NULL);
         std::tm *lt = std::localtime(&now);
@@ -473,6 +486,11 @@ void ur_solu::task_handle(void)
     case PUTTY_DOWN:
     {
         task_down();
+        break;
+    }
+    case PUTTY_LAST_POS:
+    {
+        task_last_pos();
         break;
     }
     case PUTTY_FEED:

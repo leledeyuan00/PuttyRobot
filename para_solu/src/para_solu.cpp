@@ -81,7 +81,8 @@ void para::ros_init()
 void para::laser_callback1(const ppr_msgs::laser &msg)
 {
     para_motor_[0].laser = laser_filters_[0]->update_filter(msg.sensor1 / 1000.0);
-    para_motor_[1].laser = laser_filters_[1]->update_filter(msg.sensor2 / 1000.0);
+    // para_motor_[1].laser = laser_filters_[1]->update_filter(msg.sensor2 / 1000.0 - 0.0015);
+    para_motor_[1].laser = laser_filters_[1]->update_filter(msg.sensor2 / 1000.0 - 0.00);
     para_motor_[2].laser = laser_filters_[2]->update_filter(msg.sensor3 / 1000.0);
     laser_state_ = msg.state;
 
@@ -304,8 +305,12 @@ Eigen::Matrix4d para::forward(Eigen::Matrix4d last_T, Eigen::Matrix3d last_nv3, 
             ROS_ERROR("Para robot forward error, too many loops!");
             ROS_INFO("current length is [%f, %f, %f]",current_length(0),current_length(1),current_length(2));
             ROS_INFO("last length is [%f, %f, %f]",last_length(0),last_length(1),last_length(2));
-            ros::shutdown();
+            state_error_ = true;
+            // ros::shutdown();
             break;
+        }
+        else{
+            state_error_ = false;
         }
     }
     // ROS_INFO("Forward finish, loop count is:%d",loop_count);
@@ -656,6 +661,11 @@ uint16_t para::get_laser_state(void){
     return current_laser_state_;
 #endif
 }
+
+bool para::get_error_detect(void){
+    return state_error_;
+}
+
 
 // void para::run()
 // {

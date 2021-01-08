@@ -1,7 +1,7 @@
 #ifndef __PARA_H__
 #define __PARA_H__
 
-#define SIMULATE
+// #define SIMULATE
 //#define RDKINEMATIC
 #define TEST_FILTER
 
@@ -91,6 +91,7 @@ public:
     Eigen::Vector3d get_ppr_dist(void);
     uint16_t get_laser_state(void);
     Eigen::Vector3d get_laser_dist(void);
+    bool get_error_detect(void);
     #ifdef TEST_FILTER
     Eigen::Vector3d get_laser_raw(void);
     #endif
@@ -124,6 +125,8 @@ private:
     Eigen::Matrix3d top_fram_, base_fram_;
 
     std::vector<control_toolbox::Pid> pid_controllers_;
+
+    bool state_error_;
 
     #ifdef TEST_FILTER
     Eigen::Vector3d laser_sensors_raw_;

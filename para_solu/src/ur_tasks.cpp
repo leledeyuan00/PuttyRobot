@@ -8,10 +8,12 @@ bool ur_solu::task_error_detect(void)
 {
     if (laser_state_ != 0)
     {
+        ROS_ERROR("lasers state have some error!");
         return false;
     }
     if ( fabs( wall_distance_[CURRENT] + current_ur_pose_(0) - 0.581463) > 0.3) // ready pos x axis
     {
+        ROS_ERROR("ur maybe over motion in its Space!");
         return false;
     }
     if(wall_distance_[CURRENT] < 0.050)
@@ -19,6 +21,17 @@ bool ur_solu::task_error_detect(void)
         ROS_ERROR("It's too close to wall !!!");
         return false;
     }
+    if(stm_state_.error_code != 0)
+    {
+        ROS_ERROR("It's some error in STM32. Please check it!");
+        return false;
+    }
+    if (para_->get_error_detect())
+    {
+        ROS_ERROR("It's some error in Para robot!");
+        return false;
+    }
+    
     return true;
     
 }
@@ -106,7 +119,7 @@ void ur_solu::task_push(void)
 void ur_solu::task_start(void)
 {
     float wall_distance_d = 0.096;
-    float y_distance_d = 0.8; // actual sign error
+    float y_distance_d = 0.6; // actual sign error
 
     ros::Duration finish_duration(20);
     ros::Duration start_duration = ros::Time::now() - start_time_;
@@ -161,7 +174,6 @@ void ur_solu::task_start(void)
         // init = true;
     }
     // test a const beta;
-    start_task_beta_delta_ = -0.075;
     
     start_last_run_dist_ = current_run_dist;
 
@@ -173,6 +185,7 @@ void ur_solu::task_start(void)
     // EigenT2M6(V2EigenT(beta_deltav)) *
     // ROS_INFO("\r\n current_run_dist is %f \r\n wall_distance_e %f \r\n current_run_dist-last_run_dist %f\r\n start_task_beta_delta_ %f",current_run_dist,wall_distance_e,current_run_dist-start_last_run_dist_,start_task_beta_delta_);
     #ifdef TEST_RECORD_PPR_FORWARD
+    
     Vector6d target_pose_vel = (EigenT2M6(T_ur_forward_ * record_ppr_forward) * EigenT2M6(V2EigenT(beta_deltav)) * feed ) ;
     #else
     Vector6d target_pose_vel = (R_tool_forward_ * EigenT2M6(V2EigenT(beta_deltav)) * feed ) ;
@@ -201,7 +214,7 @@ void ur_solu::task_start(void)
 
     monitor_rqt_[7] = wall_distance_e;
 
-    outfile_ << start_duration.toSec() << " " << wall_distance_e << " " << start_task_beta_delta_ << std::endl;
+    outfile_ << start_duration.toSec() << " " << wall_distance_e << " " << start_task_beta_delta_ << stm_state_.force << std::endl;
 
     if (fabs(y_distance_d - current_run_dist) <= 1e-3) // 1mm
     {
@@ -329,6 +342,30 @@ void ur_solu::task_down(void)
     for (size_t i = 0; i < 6; i++)
     {
         joint_cmd_[i] = cmd_vel(i) + joint_state_[i];
+    }
+}
+
+void ur_solu::task_last_pos(void)
+{
+    ppr_msgs::setStmPosition stmsrv;
+    stmsrv.request.data = 0;
+    set_stm_des_pos_.call(stmsrv);
+
+    ros::Duration duration_time(10);
+
+    ros::Duration current_duration((ros::Time::now() - start_time_));
+    double finish_time = duration_time.toSec();
+    double time = current_duration.toSec();
+    if (current_duration <= duration_time)
+    {
+        for(size_t i =0; i<6; i++)
+        {
+            joint_cmd_[i] = (last_start_pos_[i] - start_pos_[i]) * (time/finish_time ) + start_pos_[i];
+        }
+    }
+    else{
+        ROS_INFO("Already go last start position");
+        putty_smc_ = PUTTY_INIT;
     }
 }
 

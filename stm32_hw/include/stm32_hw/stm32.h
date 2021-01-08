@@ -12,12 +12,12 @@
 
 #define RECEIVE_LENGTH  8
 #define SEND_LENGTH     6
-#define COM_K_MAX		10.0f
+#define COM_K_MAX		50.0f
 #define COM_D_MAX		1.0f
 #define COM_RES_MAX		32767.0f
 #define COM_RES_MAX_2	255.0f
 #define COM_ANGLE_MAX   180.0f
-#define COM_FORCE_MAX   2.0f
+#define COM_FORCE_MAX   3.0f
 
 class STM32
 {

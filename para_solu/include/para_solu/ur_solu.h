@@ -36,6 +36,7 @@
 #include "para_solu/kinematic.h"
 #include "para_solu/go_feed.h"
 #include "ppr_msgs/setStmPosition.h"
+#include "ppr_msgs/encoder.h"
 
 // #define UR5_PARAMS
 
@@ -49,6 +50,7 @@ typedef enum
     PUTTY_START,
     PUTTY_BACK,
     PUTTY_DOWN,
+    PUTTY_LAST_POS,
     PUTTY_ERROR,
     PUTTY_FEED,
     PUTTY_RECORD,
@@ -87,6 +89,7 @@ private:
     ros::Publisher joint_pub_;
     ros::Publisher monitor_rqt_pub_;
     ros::Subscriber joint_state_sub_;
+    ros::Subscriber stm32_sub_;
     ros::ServiceServer go_ready_srv_;
     ros::ServiceServer go_zero_srv_;
     ros::ServiceServer go_cart_srv_;
@@ -96,6 +99,7 @@ private:
     // states
     std::map<std::string, double> mapJoint_;
     double joint_state_[6];
+    ppr_msgs::encoder stm_state_;
     static const double ready_pos_[6];
     bool ur_init_;
     Vector6d current_ur_pose_;
@@ -121,6 +125,7 @@ private:
 
     //service variable
     double start_pos_[6];
+    double last_start_pos_[6];
     Eigen::Vector3d start_ppr_pos_;
     Vector6d start_cart_pos_;
     Vector6d start_tool_pos_;
@@ -167,6 +172,7 @@ private:
 
     // ros function
     void JointStateCallback(const sensor_msgs::JointStateConstPtr& msg); // topic echo
+    void Stm32Callback(const ppr_msgs::encoderConstPtr& msg); // topic echo
     bool go_ready_pos(para_solu::go_ready_pos::Request &req, para_solu::go_ready_pos::Response &res); //srv
     bool go_zero_pos(para_solu::go_zero_pos::Request &req, para_solu::go_zero_pos::Response &res); //srv
     bool go_cartisian(para_solu::go_cartisian::Request &req, para_solu::go_cartisian::Response &res); //srv
@@ -186,6 +192,7 @@ private:
     void task_back(void);
     void task_start(void);
     void task_down(void);
+    void task_last_pos(void);
     void task_record(void);
 
     void error_handle(void);
