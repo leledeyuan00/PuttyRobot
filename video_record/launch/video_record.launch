@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+        <arg name="color_width" value="1280"/>
+        <arg name="color_height" value="720"/>
+    </include>
+
+    <node name="video_record" pkg="video_record" type="video_record.py" output="screen"/>
+    
+
+</launch>
