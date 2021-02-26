@@ -1,9 +1,8 @@
 #ifndef __PARA_H__
 #define __PARA_H__
 
-// #define SIMULATE
+#define SIMULATE
 //#define RDKINEMATIC
-#define TEST_FILTER
 
 
 #include <iostream>
@@ -92,11 +91,12 @@ public:
     uint16_t get_laser_state(void);
     Eigen::Vector3d get_laser_dist(void);
     bool get_error_detect(void);
-    #ifdef TEST_FILTER
     Eigen::Vector3d get_laser_raw(void);
-    #endif
+    bool get_ppr_state(void);
     Eigen::Matrix<double,6,3> get_Jacobian(void); // unTransformmed Jacobian
     void control_loop(void);
+
+    void set_ppr_incline(PPR_INCLINE incline);
 
     // for redundant kinematics
     void ppr_update(void);
@@ -119,18 +119,21 @@ private:
     float current_wall_dist_;
     float current_ppr_dist_;
     uint16_t current_laser_state_;
-    static const std::vector<double> filter_coefficient_;
+
     std::vector<std::shared_ptr<LowPassFilter>> laser_filters_; 
 
     Eigen::Matrix3d top_fram_, base_fram_;
 
     std::vector<control_toolbox::Pid> pid_controllers_;
 
-    bool state_error_;
+    // control param
+    
+    PPR_INCLINE ppr_incline_;
 
-    #ifdef TEST_FILTER
+    bool state_error_;
+    bool ppr_init_;
+
     Eigen::Vector3d laser_sensors_raw_;
-    #endif
     
     /* function */
     void state_init(void);
@@ -150,7 +153,7 @@ private:
     Eigen::Matrix<double, 2, 3> get_rot_element(Eigen::Vector3d vec);
     Eigen::Vector3d get_wall_plat_vec(Eigen::Vector3d laser_dist);
     float max_error(Eigen::Vector3d vector);
-    Eigen::Matrix3d eul2Rotm(Eigen::Vector3d& euler_ZYX);
+    Eigen::Matrix3d eul2Rotm(Eigen::Vector3d euler_ZYX);
     Jacobian_info Jacobian(Eigen::Matrix3d rotm, Eigen::Vector3d length, Eigen::Matrix3d xyz);
 
     Eigen::Matrix4d forward(Eigen::Matrix4d last_T, Eigen::Matrix3d last_nv3, Eigen::Vector3d last_length, Eigen::Vector3d current_length);

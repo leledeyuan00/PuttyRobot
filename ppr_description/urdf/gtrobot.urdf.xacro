@@ -66,6 +66,31 @@
       <child link="link1"/>
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
     </joint>
+
+    <!-- ppr -->
+    <!-- fake joint -->
+    <!-- <link name="ppr_fake_link1"/>
+    <link name="ppr_fake_link2"/>
+    <link name="ppr_fake_link3"/>
+    
+    <joint name="motor1" type="prismatic">
+          <parent link="$(arg ur_prefix)wrist_3_link"/>
+          <child link="ppr_fake_link1"/>
+          <axis xyz="0 0 1"/>
+          <limit lower="0" upper="0.027" velocity="0.01" effort="1000.0"/>
+    </joint>
+    <joint name="motor2" type="prismatic">
+          <parent link="$(arg ur_prefix)wrist_3_link"/>
+          <child link="ppr_fake_link2"/>
+          <axis xyz="0 0 1"/>
+          <limit lower="0" upper="0.027" velocity="0.01" effort="1000.0"/>
+    </joint>
+    <joint name="motor3" type="prismatic">
+          <parent link="$(arg ur_prefix)wrist_3_link"/>
+          <child link="ppr_fake_link3"/>
+          <axis xyz="0 0 1"/>
+          <limit lower="0" upper="0.027" velocity="0.01" effort="1000.0"/>
+    </joint> -->
     
   </xacro:if>
 
@@ -123,6 +148,7 @@
     <xacro:rplidar prefix="lidar"/>
   </xacro:if>
 
+  
 
   
 

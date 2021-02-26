@@ -108,7 +108,7 @@ int STM32::fetch_data(serial::Serial* ser)
 
         encoder_data_.angle = recieve_data * COM_ANGLE_MAX /RES;
 
-        encoder_data_.force = - recieve_data2 * COM_FORCE_MAX / RES;
+        encoder_data_.force = recieve_data2 * COM_FORCE_MAX / RES;
         
         encoder_data_.error_code = error_code;
 

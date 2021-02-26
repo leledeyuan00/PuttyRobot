@@ -10,6 +10,7 @@ const double d_6 =  0.0823;
 namespace macmic_kinematic
 {
 
+
     Eigen::Matrix3d EigenT2EigenR(Eigen::Matrix4d T)
     {
         Eigen::Matrix3d R;

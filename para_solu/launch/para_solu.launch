@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+
+    <include file="$(find video_record)/launch/video_record.launch"/>
+    
+    <include file="$(find ppr_control)/launch/motor_control.launch"/>
+
+    <include file="$(find laser_sensor3)/launch/laser.launch"/>
+    
+    <include file="$(find stm32_hw)/launch/stm32.launch"/>
+    
+    <include file="$(find gt_driver_bringup)/launch/gt_driver_bringup_chassis_ur.launch"/>
+    
+    <node name="para_solu" pkg="para_solu" type="ur_solu_node" output="screen"/>
+    
+</launch>

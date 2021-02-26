@@ -1,5 +1,5 @@
 <launch>
-    <node pkg = "stm32_hw" name = "stm32_hw" type = "stm32_hw" output="screen">
+    <node pkg = "stm32_hw" name = "stm32_hw" type = "stm32_hw" output="log">
         <rosparam command="load" file="$(find stm32_hw)/config/port.yaml"/>
     </node>
 </launch>

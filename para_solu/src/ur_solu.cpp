@@ -6,7 +6,10 @@
 //right position
 // const double ur_solu::ready_pos_[6] = {3.1538477188384766, 0.012988474539133321, -1.9388980514208418, 0.3013533012388496, 1.5421069907327087, -0.7460776516580543+PI};
 // const double ur_solu::ready_pos_[6] = {3.1356465511484553, 0.017377816650038902, -1.9296997347895655, 0.28723617156258374, 1.5430918346293536, 2.4137534246624694};
+
 const double ur_solu::ready_pos_[6] = {2.9986374856312388, -0.07798873279574714, -1.7902944337701348, 0.280497818416781, 1.5671034304284603, 2.4992552297940165};
+
+const double ur_solu::camera_pos_[6] = {3.3340299129486084, -0.022988144551412404, -1.186763111745016, -0.3826225439654749, 1.557479977607727, 2.1372690200805664};
 
 // singularity position
 // const double ur_solu::ready_pos_[6] = { 1.2517773551034281, -0.8450580025012533,  -2.0178354557875986, 1.3312313417301347, 1.5946120510301638, 1.2499124779019208+ PI};
@@ -57,6 +60,9 @@ void ur_solu::state_init(void)
     }
     pid_time_.resize(2);
     pid_time_[1] = ros::Time::now();
+
+    // stm init
+    force_filter_.reset(new LowPassFilter(macmic_kinematic::filter_coefficient_));
     
     // some flags
     srv_start_ = false;
@@ -66,6 +72,8 @@ void ur_solu::state_init(void)
 
     // smc init
     putty_smc_ = PUTTY_INIT;
+    ppr_incline_ = PPR_STANDARD;
+    gb_force_ = GB_STANDARD;
 }
 
 /* ros */
@@ -79,7 +87,7 @@ void ur_solu::ros_init(void)
     joint_state_sub_ = nh_.subscribe("/gtrobot_arm/joint_states", 10, &ur_solu::JointStateCallback, this);
     #endif
 
-    stm32_sub_ = nh_.subscribe("/stm32_topic",10,&ur_solu::Stm32Callback,this);
+    stm32_sub_ = nh_.subscribe("/stm_topic",10,&ur_solu::Stm32Callback,this);
 
     // pub
     #ifndef SIMULATE
@@ -95,7 +103,11 @@ void ur_solu::ros_init(void)
     go_zero_srv_ = nh_.advertiseService("/gtrobot_arm/go_zero_pos", &ur_solu::go_zero_pos,this);
     go_cart_srv_ = nh_.advertiseService("/gtrobot_arm/go_cartisian", &ur_solu::go_cartisian,this);
     go_feed_srv_ = nh_.advertiseService("/gtrobot_arm/go_feed",&ur_solu::go_feed,this);
+    set_MLParam_srv_ = nh_.advertiseService("/ML_param_srv",&ur_solu::ML_param_handle,this);
+    set_im_efficient_srv_ = nh_.serviceClient<ppr_msgs::setStiffDamp>("/setStiffDamp");
     set_stm_des_pos_ = nh_.serviceClient<ppr_msgs::setStmPosition>("/setStmPosition");
+    start_video_record_srv_ = nh_.serviceClient<ppr_msgs::videoRecord>("/start_record_video");
+    stop_video_record_srv_ = nh_.serviceClient<std_srvs::Empty>("/stop_record_video");
 }
 
 // sub call back functions
@@ -128,16 +140,13 @@ void ur_solu::JointStateCallback(const sensor_msgs::JointStateConstPtr& msg)
         memcpy(last_start_pos_,joint_state_,sizeof(joint_state_));
         ur_init_ = true;
     }
-    
-    // ROS_INFO("joint1: [%f], joint2: [%f], joint3: [%f], joint4: [%f], joint5: [%f], joint6:[%f]\r\n",joint_state_[0],joint_state_[1],joint_state_[2],joint_state_[3],joint_state_[4],joint_state_[5]);
-    // lock.unlock();
 }
 
 void ur_solu::Stm32Callback(const ppr_msgs::encoderConstPtr& msg)
 {
     stm_state_.angle = msg->angle;
     stm_state_.error_code = msg->error_code;
-    stm_state_.force = msg->force;
+    stm_state_.force = force_filter_->update_filter(msg->force);
     stm_state_.status = msg->status;
 }
 
@@ -156,9 +165,7 @@ bool ur_solu::go_ready_pos(para_solu::go_ready_pos::Request &req,
     // start_pos_ = joint_state_;
     start_ppr_pos_ = ppr_distance_;
 
-    ppr_msgs::setStmPosition stmsrv;
-    stmsrv.request.data = 0;
-    set_stm_des_pos_.call(stmsrv);
+    set_stm_pos(0);
 
     res.success = true;
     return true;
@@ -203,6 +210,17 @@ bool ur_solu::go_cartisian(para_solu::go_cartisian::Request &req,
     return true;
 }
 
+bool ur_solu::ML_param_handle(ppr_msgs::setMLParam::Request  &req, 
+                           ppr_msgs::setMLParam::Response &res)
+{
+    gb_force_ = (GB_FORCE)req.gb_force;
+    ppr_incline_ = (PPR_INCLINE)req.ppr_incline;
+    
+    set_ML_para();
+    return true;
+}
+
+
 bool ur_solu::go_feed(para_solu::go_feed::Request &req, 
                       para_solu::go_feed::Response &res)
 {
@@ -230,13 +248,58 @@ bool ur_solu::go_feed(para_solu::go_feed::Request &req,
     // record states for variable smc
     switch (putty_smc_)
     {
+    case PUTTY_INIT:
+    {
+        stop_video_record();
+        camera_stated_ = false;
+        break;
+    }
+    case PUTTY_PUSH:
+    {
+        camera_stated_ = true;
+        break;
+    }
     case PUTTY_START:
     {
         memcpy(last_start_pos_,joint_state_,sizeof(joint_state_));
         std::stringstream filename;
         std::time_t now = std::time(NULL);
         std::tm *lt = std::localtime(&now);
-        filename <<"./lg/" << lt->tm_mon << "-" << lt->tm_mday << "-" << lt->tm_hour << "-" << lt->tm_min << "-" << lt->tm_sec << ".txt";
+        char* home_dir = getenv("HOME");
+        filename << home_dir <<"/lg/start/" << lt->tm_mon +1 << "-" << lt->tm_mday << "-" << lt->tm_hour << "-" << lt->tm_min << "-" << lt->tm_sec << ".txt";
+        outfile_.open(filename.str());
+        if(!outfile_) std::cout<<"error"<<std::endl;
+
+
+        // read beta
+        std::ifstream read_start_beta;
+        std::stringstream read_filename;
+        double read_beta;
+        read_filename << home_dir <<"/lg/calibrate/" << "start_beta" << ".txt";
+        read_start_beta.open(read_filename.str(),std::ios::in);
+        if(!read_start_beta) std::cout<<"error"<<std::endl;
+        read_start_beta >> read_beta;
+
+        task_record_beta_ = read_beta;
+
+        for (size_t i = 0; i < 4; i++)
+        {
+            read_start_beta >> task_record_ppr_forward_(i,0)>> task_record_ppr_forward_(i,1)>> task_record_ppr_forward_(i,2)>> task_record_ppr_forward_(i,3);
+        }
+        std::cout << "start beta is " << task_record_beta_ << std::endl;
+
+        start_wall_distance_ = 0;
+        start_force_ = stm_state_.force;
+        break;
+    }
+    case PUTTY_CALIBRATE:
+    {
+        memcpy(last_start_pos_,joint_state_,sizeof(joint_state_));
+        std::stringstream filename;
+        std::time_t now = std::time(NULL);
+        std::tm *lt = std::localtime(&now);
+        char* home_dir = getenv("HOME");
+        filename << home_dir <<"/lg/calibrate/" << lt->tm_mon +1 << "-" << lt->tm_mday << "-" << lt->tm_hour << "-" << lt->tm_min << "-" << lt->tm_sec << ".txt";
         outfile_.open(filename.str());
         if(!outfile_) std::cout<<"error"<<std::endl;
         break;
@@ -248,11 +311,13 @@ bool ur_solu::go_feed(para_solu::go_feed::Request &req,
         std::stringstream filename;
         std::time_t now = std::time(NULL);
         std::tm *lt = std::localtime(&now);
-        filename <<"./lg/laser-" << lt->tm_mon << "-" << lt->tm_mday << "-" << lt->tm_hour << "-" << lt->tm_min << "-" << lt->tm_sec << ".txt";
+        char* home_dir = getenv("HOME");
+        filename << home_dir <<"/lg/laser-" << lt->tm_mon +1 << "-" << lt->tm_mday << "-" << lt->tm_hour << "-" << lt->tm_min << "-" << lt->tm_sec << ".txt";
         outfile_.open(filename.str());
         if(!outfile_) std::cout<<"error"<<std::endl;
         break;
     }
+
     
     default:
         break;
@@ -334,6 +399,79 @@ bool ur_solu::srv_handle(void)
     putty_smc_ = PUTTY_INIT;
 }
 
+void ur_solu::start_video_record(void)
+{
+    ppr_msgs::videoRecord vr;
+    std::stringstream filename;
+    std::time_t now = std::time(NULL);
+    std::tm *lt = std::localtime(&now);
+    filename << lt->tm_mon + 1 << "-" << lt->tm_mday << "-" << lt->tm_hour << "-" << lt->tm_min << "-" << lt->tm_sec;
+    vr.request.file_name = filename.str();
+
+    std::stringstream param;
+    switch (ppr_incline_)
+    {
+    case PPR_STANDARD:{
+        param << "ppr_standard" << std::endl;
+        break;
+    }
+    case PPR_UPPER:{
+        param << "ppr_upper" << std::endl;
+        break;
+    }
+    case PPR_LOWER:{
+        param << "ppr_lower" << std::endl;
+        break;
+    }
+    default:
+        break;
+    }
+    switch (gb_force_)
+    {
+    case GB_STANDARD:{
+        param << "gb_standard" << std::endl;
+        break;
+    }
+    case GB_HARDER:{
+        param << "gb_harder" << std::endl;
+        break;
+    }
+    case GB_SOFTER:{
+        param << "gb_softer" << std::endl;
+        break;
+    }
+    default:
+        break;
+    }
+    vr.request.parameter = param.str();
+    if (start_video_record_srv_.isValid())
+    {
+        start_video_record_srv_.call(vr);
+        ROS_INFO("Start a new video record");
+    }
+    else{
+        ROS_ERROR("There is a error in video record node. Please check it!");
+    }
+    // Start data record meantime
+    if (outfile_)
+    {
+        outfile_.close();
+    }
+    // new outfile
+    std::stringstream data_record_filename;
+    char* home_dir = getenv("HOME");
+    data_record_filename << home_dir <<"/lg/start/" << filename.str() << ".txt";
+    outfile_.open(data_record_filename.str());
+    if(!outfile_) std::cout<<"error"<<std::endl;
+}
+
+void ur_solu::stop_video_record(void)
+{
+    std_srvs::Empty empty;
+    stop_video_record_srv_.call(empty);
+    ROS_INFO("Stop the video record");
+}
+
 // publish function
 void ur_solu::pub_msg(void)
 {
@@ -347,12 +485,6 @@ void ur_solu::pub_msg(void)
                     << "a=" << ace << ",v=" << vel << ", t=" << urt << ")";
     msg.data = ss.str();
 
-    // printf("ur joint cmd is [");
-    // for(size_t i = 0; i<6 ; i++)
-    // {
-    //     printf("%f, ",joint_cmd_[i]);
-    // }
-    // printf("]\r\n");
     joint_pub_.publish(msg);
 
     #else
@@ -389,30 +521,32 @@ void ur_solu::state_update(void)
     temp = current_ur_pose_(3);
     current_ur_pose_(3) = -current_ur_pose_(4);
     current_ur_pose_(4) = temp;
-    // std::cout << "ur pose \r\n" << current_ur_pose_ << std::endl;
 
     /* quaternion */
     Eigen::Vector4d ur_quaternion = EigenT2Qua(T_ur_forward_);
-    // std::cout << "ur quaternion is \r\n" << ur_quaternion << std::endl;
 
 
     // parse ppr state second
-    ppr_distance_  = para_->get_ppr_dist();
-
-    // std::cout << "ppr_distance_\r\n "<< ppr_distance_ << std::endl; 
-
-    wall_distance_[LAST]    = wall_distance_[CURRENT];
-    wall_distance_[CURRENT] = para_->get_wall_dist();
     laser_state_   = para_->get_laser_state();
-    ppr_rotation_  = para_->get_ppr_r();
+
+    if (laser_state_ != 0){
+        // something wrong, and wrong count ++, if laser has some error, there cannot be run this porg anyway
+        laser_error_count_++;
+    }else{
+        // state right
+        ppr_distance_  = para_->get_ppr_dist();
+        wall_distance_[LAST]    = wall_distance_[CURRENT];
+        wall_distance_[CURRENT] = para_->get_wall_dist();
+        ppr_rotation_  = para_->get_ppr_r();
+           
+        laser_error_count_ = 0; // reset error count; 
+    }
 
     
     Eigen::Vector3d ppr_v;
     ppr_v << 0,0,ppr_distance_.sum()/3;
-    // ppr_v << 0,0,1;
     T_ppr_forward_ << ppr_rotation_ , ppr_v , 0,0,0,1;
-    // std::cout << "PPR pose \r\n" <<  EigenT2Pos(T_ur_forward_* KDLR2EigenT(KDL::Rotation::EulerZYX(PI/2,0,PI/2)) * T_ppr_forward_) << std::endl;
-    // std::cout << "PPR pose \r\n" <<  EigenT2Pos(T_ur_forward_* T_ppr_forward_) << std::endl;
+
 
     T_tool_forward_ = T_ur_forward_ *  T_ppr_forward_;
 
@@ -422,7 +556,6 @@ void ur_solu::state_update(void)
     temp = current_tool_pose_(3);
     current_tool_pose_(3) = -current_tool_pose_(4);
     current_tool_pose_(4) = temp;
-    // std::cout << "tool pose \r\n" << current_tool_pose_ << std::endl;
 
     R_tool_forward_ = EigenT2M6(T_tool_forward_);
 
@@ -444,10 +577,6 @@ void ur_solu::state_update(void)
     {
         monitor_rqt_[i+3] = tool_quaternion(i);
     }
-    
-    
-    
-    // std::cout << "wall distance is " << wall_distance_ << std::endl;    
 }
 
 
@@ -508,8 +637,20 @@ void ur_solu::task_handle(void)
         task_record();
         break;
     }
-    default:
+    case PUTTY_CALIBRATE:
+    {
+        task_calibrate();
         break;
+    }
+    case PUTTY_CAMERA:
+    {
+        task_camera();
+        break;
+    }
+    default:{
+        task_init();
+        break;
+    }
     }
     
 }
@@ -556,6 +697,67 @@ Vector6d ur_solu::comPPr(Vector6d tool_pose, Vector6d ur_pose)
     v[4] = tool_pose[4] - ur_pose[4];
     v[5] = tool_pose[5] - ur_pose[5];
     return v;
+}
+
+bool ur_solu::set_stm_pos(double pos)
+{
+    ppr_msgs::setStmPosition stmsrv;
+    stmsrv.request.data = pos;
+    if (set_stm_des_pos_.isValid())
+    {
+        set_stm_des_pos_.call(stmsrv);
+        ROS_INFO("Set stm pos is successed");
+        return true;
+    }else{
+        ROS_ERROR("STM node has some error. Please check it!");
+        return false;
+    }     
+}
+
+bool ur_solu::set_stm_im(double k,double d)
+{
+    ppr_msgs::setStiffDamp stiffdamp;
+    stiffdamp.request.k_im = k;
+    stiffdamp.request.d_im = d;
+    set_im_efficient_srv_.call(stiffdamp);
+
+    if (stiffdamp.response.success == true)
+    {
+        ROS_INFO("Set robot process parameter is successed");
+        return true;
+    }else{
+        return false;
+    }
+}
+
+bool ur_solu::set_ML_para(void)
+{
+    switch (gb_force_)
+    {
+    case GB_STANDARD:
+    {
+        set_stm_im(20,0.1);
+        break;
+    }
+    case GB_SOFTER:
+    {
+        set_stm_im(5,0.2); // lower force need higher damping 
+        break;
+    }
+    case GB_HARDER:
+    {
+        set_stm_im(50,0.1);
+        break;
+    }
+    default:
+    {
+        set_stm_im(20,0.1);
+        break;
+    }
+    }
+    
+    para_->set_ppr_incline(ppr_incline_);
+    start_video_record();
 }
 
 
@@ -611,7 +813,11 @@ void ur_solu::control_loop(void)
         {
             // update state
         #ifndef RDKINEMATIC
-            para_->control_loop();
+            if (putty_smc_ != PUTTY_INIT && putty_smc_ != PUTTY_ERROR && putty_smc_ != PUTTY_CAMERA){
+                para_->control_loop();
+            }else{
+                para_->ppr_update(); // Stopping ppr to apply putty on the wall
+            }
         #else
             para_->ppr_update();
         #endif

@@ -37,6 +37,10 @@
 #include "para_solu/go_feed.h"
 #include "ppr_msgs/setStmPosition.h"
 #include "ppr_msgs/encoder.h"
+#include "ppr_msgs/setStiffDamp.h"
+#include "ppr_msgs/setMLParam.h"
+#include "ppr_msgs/videoRecord.h"
+#include "std_srvs/Empty.h"
 
 // #define UR5_PARAMS
 
@@ -51,6 +55,8 @@ typedef enum
     PUTTY_BACK,
     PUTTY_DOWN,
     PUTTY_LAST_POS,
+    PUTTY_CALIBRATE,
+    PUTTY_CAMERA,
     PUTTY_ERROR,
     PUTTY_FEED,
     PUTTY_RECORD,
@@ -94,13 +100,18 @@ private:
     ros::ServiceServer go_zero_srv_;
     ros::ServiceServer go_cart_srv_;
     ros::ServiceServer go_feed_srv_;
+    ros::ServiceServer set_MLParam_srv_;
+    ros::ServiceClient set_im_efficient_srv_;
     ros::ServiceClient set_stm_des_pos_;    
+    ros::ServiceClient start_video_record_srv_;
+    ros::ServiceClient stop_video_record_srv_;
 
     // states
     std::map<std::string, double> mapJoint_;
     double joint_state_[6];
     ppr_msgs::encoder stm_state_;
     static const double ready_pos_[6];
+    static const double camera_pos_[6];
     bool ur_init_;
     Vector6d current_ur_pose_;
     Vector6d current_tool_pose_;
@@ -108,6 +119,7 @@ private:
     Eigen::Vector3d ppr_distance_;
     float wall_distance_[ALL_STATE];
     uint16_t laser_state_;
+    size_t laser_error_count_;
     Eigen::Matrix3d ppr_rotation_;
     Eigen::Matrix4d T_ppr_forward_;
     Eigen::Matrix4d T_tool_forward_;
@@ -115,6 +127,8 @@ private:
     Eigen::Matrix<double,6,6> R_tool_forward_;
     double start_task_beta_delta_;
     double start_last_run_dist_;
+
+    std::shared_ptr<LowPassFilter> force_filter_; 
      
 
     PUTTY_TASK_SMC putty_smc_;
@@ -141,9 +155,21 @@ private:
     Eigen::Vector3d feed_d_cmd_;
     float feed_distance_;
 
+    /* task start need variable */
+    Eigen::Matrix4d task_record_ppr_forward_;
+    double task_record_beta_;
+
     size_t record_count_;
     size_t record_count_max_;
 
+    PPR_INCLINE ppr_incline_;
+    GB_FORCE gb_force_;
+
+    // task need
+    double start_force_;
+    double start_wall_distance_;
+
+    bool camera_stated_;
     // cmd variable
     double joint_cmd_[6];
     Eigen::Vector3d ppr_cmd_;
@@ -177,6 +203,14 @@ private:
     bool go_zero_pos(para_solu::go_zero_pos::Request &req, para_solu::go_zero_pos::Response &res); //srv
     bool go_cartisian(para_solu::go_cartisian::Request &req, para_solu::go_cartisian::Response &res); //srv
     bool go_feed(para_solu::go_feed::Request &req, para_solu::go_feed::Response &res); //srv
+    bool ML_param_handle(ppr_msgs::setMLParam::Request &req, ppr_msgs::setMLParam::Response &res); //srv
+
+    bool set_stm_pos(double pos);
+    bool set_stm_im(double k,double d);
+    bool set_ML_para(void);
+
+    void start_video_record(void);
+    void stop_video_record(void);
 
     void pub_msg(void); // tipic pub
     bool srv_handle(void);
@@ -194,6 +228,8 @@ private:
     void task_down(void);
     void task_last_pos(void);
     void task_record(void);
+    void task_calibrate(void);
+    void task_camera(void);
 
     void error_handle(void);
 

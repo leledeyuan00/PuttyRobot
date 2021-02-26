@@ -1,6 +1,5 @@
 #include "para_solu/para_solu.h"
 
-const std::vector<double> para::filter_coefficient_ = {0.0015,0.0075,0.0217,0.0467,0.0809,0.1175,0.1459,0.1567,0.1459,0.1175,0.0809,0.0467,0.0217,0.0075,0.0015};
 
 para::para(ros::NodeHandle &nh):nh_(nh),laser_state_(0),current_laser_state_(0)
 {
@@ -25,9 +24,10 @@ void para::state_init(void)
     laser_filters_.resize(3);
     for (size_t i = 0; i < laser_filters_.size(); i++)
     {
-        laser_filters_[i].reset(new LowPassFilter(filter_coefficient_));
+        laser_filters_[i].reset(new LowPassFilter(macmic_kinematic::filter_coefficient_));
     }
-    
+    ppr_init_ = false;
+    ppr_incline_ = PPR_STANDARD;
 }
 
 void para::ros_init()
@@ -80,17 +80,21 @@ void para::ros_init()
 #ifndef SIMULATE
 void para::laser_callback1(const ppr_msgs::laser &msg)
 {
+    static size_t init_callback_count_ = 0;
+    ppr_init_ = init_callback_count_ >= macmic_kinematic::filter_coefficient_.size() ? true :false;
+    if (ppr_init_!=true){
+        init_callback_count_++;
+    }
+    
     para_motor_[0].laser = laser_filters_[0]->update_filter(msg.sensor1 / 1000.0);
-    // para_motor_[1].laser = laser_filters_[1]->update_filter(msg.sensor2 / 1000.0 - 0.0015);
-    para_motor_[1].laser = laser_filters_[1]->update_filter(msg.sensor2 / 1000.0 - 0.00);
+    para_motor_[1].laser = laser_filters_[1]->update_filter(msg.sensor2 / 1000.0 - 0.002);
+    // para_motor_[1].laser = laser_filters_[1]->update_filter(msg.sensor2 / 1000.0 - 0.0000);
     para_motor_[2].laser = laser_filters_[2]->update_filter(msg.sensor3 / 1000.0);
     laser_state_ = msg.state;
 
-    #ifdef TEST_FILTER
     laser_sensors_raw_(0) = msg.sensor1 / 1000.0;
     laser_sensors_raw_(1) = msg.sensor2 / 1000.0;
     laser_sensors_raw_(2) = msg.sensor3 / 1000.0;
-    #endif
 }
 #else
 void para::laser_callback1(const sensor_msgs::LaserScan &msg)
@@ -102,9 +106,8 @@ void para::laser_callback1(const sensor_msgs::LaserScan &msg)
     else{
         current_laser_state_ |= (uint16_t)1<<0; 
     }
-    #ifdef TEST_FILTER
     laser_sensors_raw_(0) = msg.ranges[0];
-    #endif
+    ppr_init_ = true;
 }
 void para::laser_callback2(const sensor_msgs::LaserScan &msg)
 {
@@ -115,9 +118,7 @@ void para::laser_callback2(const sensor_msgs::LaserScan &msg)
     else{
         current_laser_state_ |= (uint16_t)1<<1; 
     }
-    #ifdef TEST_FILTER
     laser_sensors_raw_(1) = msg.ranges[0];
-    #endif
 }
 void para::laser_callback3(const sensor_msgs::LaserScan &msg)
 {
@@ -128,9 +129,7 @@ void para::laser_callback3(const sensor_msgs::LaserScan &msg)
     else{
         current_laser_state_ |= (uint16_t)1<<2; 
     }
-    #ifdef TEST_FILTER
     laser_sensors_raw_(1) = msg.ranges[0];
-    #endif
 }
 #endif
 void para::pub_msgs(void)
@@ -361,7 +360,7 @@ Eigen::Matrix4d para::makeTrans(Eigen::Matrix3d R, Eigen::Vector3d V)
     return T;
 }
 
-Eigen::Matrix3d para::eul2Rotm(Eigen::Vector3d& euler_ZYX)
+Eigen::Matrix3d para::eul2Rotm(Eigen::Vector3d euler_ZYX)
 {
     //将欧拉角转变为旋转矩阵
     Eigen::Matrix3d rotm;
@@ -496,6 +495,9 @@ float para::max_error(Eigen::Vector3d vector)
     return max_temp - min_temp;    
 }
 
+/**
+ * @breif: Update State and Control PPR
+*/
 void para::control_loop(void)
 {
     #ifndef SIMULATE
@@ -523,6 +525,27 @@ void para::control_loop(void)
         wall_eular = rotm2Eul(rot_matrix.col(2));
         wall_eular(2) = 0; // gamma is a passive joint
 
+        // change incline
+        Eigen::Vector3d incline_eular = wall_eular;
+        switch(ppr_incline_)
+        {
+        case PPR_STANDARD:{
+            // incline_eular = wall_eular;
+            break;
+        }
+        case PPR_UPPER:{
+            incline_eular(0) = wall_eular(0) + 0.017453292519943295/2;
+            break;
+        }
+        case PPR_LOWER:{
+            incline_eular(0)= wall_eular(0) - 0.017453292519943295/2;
+            break;
+        }
+        default:{
+            // incline_eular = wall_eular;
+            break;
+        }}
+
         curr_time = ros::Time::now();
         control_duration = curr_time - last_time;
 
@@ -530,7 +553,7 @@ void para::control_loop(void)
         // PID
         for (size_t i = 0; i < 3; i++)
         {
-            if (fabs(wall_eular(i)) >= eular_threash_hold)
+            if (fabs(incline_eular(i)) >= eular_threash_hold)
             {
                 pid_controllers_[i].setGains(0.02,0,0.001,0,0);
             }
@@ -538,7 +561,7 @@ void para::control_loop(void)
             {
                 pid_controllers_[i].setGains(0.0005,0.1,0,0,0);
             }
-            pid_error(i) = pid_controllers_[i].computeCommand(wall_eular(i),control_duration);
+            pid_error(i) = pid_controllers_[i].computeCommand(incline_eular(i),control_duration);
         }
 
         rot_matrix_temp = eul2Rotm(pid_error);
@@ -581,10 +604,10 @@ void para::control_loop(void)
 }
 
 /* public function */
-/*
- * 1. Update ppr motor length 
- * 2. ppr forward kinematics, update rotation matrix
- * 3. Calculate current Jaociban matrix, update current rotation matrix
+/**
+ * @breif: 1. Update ppr motor length 
+ *         2. ppr forward kinematics, update rotation matrix
+ *         3. Calculate current Jaociban matrix, update current rotation matrix
 */
 void para::ppr_update(void)
 {
@@ -648,11 +671,9 @@ Eigen::Vector3d para::get_laser_dist(void){
     return para_.laser_dist;
 }
 
-#ifdef TEST_FILTER
 Eigen::Vector3d para::get_laser_raw(void){
     return laser_sensors_raw_;
 }
-#endif
 
 uint16_t para::get_laser_state(void){
 #ifndef SIMULATE
@@ -666,6 +687,13 @@ bool para::get_error_detect(void){
     return state_error_;
 }
 
+bool para::get_ppr_state(void){
+    return ppr_init_;
+}
+
+void para::set_ppr_incline(PPR_INCLINE incline){
+    ppr_incline_ = incline;
+}
 
 // void para::run()
 // {

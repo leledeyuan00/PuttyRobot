@@ -18,6 +18,18 @@ namespace macmic_kinematic
 
     typedef Eigen::Matrix<double,6,1> Vector6d;
     typedef Eigen::Matrix<double,9,1> Vector9d;
+
+    typedef enum{
+        PPR_UPPER = 0,
+        PPR_STANDARD,
+        PPR_LOWER,
+    }PPR_INCLINE;
+
+    typedef enum{
+        GB_SOFTER = 0,
+        GB_STANDARD,
+        GB_HARDER,
+    }GB_FORCE;
     
     Eigen::Matrix3d EigenT2EigenR(Eigen::Matrix4d T);
 
@@ -51,6 +63,9 @@ namespace macmic_kinematic
 
     Eigen::Matrix4d V2EigenT(Vector6d V);
     
+    // static const std::vector<double> filter_coefficient_;
+    const std::vector<double> filter_coefficient_ = {0.0015,0.0075,0.0217,0.0467,0.0809,0.1175,0.1459,0.1567,0.1459,0.1175,0.0809,0.0467,0.0217,0.0075,0.0015};
+
 
     template<class T>
     constexpr const T& clamp( const T& v, const T& lo, const T& hi )

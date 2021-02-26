@@ -71,6 +71,7 @@ double Laser_talker::fetch_data(serial::Serial* ser)
         int len = result.data.length();    
         unsigned char final_result[len];   
             
+        std::cout << "fetch data is ";
         for(int i = 0; i<len; i++)        
         {                                  
             if(result.data[i]<0)
@@ -81,7 +82,9 @@ double Laser_talker::fetch_data(serial::Serial* ser)
             {
                 final_result[i] = result.data[i];
             }
+            std::cout << "," << std::hex << (unsigned int)final_result[i] ;
         }
+        std::cout << std::endl;
 
         unsigned int dist_hex;
         double dist_dec;
@@ -104,6 +107,7 @@ double Laser_talker::fetch_data(serial::Serial* ser)
         }        
         return dist_dec;
     }
+    ser->flush();
 }
 
 void Laser_talker::run()
