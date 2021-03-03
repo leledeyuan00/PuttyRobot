@@ -1,0 +1,5 @@
+<launch>
+    <node pkg = "liftplatform" name = "liftplatform" type = "liftplatform" output="screen">
+        <rosparam command="load" file="$(find liftplatform)/config/port.yaml"/>
+    </node>
+</launch>
