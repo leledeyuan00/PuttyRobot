@@ -133,7 +133,7 @@ void ur_solu::task_start(void)
     }
     
     double wall_distance_e = wall_distance_[CURRENT] - wall_distance_d;
-    double comp_wall_distance = -(stm_state_.force - start_force_ ) * 0.001;
+    double comp_wall_distance = (stm_state_.force - start_force_ ) * 0.001;
     
     double current_run_dist = sqrt(pow((current_tool_pose_(0)-start_tool_pos_(0)),2) + pow((current_tool_pose_(1) - start_tool_pos_(1)),2) );
     // static double wall_tan_gamma[ALL_STATE];

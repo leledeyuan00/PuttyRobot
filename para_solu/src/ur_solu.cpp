@@ -217,6 +217,11 @@ bool ur_solu::ML_param_handle(ppr_msgs::setMLParam::Request  &req,
     ppr_incline_ = (PPR_INCLINE)req.ppr_incline;
     
     set_ML_para();
+    
+/*start video record*/
+
+    start_video_record();
+
     return true;
 }
 
@@ -757,7 +762,7 @@ bool ur_solu::set_ML_para(void)
     }
     
     para_->set_ppr_incline(ppr_incline_);
-    start_video_record();
+    // start_video_record();
 }
 
 

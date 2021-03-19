@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
 
-    <!-- <include file="$(find video_record)/launch/video_record.launch"/> -->
+    <include file="$(find video_record)/launch/video_record.launch"/>
     
     <include file="$(find ppr_control)/launch/motor_control.launch"/>
 

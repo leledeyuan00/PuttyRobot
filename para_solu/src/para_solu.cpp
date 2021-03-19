@@ -533,10 +533,10 @@ void para::control_loop(void)
             // incline_eular = wall_eular;
             break;
         }
-        case PPR_UPPER:{
-            incline_eular(0) = wall_eular(0) + 0.017453292519943295/2;
-            break;
-        }
+        // case PPR_UPPER:{
+        //     incline_eular(0) = wall_eular(0) + 0.017453292519943295/2;
+        //     break;
+        // }
         case PPR_LOWER:{
             incline_eular(0)= wall_eular(0) - 0.017453292519943295/2;
             break;

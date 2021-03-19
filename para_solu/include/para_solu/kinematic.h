@@ -20,9 +20,9 @@ namespace macmic_kinematic
     typedef Eigen::Matrix<double,9,1> Vector9d;
 
     typedef enum{
-        PPR_UPPER = 0,
+        PPR_LOWER= 0,
         PPR_STANDARD,
-        PPR_LOWER,
+        PPR_UPPER ,
     }PPR_INCLINE;
 
     typedef enum{
